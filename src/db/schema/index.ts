@@ -4,6 +4,7 @@ export {
   productCategories,
   products,
   type LocaleTranslation,
+  type PerformanceSpecifications,
   type TranslationsJson,
 } from "@/db/schema/catalog";
 export { stockMovements } from "@/db/schema/inventory";
@@ -56,6 +57,10 @@ export {
   auditLogs,
   outboxEvents,
 } from "@/db/schema/system";
+export {
+  productVariants,
+  type IncludedComponent,
+} from "@/db/schema/variants";
 export {
   CANONICAL_TABLE_COUNT,
   CANONICAL_TABLES,

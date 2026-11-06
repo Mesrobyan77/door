@@ -5,11 +5,15 @@ import {
   getAdminOrderByNumber,
   type AdminOrderDetail,
 } from "@/features/orders/application/queries";
+import { formatOrderItemConfiguration } from "@/features/orders/domain/format-order-item-configuration";
+import type { Locale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/get-dictionary";
 
 export type AdminOrderDetailItemView = {
   id: string;
   title: string;
   sku: string;
+  configuration: string;
   imageUrl: string | null;
   quantity: number;
   unitPriceAmount: number;
@@ -74,8 +78,10 @@ function paymentMethodLabel(method: string): string {
 export function toAdminOrderDetailView(
   detail: AdminOrderDetail,
   storeName: string,
+  locale: Locale,
 ): AdminOrderDetailView {
   const { order, items, payments } = detail;
+  const variantLabels = getDictionary(locale).product.variant;
   const isPickup = order.deliveryLabelSnapshot === "Store pickup";
   const latestPayment = payments[0] ?? null;
 
@@ -110,6 +116,11 @@ export function toAdminOrderDetailView(
       id: item.id,
       title: item.productTitleSnapshot,
       sku: item.productSkuSnapshot,
+      configuration: formatOrderItemConfiguration(
+        item.productSkuSnapshot,
+        item.variantSnapshot,
+        variantLabels,
+      ),
       imageUrl: item.productImageKeySnapshot,
       quantity: item.quantity,
       unitPriceAmount: item.unitBaseAmount,
@@ -122,6 +133,7 @@ export function toAdminOrderDetailView(
 /** Loads order detail shaped for the admin drawer. */
 export async function getAdminOrderDetailView(
   orderNumber: string,
+  locale: Locale,
 ): Promise<AdminOrderDetailView | null> {
   const detail = await getAdminOrderByNumber(orderNumber);
   if (!detail) {
@@ -129,5 +141,5 @@ export async function getAdminOrderDetailView(
   }
 
   const identity = await getStoreIdentity();
-  return toAdminOrderDetailView(detail, identity.name);
+  return toAdminOrderDetailView(detail, identity.name, locale);
 }

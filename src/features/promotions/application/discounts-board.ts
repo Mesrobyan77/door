@@ -3,7 +3,12 @@ import "server-only";
 import { and, asc, desc, eq, isNotNull, isNull } from "drizzle-orm";
 
 import { getDb } from "@/db/client";
-import { mediaAssets, products, promotions } from "@/db/schema";
+import {
+  mediaAssets,
+  productVariants,
+  products,
+  promotions,
+} from "@/db/schema";
 import { listAdminCategories } from "@/features/categories/application/list-admin-categories";
 import { getStoreGlobalDiscount } from "@/features/settings/application/queries";
 import type { Locale } from "@/lib/i18n/config";
@@ -20,8 +25,8 @@ export type DiscountBoardProduct = {
   id: string;
   title: string;
   slug: string;
-  sku: string;
-  priceAmount: number;
+  sku: string | null;
+  priceAmount: number | null;
   imageUrl: string | null;
   discountPercent: number | null;
   promotionId: string | null;
@@ -44,20 +49,18 @@ type AutomaticTargetPromo = {
 export async function getAdminDiscountsBoard(
   locale: Locale,
 ): Promise<AdminDiscountsBoard> {
-  const [globalDiscount, categoryRows, productRows, promoRows, imageRows] =
+  const [globalDiscount, categoryRows, productRows, promoRows, imageRows, variantRows] =
     await Promise.all([
       getStoreGlobalDiscount(),
       listAdminCategories(locale),
       getDb()
         .select({
           id: products.id,
-          sku: products.sku,
-          priceAmount: products.priceAmount,
           translations: products.translations,
         })
         .from(products)
         .where(isNull(products.deletedAt))
-        .orderBy(asc(products.sku))
+        .orderBy(asc(products.id))
         .limit(300),
       getDb()
         .select({
@@ -88,6 +91,16 @@ export async function getAdminDiscountsBoard(
             eq(mediaAssets.isPrimary, true),
           ),
         ),
+      getDb()
+        .select({
+          id: productVariants.id,
+          productId: productVariants.productId,
+          sku: productVariants.sku,
+          priceAmount: productVariants.priceAmount,
+        })
+        .from(productVariants)
+        .where(eq(productVariants.status, "ACTIVE"))
+        .orderBy(asc(productVariants.priceAmount)),
     ]);
 
   const byProduct = new Map<string, AutomaticTargetPromo>();
@@ -105,6 +118,17 @@ export async function getAdminDiscountsBoard(
   for (const row of imageRows) {
     if (!row.productId || !row.secureUrl || images.has(row.productId)) continue;
     images.set(row.productId, row.secureUrl);
+  }
+
+  const variantsByProduct = new Map<
+    string,
+    (typeof variantRows)[number]
+  >();
+  for (const variant of variantRows) {
+    if (variant.priceAmount == null || variantsByProduct.has(variant.productId)) {
+      continue;
+    }
+    variantsByProduct.set(variant.productId, variant);
   }
 
   return {
@@ -125,12 +149,13 @@ export async function getAdminDiscountsBoard(
         product.translations.hy ??
         product.translations.en;
       const promo = byProduct.get(product.id);
+      const variant = variantsByProduct.get(product.id);
       return {
         id: product.id,
-        title: translation?.title ?? product.sku,
+        title: translation?.title ?? variant?.sku ?? product.id,
         slug: translation?.slug ?? "",
-        sku: product.sku,
-        priceAmount: product.priceAmount,
+        sku: variant?.sku ?? null,
+        priceAmount: variant?.priceAmount ?? null,
         imageUrl: images.get(product.id) ?? null,
         discountPercent: promo?.discountValue ?? null,
         promotionId: promo?.id ?? null,

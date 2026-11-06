@@ -43,6 +43,7 @@ type AdminProductsTableProps = {
   products: AdminProductListItem[];
   sortLinks: AdminProductsSortLinks;
   onEdit: (product: AdminProductListItem) => void;
+  inquiryLabel: string;
 };
 
 export function AdminProductsTable({
@@ -50,6 +51,7 @@ export function AdminProductsTable({
   products,
   sortLinks,
   onEdit,
+  inquiryLabel,
 }: AdminProductsTableProps) {
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -196,6 +198,7 @@ export function AdminProductsTable({
                   <AdminProductRow
                     key={product.id}
                     locale={locale}
+                    inquiryLabel={inquiryLabel}
                     product={product}
                     selected={selected.has(product.id)}
                     disabled={isPending}

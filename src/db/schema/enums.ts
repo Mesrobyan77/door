@@ -14,6 +14,64 @@ export const productStatusEnum = pgEnum("product_status", [
   "ARCHIVED",
 ]);
 
+export const doorClassificationEnum = pgEnum("door_classification", [
+  "INTERIOR",
+  "ENTRANCE",
+]);
+
+export const entranceEnvironmentEnum = pgEnum("entrance_environment", [
+  "APARTMENT",
+  "OUTDOOR_HOUSE",
+]);
+
+export const doorMechanismEnum = pgEnum("door_mechanism", [
+  "HINGED",
+  "SLIDING",
+  "FOLDING",
+]);
+
+export const doorFrameSystemEnum = pgEnum("door_frame_system", [
+  "STANDARD",
+  "CONCEALED",
+]);
+
+export const doorLeafConfigurationEnum = pgEnum("door_leaf_configuration", [
+  "SINGLE",
+  "DOUBLE",
+  "UNEQUAL_DOUBLE",
+]);
+
+export const variantItemTypeEnum = pgEnum("variant_item_type", [
+  "LEGACY",
+  "LEAF_ONLY",
+  "FRAMED_UNIT",
+  "FIXED_PACKAGE",
+]);
+
+export const doorHandingEnum = pgEnum("door_handing", [
+  "LEFT",
+  "RIGHT",
+  "REVERSIBLE",
+  "NOT_APPLICABLE",
+]);
+
+export const doorSwingEnum = pgEnum("door_swing", [
+  "INWARD",
+  "OUTWARD",
+  "NOT_APPLICABLE",
+]);
+
+export const productVariantStatusEnum = pgEnum("product_variant_status", [
+  "ACTIVE",
+  "INQUIRY",
+  "ARCHIVED",
+]);
+
+export const includedComponentStatusEnum = pgEnum(
+  "included_component_status",
+  ["INCLUDED", "EXCLUDED", "UNKNOWN"],
+);
+
 export const categoryStatusEnum = pgEnum("category_status", [
   "ACTIVE",
   "ARCHIVED",

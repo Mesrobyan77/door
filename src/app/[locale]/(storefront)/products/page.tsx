@@ -57,7 +57,10 @@ export default async function ProductsPage({
   ]);
 
   const priced = products.map((product) => {
-    const price = formatPrice(product.priceAmount);
+    const priceFormatted =
+      product.priceAmount == null
+        ? dictionary.product.variant.inquiry
+        : formatPrice(product.priceAmount).formatted;
     const compareAt =
       product.compareAtAmount != null
         ? formatPrice(product.compareAtAmount)
@@ -65,7 +68,7 @@ export default async function ProductsPage({
 
     return {
       product,
-      price,
+      priceFormatted,
       compareAtFormatted: compareAt?.formatted ?? null,
     };
   });
@@ -76,12 +79,12 @@ export default async function ProductsPage({
         {dictionary.nav.products}
       </h1>
       <div className="grid grid-cols-2 gap-6 lg:grid-cols-3 xl:grid-cols-4">
-        {priced.map(({ product, price, compareAtFormatted }, index) => (
+        {priced.map(({ product, priceFormatted, compareAtFormatted }, index) => (
           <ProductCard
             key={product.id}
             href={`/${rawLocale}/products/${product.translation.slug}`}
             title={product.translation.title}
-            priceFormatted={price.formatted}
+            priceFormatted={priceFormatted}
             compareAtFormatted={compareAtFormatted}
             discountPercent={product.discountPercent}
             imageUrl={product.imageUrl}
@@ -89,6 +92,11 @@ export default async function ProductsPage({
             priority={index < 4}
             locale={rawLocale}
             productId={product.id}
+            variantId={
+              product.variants.filter((variant) => variant.purchasable).length === 1
+                ? product.variants.find((variant) => variant.purchasable)?.id
+                : undefined
+            }
             inWishlist={wishlistIds.has(product.id)}
             isSignedIn={Boolean(user)}
             wishlistLabel={dictionary.nav.wishlist}

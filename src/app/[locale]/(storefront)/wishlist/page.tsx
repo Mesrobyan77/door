@@ -50,7 +50,10 @@ export default async function WishlistPage({ params }: WishlistPageProps) {
 
   const formatPrice = await createDisplayPriceFormatter(rawLocale, currency);
   const priced = products.map((product) => {
-    const price = formatPrice(product.priceAmount);
+    const priceFormatted =
+      product.priceAmount == null
+        ? dictionary.product.variant.inquiry
+        : formatPrice(product.priceAmount).formatted;
     const compareAt =
       product.compareAtAmount != null
         ? formatPrice(product.compareAtAmount)
@@ -58,7 +61,7 @@ export default async function WishlistPage({ params }: WishlistPageProps) {
 
     return {
       product,
-      priceFormatted: price.formatted,
+      priceFormatted,
       compareAtFormatted: compareAt?.formatted ?? null,
     };
   });
@@ -87,6 +90,12 @@ export default async function WishlistPage({ params }: WishlistPageProps) {
                 priority={index < 4}
                 locale={rawLocale}
                 productId={product.id}
+                variantId={
+                  product.variants.filter((variant) => variant.purchasable)
+                    .length === 1
+                    ? product.variants.find((variant) => variant.purchasable)?.id
+                    : undefined
+                }
                 inWishlist
                 isSignedIn
                 wishlistLabel={dictionary.nav.wishlist}

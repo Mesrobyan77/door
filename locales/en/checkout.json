@@ -73,7 +73,9 @@
   "errors": {
     "cartEmpty": "Cart is empty",
     "cartEmptyDescription": "Add products to continue shopping",
-    "cartEmptyCta": "Continue Shopping"
+    "cartEmptyCta": "Continue Shopping",
+    "variantUnavailable": "A selected configuration is unavailable",
+    "variantUnavailableDescription": "The price or availability of some doors must be confirmed. Remove or change those configurations to continue."
   },
   "success": {
     "title": "Order confirmed",

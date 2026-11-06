@@ -13,7 +13,10 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-import { products } from "@/db/schema/catalog";
+import {
+  products,
+  type PerformanceSpecifications,
+} from "@/db/schema/catalog";
 import {
   createdAtColumn,
   idColumn,
@@ -26,6 +29,10 @@ import {
 } from "@/db/schema/enums";
 import { users } from "@/db/schema/identity";
 import { deliveryRules, promotions } from "@/db/schema/pricing";
+import {
+  type IncludedComponent,
+  productVariants,
+} from "@/db/schema/variants";
 
 export type AddressSnapshot = {
   recipientFirstName: string;
@@ -37,6 +44,48 @@ export type AddressSnapshot = {
   line1: string;
   line2?: string;
   postalCode?: string;
+};
+
+export type OrderVariantSnapshot = {
+  product?: {
+    brandName: string | null;
+    modelName: string | null;
+    collectionName: string | null;
+    classification: "INTERIOR" | "ENTRANCE" | null;
+    entranceEnvironments: ("APARTMENT" | "OUTDOOR_HOUSE")[] | null;
+    structuralMaterial: string | null;
+    coreMaterial: string | null;
+    surfaceCoating: string | null;
+    hasGlazing: boolean | null;
+    glazingType: string | null;
+    manufacturer: string | null;
+    countryOfManufacture: string | null;
+    openingMechanism: "HINGED" | "SLIDING" | "FOLDING" | null;
+    frameSystem: "STANDARD" | "CONCEALED" | null;
+    leafConfiguration: "SINGLE" | "DOUBLE" | "UNEQUAL_DOUBLE" | null;
+    performanceSpecifications: PerformanceSpecifications | null;
+  };
+  itemType: "LEGACY" | "LEAF_ONLY" | "FRAMED_UNIT" | "FIXED_PACKAGE";
+  dimensionsMm: {
+    leafWidth?: number;
+    leafHeight?: number;
+    leafThickness?: number;
+    secondaryLeafWidth?: number;
+    unitWidth?: number;
+    unitHeight?: number;
+    frameDepth?: number;
+    roughOpeningWidth?: number;
+    roughOpeningHeight?: number;
+  };
+  appearance: {
+    color?: string;
+    finish?: string;
+    exteriorColor?: string;
+    exteriorFinish?: string;
+  };
+  handing?: "LEFT" | "RIGHT" | "REVERSIBLE" | "NOT_APPLICABLE" | null;
+  swing?: "INWARD" | "OUTWARD" | "NOT_APPLICABLE" | null;
+  includedComponents?: IncludedComponent[] | null;
 };
 
 export const orders = pgTable(
@@ -128,9 +177,13 @@ export const orderItems = pgTable(
     productId: uuid("product_id").references(() => products.id, {
       onDelete: "restrict",
     }),
+    variantId: uuid("variant_id").references(() => productVariants.id, {
+      onDelete: "restrict",
+    }),
     productTitleSnapshot: text("product_title_snapshot").notNull(),
     productSkuSnapshot: text("product_sku_snapshot").notNull(),
     productImageKeySnapshot: text("product_image_key_snapshot"),
+    variantSnapshot: jsonb("variant_snapshot").$type<OrderVariantSnapshot>(),
     quantity: integer("quantity").notNull(),
     unitBaseAmount: integer("unit_base_amount").notNull(),
     unitDisplayAmount: integer("unit_display_amount").notNull(),
@@ -144,6 +197,7 @@ export const orderItems = pgTable(
   (table) => [
     index("order_items_order_idx").on(table.orderId),
     index("order_items_product_idx").on(table.productId),
+    index("order_items_variant_idx").on(table.variantId),
     check("order_items_qty_chk", sql`${table.quantity} > 0`),
   ],
 );

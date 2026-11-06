@@ -40,9 +40,12 @@ export function OrderDetailsDrawerItems({
                       title={item.title}
                       imageUrl={item.imageUrl}
                     />
-                    <span className="font-medium text-gray-900">
-                      {item.title}
-                    </span>
+                    <div className="min-w-0">
+                      <p className="font-medium text-gray-900">{item.title}</p>
+                      <p className="text-xs text-gray-500">
+                        {item.configuration}
+                      </p>
+                    </div>
                   </div>
                 </td>
                 <td className={ADMIN_TABLE_TD}>{item.sku}</td>

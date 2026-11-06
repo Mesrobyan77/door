@@ -4,7 +4,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { getDb } from "@/db/client";
-import { cartItems, carts, products } from "@/db/schema";
+import { cartItems, carts, productVariants, products } from "@/db/schema";
 import {
   getGuestCartToken,
   hashGuestToken,
@@ -12,11 +12,13 @@ import {
 } from "@/features/cart/guest-token";
 import { getCurrentUser } from "@/lib/auth/session";
 import { createId } from "@/lib/id";
+import { isVariantPurchasable } from "@/features/products/domain/door-variant";
 
 type CartRow = typeof carts.$inferSelect;
 type CartItemWithProduct = {
   item: typeof cartItems.$inferSelect;
   product: typeof products.$inferSelect;
+  variant: typeof productVariants.$inferSelect;
 };
 
 async function getCartOwnerForWrite(): Promise<{
@@ -90,9 +92,10 @@ export async function getCartWithItems(): Promise<{
   }
 
   const items = await getDb()
-    .select({ item: cartItems, product: products })
+    .select({ item: cartItems, product: products, variant: productVariants })
     .from(cartItems)
     .innerJoin(products, eq(cartItems.productId, products.id))
+    .innerJoin(productVariants, eq(cartItems.variantId, productVariants.id))
     .where(eq(cartItems.cartId, cart.id));
 
   return { cart, items };
@@ -121,7 +124,7 @@ export async function getCartItemCount(): Promise<number> {
 }
 
 export async function addToCart(
-  productId: string,
+  variantId: string,
   quantity = 1,
 ): Promise<void> {
   if (!Number.isInteger(quantity) || quantity < 1) {
@@ -129,28 +132,38 @@ export async function addToCart(
   }
 
   const cart = await getOrCreateCart();
-  const [product] = await getDb()
-    .select({
-      id: products.id,
-      stock: products.stockOnHand,
-      status: products.status,
-    })
-    .from(products)
-    .where(eq(products.id, productId))
+  const [selection] = await getDb()
+    .select({ product: products, variant: productVariants })
+    .from(productVariants)
+    .innerJoin(products, eq(productVariants.productId, products.id))
+    .where(eq(productVariants.id, variantId))
     .limit(1);
-  if (!product || product.status !== "ACTIVE" || product.stock < 1) {
+  if (
+    !selection ||
+    selection.product.status !== "ACTIVE" ||
+    !isVariantPurchasable({
+      product: selection.product,
+      variant: selection.variant,
+    })
+  ) {
     throw new Error("Product unavailable.");
   }
 
-  const addQty = Math.min(quantity, product.stock);
+  const addQty = Math.min(quantity, selection.variant.stockOnHand);
 
   await getDb()
     .insert(cartItems)
-    .values({ id: createId(), cartId: cart.id, productId, quantity: addQty })
+    .values({
+      id: createId(),
+      cartId: cart.id,
+      productId: selection.product.id,
+      variantId: selection.variant.id,
+      quantity: addQty,
+    })
     .onConflictDoUpdate({
-      target: [cartItems.cartId, cartItems.productId],
+      target: [cartItems.cartId, cartItems.variantId],
       set: {
-        quantity: sql`least(${cartItems.quantity} + ${addQty}, ${product.stock})`,
+        quantity: sql`least(${cartItems.quantity} + ${addQty}, ${selection.variant.stockOnHand})`,
         updatedAt: new Date(),
       },
     });
@@ -165,6 +178,15 @@ export async function updateQuantity(
   if (!Number.isInteger(quantity) || quantity < 1) {
     await removeItem(itemId);
     return;
+  }
+  const [line] = await getDb()
+    .select({ variant: productVariants })
+    .from(cartItems)
+    .innerJoin(productVariants, eq(cartItems.variantId, productVariants.id))
+    .where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id)))
+    .limit(1);
+  if (!line || line.variant.stockOnHand < quantity) {
+    throw new Error("Requested quantity is unavailable.");
   }
   await getDb()
     .update(cartItems)

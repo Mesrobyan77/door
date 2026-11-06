@@ -39,7 +39,10 @@ export async function ProductRelatedSection({
       <h2 className="text-2xl font-semibold text-gray-900">{labels.related}</h2>
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {related.map((item) => {
-          const price = formatPrice(item.priceAmount);
+          const priceFormatted =
+            item.priceAmount == null
+              ? labels.variant.inquiry
+              : formatPrice(item.priceAmount).formatted;
           const compareAt =
             item.compareAtAmount != null
               ? formatPrice(item.compareAtAmount)
@@ -50,13 +53,18 @@ export async function ProductRelatedSection({
               key={item.id}
               href={`/${locale}/products/${item.translation.slug}`}
               title={item.translation.title}
-              priceFormatted={price.formatted}
+              priceFormatted={priceFormatted}
               compareAtFormatted={compareAt?.formatted ?? null}
               discountPercent={item.discountPercent}
               imageUrl={item.imageUrl}
               inStock={item.stockOnHand > 0}
               locale={locale}
               productId={item.id}
+              variantId={
+                item.variants.filter((variant) => variant.purchasable).length === 1
+                  ? item.variants.find((variant) => variant.purchasable)?.id
+                  : undefined
+              }
               inWishlist={wishlistIds.has(item.id)}
               isSignedIn={isSignedIn}
               wishlistLabel={dictionary.nav.wishlist}

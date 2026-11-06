@@ -1,6 +1,6 @@
 # White Shop — specification index
 
-**Կարգավիճակ.** Implementation complete (Phases 0–11); production deploy pending approval
+**Կարգավիճակ.** Phases 0–11 delivered; approved door-variant slice integrated (migration prepared, not applied); production deploy pending approval
 **Տարբերակ.** 1.0
 **Ամսաթիվ.** 2026-07-18
 

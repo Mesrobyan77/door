@@ -9,7 +9,7 @@ import { addToCart } from "@/features/cart/cart";
 import { playCartFlyAnimation } from "@/features/cart/play-cart-fly-animation";
 
 type AddToCartButtonProps = {
-  productId: string;
+  variantId: string;
   label: string;
   disabled?: boolean;
   className?: string;
@@ -18,7 +18,7 @@ type AddToCartButtonProps = {
 };
 
 export function AddToCartButton({
-  productId,
+  variantId,
   label,
   disabled = false,
   className = "",
@@ -42,7 +42,7 @@ export function AddToCartButton({
 
     startTransition(async () => {
       try {
-        await addToCart(productId, 1);
+        await addToCart(variantId, 1);
         setJustAdded(true);
         router.refresh();
         window.setTimeout(() => setJustAdded(false), 1500);

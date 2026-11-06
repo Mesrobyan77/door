@@ -1,7 +1,7 @@
 # White Shop — decisions and open questions
 
 **Կարգավիճակ.** Kickoff approved with documented defaults — 2026-07-18
-**Վերջին թարմացում.** 2026-07-18
+**Վերջին թարմացում.** 2026-12-10
 
 ## Կարգավիճակների նշանակություն
 
@@ -29,20 +29,20 @@
 | DEC-008 | Durable cart | Approved by brief | PostgreSQL source of truth; guest session cart; login merge | Redis-ը optional accelerator է |
 | DEC-009 | Deletes | Approved by brief | Finance/audit hard delete չի արվում | Archive/soft delete/anonymize |
 | DEC-010 | Images | Superseded by user request (2026-11-06) | Cloudinary `secure_url` + public ID database-ում | Admin-only server upload; legacy `object_key` retained nullable for historical rows, which must be re-uploaded |
-| DEC-011 | Database footprint | Approved by user | Canonical lean schema՝ 25 PostgreSQL table | Նոր table միայն migration rationale-ով |
+| DEC-011 | Database footprint | Approved by user | Canonical lean schema՝ 26 PostgreSQL table including `product_variants` | Նոր table միայն migration rationale-ով |
 | DEC-012 | Dynamic translations | Approved by user | Product/category/hero/blog translations-ը parent table-ի validated JSONB-ում | UI copy-ն մնում է locale JSON files-ում |
 | DEC-017 | Admin content locale UX | Approved by user | Admin create/edit forms-ը մեկ դաշտերի հավաքածու ունեն (Title/Slug/Description/…) + active locale selector; զուգահեռ `hy`/`en`/`ru` դաշտեր չեն ցուցադրվում | Լրացվում է միայն ընտրված locale-ը; publish-ին պարտադիր է առնվազն մեկ լրիվ locale, ոչ բոլոր երեքը |
 | DEC-013 | Promotions | Approved by user | Coupons և automatic discounts-ը մեկ `promotions` table-ում | User allowlist-ը `promotion_users` relation է |
 | DEC-014 | Auth tokens | Approved by user | Verification/reset tokens-ը hashed TTL records են Upstash Redis-ում | PostgreSQL sessions-ը պահվում են revoke-ի համար |
-| DEC-015 | Order model | Approved by user | Address snapshots-ը `orders` JSONB-ում, status/notes/provider events-ը `order_events`-ում | `order_items` և `payments` առանձին են մնում |
-| DEC-016 | Media ownership | Approved by user | Product/category/hero/blog ownership-ը `media_assets` typed FKs/roles-ով | Generic polymorphic owner առանց FK չի օգտագործվում |
+| DEC-015 | Order model | Approved by user | Address snapshots-ը `orders` JSONB-ում, status/notes/provider events-ը `order_events`-ում; `order_items` snapshot-ները պահպանում են մոդելն ու գնված variant-ը | `order_items` և `payments` առանձին են մնում |
+| DEC-016 | Media ownership | Approved by user | Product/variant/category/hero/blog ownership-ը `media_assets` typed FKs/roles-ով | Generic polymorphic owner առանց FK չի օգտագործվում |
 | OPEN-001 | Hosting/runtime | Open | Vercel, այլ Node hosting, region և runtime սահմաններ | Next.js Node runtime, deployment չի արվում մինչև approval |
 | OPEN-002 | Online payments | Open | Որ provider-ներն են launch scope-ում և ինչ webhook/refund flows են պետք | Միայն COD |
 | OPEN-003 | Exchange rates | Open | Provider, update schedule, fallback և margin/rounding policy | Admin-maintained AMD rates + Redis cache |
 | OPEN-004 | Tax | Open | Prices tax-inclusive՞ են, tax zones/rates և invoice behavior | Tax amount 0, բայց schema/summary field-ը նախատեսված է |
 | OPEN-005 | Order status model | Open | Allowed statuses և revenue-generating status-ներ | Draft set՝ pending/confirmed/processing/shipped/delivered/cancelled/refunded |
 | OPEN-006 | Product category cardinality | Open | Product-ը մեկ primary category՞, թե multiple | Multiple categories + մեկ optional primary category |
-| OPEN-007 | Variants | Open | Color/size variants launch-ին ակտիվ են, թե extension point | Schema extension point, UI deferred |
+| OPEN-007 | Variants | Approved by user | Door models-ը պահվում են `products`-ում, իսկ SKU/գին/stock/configuration-ը՝ sellable `product_variants`-ում; admin/storefront/cart/checkout/order flows-ը նույն variant identity-ն են օգտագործում | Existing rows-ը ստանում են `LEGACY` variant նույն UUID-ով; legacy product price/stock դաշտերը մնում են միայն compatibility transition-ի համար |
 | OPEN-008 | Coupon stacking | Open | Coupon-ը կարող է stack լինել automatic discount-ի հետ | Settings-ով, default՝ false |
 | OPEN-009 | Customer deletion | Open | Retention duration և legal/audit պահանջներ | PII anonymization, order snapshots retained |
 | OPEN-010 | Content editor | Open | Blog rich-text editor և canonical sanitized format | Sanitized HTML կամ structured JSON՝ adapter boundary-ով |

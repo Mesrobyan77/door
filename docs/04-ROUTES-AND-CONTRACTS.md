@@ -112,6 +112,8 @@
 
 Price filter-ի canonical semantics-ը պետք է product owner-ը հաստատի multi-currency UI-ի համար։ Առաջարկ՝ URL amounts-ը selected display currency-ով ընդունել, server-side deterministic կերպով base AMD range-ի փոխարկել նույն effective rate-ով և UI-ում նշել currency-ն։ Alternative՝ միշտ AMD params։
 
+Door configuration-ի ընտրությունը կատարվում է product detail route-ում՝ variant ID-ով։ Cart mutation-ը ընդունում է variant ID, ոչ parent product ID; card quick-add-ը variant ընտրություն չի գուշակում։ Checkout-ը locked variant-ից վերահաշվում է price/stock-ը և պահում է product/model + variant snapshots-ը order item-ում։
+
 ### Admin lists
 
 Shared params՝ `q`, feature-specific filters, `sort`, `page`, `pageSize`, optional `from`/`to` ISO dates։ Unknown params-ը ignored/normalized են կամ վերադարձնում են typed filter error՝ UI behavior-ի համաձայն։ Date range-ը server-side max window ունի analytics abuse-ից պաշտպանվելու համար։
@@ -125,14 +127,14 @@ Shared params՝ `q`, feature-specific filters, `sort`, `page`, `pageSize`, optio
 | `updateProfile` | Owner | Optimistic concurrency optional | Email re-verification when changed |
 | `upsertAddress` | Owner | Default flags transaction | Checkout reads refresh |
 | `deleteAccount` | Owner re-auth | Anonymization transaction | Sessions revoke, audit |
-| `addCartItem` | Guest/Customer | Unique cart item upsert | Cart summary refresh |
+| `addCartItem` | Guest/Customer | Variant ID + unique `(cart_id, variant_id)` upsert; server checks product/configuration/price/stock | Cart summary refresh |
 | `mergeGuestCart` | Customer | Idempotent transaction | Guest token revoke |
 | `applyCouponPreview` | Guest/Customer | Read-only preview | No redemption reservation by default |
 | `placeOrder` | Guest/Customer | Required idempotency + DB transaction | Stock, order, payment init/outbox |
 | `submitReview` | Customer | Eligibility + unique invariant | Moderation queue/admin refresh |
 | `submitContactMessage` | Public | Rate/honeypot; duplicate guard optional | Admin notification |
-| `create/updateProduct` | Admin | Transaction | Audit, media links, cache invalidation |
-| `adjustStock` | Admin | Movement + inventory atomic | Audit, low-stock/cache effects |
+| `create/updateProduct` | Admin | Product + sellable variants transaction; validates SKU/configuration uniqueness | Media links, cache invalidation |
+| `adjustStock` | Admin | Variant movement + inventory atomic | Audit, low-stock/cache effects |
 | `changeOrderStatus` | Admin | State transition transaction | History, audit, email/event |
 | `changePaymentStatus` | Admin/provider | Transition + event idempotency | Audit/order refresh |
 | `upsertPromotion` | Admin | Validated transaction | Pricing cache invalidation |

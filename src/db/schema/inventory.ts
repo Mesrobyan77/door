@@ -11,6 +11,7 @@ import { createdAtColumn, idColumn } from "@/db/schema/columns";
 import { stockMovementReasonEnum } from "@/db/schema/enums";
 import { users } from "@/db/schema/identity";
 import { orders } from "@/db/schema/orders";
+import { productVariants } from "@/db/schema/variants";
 
 export const stockMovements = pgTable(
   "stock_movements",
@@ -19,6 +20,9 @@ export const stockMovements = pgTable(
     productId: uuid("product_id")
       .notNull()
       .references(() => products.id, { onDelete: "restrict" }),
+    variantId: uuid("variant_id")
+      .notNull()
+      .references(() => productVariants.id, { onDelete: "restrict" }),
     delta: integer("delta").notNull(),
     reason: stockMovementReasonEnum("reason").notNull(),
     orderId: uuid("order_id").references(() => orders.id, {
@@ -32,10 +36,11 @@ export const stockMovements = pgTable(
     createdAt: createdAtColumn(),
   },
   (table) => [
-    index("stock_movements_product_created_idx").on(
-      table.productId,
+    index("stock_movements_variant_created_idx").on(
+      table.variantId,
       table.createdAt,
     ),
+    index("stock_movements_product_created_idx").on(table.productId, table.createdAt),
     index("stock_movements_order_idx").on(table.orderId),
   ],
 );

@@ -2,7 +2,7 @@
 
 import { createHash } from "node:crypto";
 
-import { and, eq, sql } from "drizzle-orm";
+import { and, asc, eq, inArray, or, sql } from "drizzle-orm";
 import { cookies } from "next/headers";
 
 import { getProviders } from "@/config/providers";
@@ -10,14 +10,17 @@ import {
   cartItems,
   carts,
   deliveryRules,
+  mediaAssets,
   orderEvents,
   orderItems,
   orders,
   payments,
+  productVariants,
   products,
   promotions,
   stockMovements,
 } from "@/db/schema";
+import type { OrderVariantSnapshot } from "@/db/schema/orders";
 import { withTransaction } from "@/db/transaction";
 import {
   getCartWithItems,
@@ -38,7 +41,8 @@ import {
   evaluateCouponDiscount,
 } from "@/features/promotions/domain/evaluate-coupon";
 import { normalizePromotionCode } from "@/features/promotions/domain/promotion-rules";
-import { resolveProductPrices } from "@/features/promotions/application/resolve-product-prices";
+import { resolveVariantPrices } from "@/features/promotions/application/resolve-product-prices";
+import { isVariantPurchasable } from "@/features/products/domain/door-variant";
 import { getCurrentUser } from "@/lib/auth/session";
 import { getCheckoutRateSnapshot } from "@/lib/fx/service";
 import { createId } from "@/lib/id";
@@ -100,7 +104,7 @@ export async function createOrderAction(
     JSON.stringify({
       cartId: cart.id,
       items: items.map(({ item }) => ({
-        productId: item.productId,
+        variantId: item.variantId,
         quantity: item.quantity,
       })),
       email: input.contactEmail.toLowerCase(),
@@ -173,8 +177,11 @@ export async function createOrderAction(
       let subtotal = 0;
       const lineSnapshots: Array<{
         productId: string;
+        variantId: string;
         title: string;
         sku: string;
+        imageUrl: string | null;
+        variantSnapshot: OrderVariantSnapshot;
         quantity: number;
         unitAmount: number;
         unitDisplayAmount: number;
@@ -184,45 +191,95 @@ export async function createOrderAction(
         nextStock: number;
       }> = [];
 
-      const lockedProducts: Array<{
+      const lockedVariants: Array<{
         product: typeof products.$inferSelect;
+        variant: typeof productVariants.$inferSelect;
         quantity: number;
       }> = [];
 
-      for (const { item, product } of items) {
-        if (product.status !== "ACTIVE") {
-          throw new Error("A product in the cart is unavailable.");
-        }
-
+      for (const { item } of items) {
         const [locked] = await tx
-          .select()
-          .from(products)
-          .where(eq(products.id, product.id))
+          .select({ product: products, variant: productVariants })
+          .from(productVariants)
+          .innerJoin(products, eq(productVariants.productId, products.id))
+          .where(eq(productVariants.id, item.variantId))
           .for("update")
           .limit(1);
 
-        if (!locked || locked.stockOnHand < item.quantity) {
+        if (
+          !locked ||
+          locked.product.status !== "ACTIVE" ||
+          !isVariantPurchasable({
+            product: locked.product,
+            variant: locked.variant,
+          })
+        ) {
+          throw new Error("A selected product configuration is unavailable.");
+        }
+
+        if (locked.variant.stockOnHand < item.quantity) {
           throw new Error("Insufficient stock for one or more items.");
         }
 
-        lockedProducts.push({ product: locked, quantity: item.quantity });
+        lockedVariants.push({
+          product: locked.product,
+          variant: locked.variant,
+          quantity: item.quantity,
+        });
       }
 
-      const pricedUnits = await resolveProductPrices(
-        lockedProducts.map(({ product }) => ({
-          id: product.id,
-          priceAmount: product.priceAmount,
-          compareAtAmount: product.compareAtAmount,
+      const pricedUnits = await resolveVariantPrices(
+        lockedVariants.map(({ product, variant }) => ({
+          id: variant.id,
+          productId: product.id,
+          priceAmount: variant.priceAmount!,
+          compareAtAmount: variant.compareAtAmount,
         })),
       );
 
-      for (const { product: locked, quantity } of lockedProducts) {
-        const resolved = pricedUnits.get(locked.id);
-        const unitAmount = resolved?.unitAmount ?? locked.priceAmount;
+      const imageRows = await tx
+        .select({
+          productId: mediaAssets.productId,
+          variantId: mediaAssets.variantId,
+          secureUrl: mediaAssets.secureUrl,
+        })
+        .from(mediaAssets)
+        .where(
+          and(
+            eq(mediaAssets.uploadStatus, "READY"),
+            or(
+              inArray(
+                mediaAssets.productId,
+                lockedVariants.map(({ product }) => product.id),
+              ),
+              inArray(
+                mediaAssets.variantId,
+                lockedVariants.map(({ variant }) => variant.id),
+              ),
+            ),
+            or(eq(mediaAssets.isPrimary, true), eq(mediaAssets.role, "PRIMARY")),
+          ),
+        )
+        .orderBy(asc(mediaAssets.sortOrder));
+      const productImages = new Map<string, string>();
+      const variantImages = new Map<string, string>();
+      for (const image of imageRows) {
+        if (!image.secureUrl) continue;
+        if (image.variantId && !variantImages.has(image.variantId)) {
+          variantImages.set(image.variantId, image.secureUrl);
+        }
+        if (image.productId && !productImages.has(image.productId)) {
+          productImages.set(image.productId, image.secureUrl);
+        }
+      }
+
+      for (const { product, variant, quantity } of lockedVariants) {
+        const resolved = pricedUnits.get(variant.id);
+        const unitAmount = resolved?.unitAmount ?? variant.priceAmount!;
         const compareAtAmount = resolved?.compareAtAmount ?? null;
         const lineDiscountAmount = Math.max(
           0,
-          (resolved?.listAmount ?? locked.priceAmount) - unitAmount,
+          (resolved?.listAmount ?? variant.priceAmount!) - unitAmount,
         );
         const lineTotal = unitAmount * quantity;
         const unitDisplayAmount = Number(
@@ -235,19 +292,88 @@ export async function createOrderAction(
         );
         subtotal += lineTotal;
         lineSnapshots.push({
-          productId: locked.id,
+          productId: product.id,
+          variantId: variant.id,
           title:
-            locked.translations.en?.title ??
-            locked.translations.hy?.title ??
-            locked.sku,
-          sku: locked.sku,
+            product.translations[input.locale]?.title ??
+            product.translations.hy?.title ??
+            product.modelName ??
+            product.sku,
+          sku: variant.sku,
+          imageUrl:
+            variantImages.get(variant.id) ??
+            productImages.get(product.id) ??
+            null,
+          variantSnapshot: {
+            product: {
+              brandName: product.brandName,
+              modelName: product.modelName,
+              collectionName: product.collectionName,
+              classification: product.doorClassification,
+              entranceEnvironments: product.entranceEnvironments,
+              structuralMaterial: product.structuralMaterial,
+              coreMaterial: product.coreMaterial,
+              surfaceCoating: product.surfaceCoating,
+              hasGlazing: product.hasGlazing,
+              glazingType: product.glazingType,
+              manufacturer: product.manufacturer,
+              countryOfManufacture: product.countryOfManufacture,
+              openingMechanism: product.openingMechanism,
+              frameSystem: product.frameSystem,
+              leafConfiguration: product.leafConfiguration,
+              performanceSpecifications: product.performanceSpecifications,
+            },
+            itemType: variant.itemType,
+            dimensionsMm: {
+              ...(variant.leafWidthMm != null
+                ? { leafWidth: variant.leafWidthMm }
+                : {}),
+              ...(variant.leafHeightMm != null
+                ? { leafHeight: variant.leafHeightMm }
+                : {}),
+              ...(variant.leafThicknessMm != null
+                ? { leafThickness: variant.leafThicknessMm }
+                : {}),
+              ...(variant.secondaryLeafWidthMm != null
+                ? { secondaryLeafWidth: variant.secondaryLeafWidthMm }
+                : {}),
+              ...(variant.unitWidthMm != null
+                ? { unitWidth: variant.unitWidthMm }
+                : {}),
+              ...(variant.unitHeightMm != null
+                ? { unitHeight: variant.unitHeightMm }
+                : {}),
+              ...(variant.frameDepthMm != null
+                ? { frameDepth: variant.frameDepthMm }
+                : {}),
+              ...(variant.roughOpeningWidthMm != null
+                ? { roughOpeningWidth: variant.roughOpeningWidthMm }
+                : {}),
+              ...(variant.roughOpeningHeightMm != null
+                ? { roughOpeningHeight: variant.roughOpeningHeightMm }
+                : {}),
+            },
+            appearance: {
+              ...(variant.colorName ? { color: variant.colorName } : {}),
+              ...(variant.finishName ? { finish: variant.finishName } : {}),
+              ...(variant.exteriorColorName
+                ? { exteriorColor: variant.exteriorColorName }
+                : {}),
+              ...(variant.exteriorFinishName
+                ? { exteriorFinish: variant.exteriorFinishName }
+                : {}),
+            },
+            handing: variant.handing,
+            swing: variant.swing,
+            includedComponents: variant.includedComponents,
+          },
           quantity,
           unitAmount,
           unitDisplayAmount,
           compareAtAmount,
           lineDiscountAmount,
           lineTotal,
-          nextStock: locked.stockOnHand - quantity,
+          nextStock: variant.stockOnHand - quantity,
         });
       }
 
@@ -361,8 +487,11 @@ export async function createOrderAction(
           id: createId(),
           orderId,
           productId: line.productId,
+          variantId: line.variantId,
           productTitleSnapshot: line.title,
           productSkuSnapshot: line.sku,
+          productImageKeySnapshot: line.imageUrl,
+          variantSnapshot: line.variantSnapshot,
           quantity: line.quantity,
           unitBaseAmount: line.unitAmount,
           unitDisplayAmount: line.unitDisplayAmount,
@@ -373,17 +502,17 @@ export async function createOrderAction(
         });
 
         await tx
-          .update(products)
+          .update(productVariants)
           .set({
             stockOnHand: line.nextStock,
-            version: sql`${products.version} + 1`,
             updatedAt: now,
           })
-          .where(eq(products.id, line.productId));
+          .where(eq(productVariants.id, line.variantId));
 
         await tx.insert(stockMovements).values({
           id: createId(),
           productId: line.productId,
+          variantId: line.variantId,
           delta: -line.quantity,
           reason: "ORDER",
           orderId,

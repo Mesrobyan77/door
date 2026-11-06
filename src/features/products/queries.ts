@@ -9,9 +9,11 @@ import {
   categories,
   mediaAssets,
   productCategories,
+  productVariants,
   products,
 } from "@/db/schema";
-import { resolveProductPrices } from "@/features/promotions/application/resolve-product-prices";
+import { resolveVariantPrices } from "@/features/promotions/application/resolve-product-prices";
+import { isVariantPurchasable } from "@/features/products/domain/door-variant";
 import type {
   CatalogProduct,
   ProductCategoryRef,
@@ -38,6 +40,7 @@ function toCatalogProduct(
   product: typeof products.$inferSelect,
   locale: Locale,
   imageUrl: string | null = null,
+  variants: ProductDetail["variants"] = [],
 ): Omit<
   CatalogProduct,
   "priceAmount" | "compareAtAmount" | "discountPercent" | "listPriceAmount"
@@ -49,10 +52,33 @@ function toCatalogProduct(
 
   return {
     id: product.id,
-    sku: product.sku,
-    stockOnHand: product.stockOnHand,
+    sku: variants[0]?.sku ?? product.sku,
+    stockOnHand: variants.reduce(
+      (total, variant) =>
+        total + (variant.purchasable ? variant.stockOnHand : 0),
+      0,
+    ),
     translation,
     imageUrl,
+    variants,
+    doorSpecifications: {
+      brandName: product.brandName,
+      modelName: product.modelName,
+      collectionName: product.collectionName,
+      classification: product.doorClassification,
+      entranceEnvironments: product.entranceEnvironments,
+      structuralMaterial: product.structuralMaterial,
+      coreMaterial: product.coreMaterial,
+      surfaceCoating: product.surfaceCoating,
+      hasGlazing: product.hasGlazing,
+      glazingType: product.glazingType,
+      manufacturer: product.manufacturer,
+      countryOfManufacture: product.countryOfManufacture,
+      openingMechanism: product.openingMechanism,
+      frameSystem: product.frameSystem,
+      leafConfiguration: product.leafConfiguration,
+      performanceSpecifications: product.performanceSpecifications,
+    },
   };
 }
 
@@ -97,36 +123,158 @@ async function withProductImages(
   locale: Locale,
 ): Promise<CatalogProduct[]> {
   const productIds = rows.map((row) => row.id);
-  const [images, prices] = await Promise.all([
+  if (productIds.length === 0) return [];
+
+  const [images, allVariantRows] = await Promise.all([
     loadPrimaryProductImages(productIds),
-    resolveProductPrices(
-      rows.map((row) => ({
-        id: row.id,
-        priceAmount: row.priceAmount,
-        compareAtAmount: row.compareAtAmount,
-      })),
+    getDb()
+      .select()
+      .from(productVariants)
+      .where(
+        and(
+          inArray(productVariants.productId, productIds),
+          sql`${productVariants.status} <> 'ARCHIVED'`,
+        ),
+      )
+      .orderBy(asc(productVariants.sku)),
+  ]);
+  const variantRows = allVariantRows.filter(
+    (
+      variant,
+    ): variant is (typeof variant) & { status: "ACTIVE" | "INQUIRY" } =>
+      variant.status !== "ARCHIVED",
+  );
+  const variantIds = variantRows.map((variant) => variant.id);
+  const [variantImages, prices] = await Promise.all([
+    loadPrimaryVariantImages(variantIds),
+    resolveVariantPrices(
+      variantRows.flatMap((variant) =>
+        variant.priceAmount != null && variant.status === "ACTIVE"
+          ? [
+              {
+                id: variant.id,
+                productId: variant.productId,
+                priceAmount: variant.priceAmount,
+                compareAtAmount: variant.compareAtAmount,
+              },
+            ]
+          : [],
+      ),
     ),
   ]);
 
+  const variantsByProduct = new Map<string, ProductDetail["variants"]>();
+  const productsById = new Map(rows.map((product) => [product.id, product]));
+  for (const variant of variantRows) {
+    const resolved = prices.get(variant.id);
+    const parent = productsById.get(variant.productId);
+    const option = {
+      id: variant.id,
+      sku: variant.sku,
+      itemType: variant.itemType,
+      status: variant.status,
+      priceAmount:
+        variant.status === "ACTIVE" && variant.priceAmount != null
+          ? (resolved?.unitAmount ?? variant.priceAmount)
+          : null,
+      compareAtAmount: resolved?.compareAtAmount ?? null,
+      discountPercent: resolved?.discountPercent ?? null,
+      stockOnHand: variant.stockOnHand,
+      leafWidthMm: variant.leafWidthMm,
+      leafHeightMm: variant.leafHeightMm,
+      leafThicknessMm: variant.leafThicknessMm,
+      secondaryLeafWidthMm: variant.secondaryLeafWidthMm,
+      unitWidthMm: variant.unitWidthMm,
+      unitHeightMm: variant.unitHeightMm,
+      frameDepthMm: variant.frameDepthMm,
+      roughOpeningWidthMm: variant.roughOpeningWidthMm,
+      roughOpeningHeightMm: variant.roughOpeningHeightMm,
+      colorName: variant.colorName,
+      finishName: variant.finishName,
+      exteriorColorName: variant.exteriorColorName,
+      exteriorFinishName: variant.exteriorFinishName,
+      handing: variant.handing,
+      swing: variant.swing,
+      includedComponents: variant.includedComponents,
+      imageUrl: variantImages.get(variant.id) ?? null,
+      purchasable:
+        parent != null &&
+        isVariantPurchasable({
+          product: parent,
+          variant,
+        }),
+    } satisfies ProductDetail["variants"][number];
+    const list = variantsByProduct.get(variant.productId) ?? [];
+    list.push(option);
+    variantsByProduct.set(variant.productId, list);
+  }
+
   return rows
     .map((product) => {
+      const variantOptions = variantsByProduct.get(product.id) ?? [];
       const base = toCatalogProduct(
         product,
         locale,
         images.get(product.id) ?? null,
+        variantOptions,
       );
       if (!base) return null;
 
-      const resolved = prices.get(product.id);
+      const pricedVariants = variantOptions
+        .filter(
+          (variant) =>
+            variant.status === "ACTIVE" && variant.priceAmount != null,
+        )
+        .sort(
+          (first, second) =>
+            (first.priceAmount ?? Number.MAX_SAFE_INTEGER) -
+            (second.priceAmount ?? Number.MAX_SAFE_INTEGER),
+        );
+      const lowest = pricedVariants[0];
+      const sourceVariant = lowest
+        ? variantRows.find((variant) => variant.id === lowest.id)
+        : null;
+      const resolved = sourceVariant ? prices.get(sourceVariant.id) : null;
       return {
         ...base,
-        listPriceAmount: resolved?.listAmount ?? product.priceAmount,
-        priceAmount: resolved?.unitAmount ?? product.priceAmount,
-        compareAtAmount: resolved?.compareAtAmount ?? null,
+        listPriceAmount: resolved?.listAmount ?? lowest?.priceAmount ?? null,
+        priceAmount: lowest?.priceAmount ?? null,
+        compareAtAmount: lowest?.compareAtAmount ?? null,
         discountPercent: resolved?.discountPercent ?? null,
       } satisfies CatalogProduct;
     })
     .filter((product): product is CatalogProduct => product !== null);
+}
+
+async function loadPrimaryVariantImages(
+  variantIds: string[],
+): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  if (variantIds.length === 0) return map;
+
+  const rows = await getDb()
+    .select({
+      variantId: mediaAssets.variantId,
+      secureUrl: mediaAssets.secureUrl,
+      isPrimary: mediaAssets.isPrimary,
+      role: mediaAssets.role,
+      sortOrder: mediaAssets.sortOrder,
+    })
+    .from(mediaAssets)
+    .where(
+      and(
+        inArray(mediaAssets.variantId, variantIds),
+        eq(mediaAssets.uploadStatus, "READY"),
+        or(eq(mediaAssets.isPrimary, true), eq(mediaAssets.role, "PRIMARY")),
+      ),
+    )
+    .orderBy(asc(mediaAssets.sortOrder));
+
+  for (const row of rows) {
+    if (!row.variantId || !row.secureUrl || map.has(row.variantId)) continue;
+    map.set(row.variantId, row.secureUrl);
+  }
+  return map;
 }
 
 const activeCatalogWhere = and(

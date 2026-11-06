@@ -22,6 +22,10 @@ import {
   ProductDrawerImages,
   type ProductDraftImage,
 } from "@/features/products/ui/ProductDrawerImages";
+import { ProductVariantsEditor } from "@/features/products/ui/ProductVariantsEditor";
+import type { PerformanceSpecifications } from "@/db/schema/catalog";
+import type { ProductVariantDraft } from "@/features/products/types";
+import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 type ProductDrawerProduct = Pick<
   AdminProductListItem,
@@ -36,6 +40,23 @@ type ProductDrawerProduct = Pick<
   | "status"
   | "categoryIds"
   | "images"
+  | "doorClassification"
+  | "entranceEnvironments"
+  | "brandName"
+  | "modelName"
+  | "collectionName"
+  | "structuralMaterial"
+  | "coreMaterial"
+  | "surfaceCoating"
+  | "hasGlazing"
+  | "glazingType"
+  | "manufacturer"
+  | "countryOfManufacture"
+  | "openingMechanism"
+  | "frameSystem"
+  | "leafConfiguration"
+  | "performanceSpecifications"
+  | "variants"
 >;
 
 type ProductDrawerProps = {
@@ -44,7 +65,76 @@ type ProductDrawerProps = {
   onClose: () => void;
   product?: ProductDrawerProduct | null;
   categories: AdminCategoryOption[];
+  productCopy: Dictionary["product"];
 };
+
+function createDefaultVariant(): ProductVariantDraft {
+  return {
+    sku: "",
+    itemType: "FRAMED_UNIT",
+    status: "ACTIVE",
+    priceAmount: null,
+    compareAtAmount: null,
+    stockOnHand: 0,
+    lowStockThreshold: 5,
+    leafWidthMm: null,
+    leafHeightMm: null,
+    leafThicknessMm: null,
+    secondaryLeafWidthMm: null,
+    unitWidthMm: null,
+    unitHeightMm: null,
+    frameDepthMm: null,
+    roughOpeningWidthMm: null,
+    roughOpeningHeightMm: null,
+    colorName: null,
+    finishName: null,
+    exteriorColorName: null,
+    exteriorFinishName: null,
+    handing: null,
+    swing: null,
+    includedComponents: null,
+  };
+}
+
+type DoorFields = {
+  doorClassification: "INTERIOR" | "ENTRANCE" | null;
+  entranceEnvironments: ("APARTMENT" | "OUTDOOR_HOUSE")[];
+  brandName: string;
+  modelName: string;
+  collectionName: string;
+  structuralMaterial: string;
+  coreMaterial: string;
+  surfaceCoating: string;
+  hasGlazing: boolean | null;
+  glazingType: string;
+  manufacturer: string;
+  countryOfManufacture: string;
+  openingMechanism: "HINGED" | "SLIDING" | "FOLDING" | null;
+  frameSystem: "STANDARD" | "CONCEALED" | null;
+  leafConfiguration: "SINGLE" | "DOUBLE" | "UNEQUAL_DOUBLE" | null;
+  performanceSpecifications: PerformanceSpecifications | null;
+};
+
+function emptyDoorFields(): DoorFields {
+  return {
+    doorClassification: null,
+    entranceEnvironments: [],
+    brandName: "",
+    modelName: "",
+    collectionName: "",
+    structuralMaterial: "",
+    coreMaterial: "",
+    surfaceCoating: "",
+    hasGlazing: null,
+    glazingType: "",
+    manufacturer: "",
+    countryOfManufacture: "",
+    openingMechanism: null,
+    frameSystem: null,
+    leafConfiguration: null,
+    performanceSpecifications: null,
+  };
+}
 
 function imagesFromProduct(
   product: ProductDrawerProduct | null,
@@ -64,6 +154,7 @@ export function ProductDrawer({
   onClose,
   product = null,
   categories: initialCategories,
+  productCopy,
 }: ProductDrawerProps) {
   const router = useRouter();
   const isEdit = product != null;
@@ -76,10 +167,8 @@ export function ProductDrawer({
   const [categories, setCategories] =
     useState<AdminCategoryOption[]>(initialCategories);
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
-  const [priceAmount, setPriceAmount] = useState("");
-  const [compareAtAmount, setCompareAtAmount] = useState("");
-  const [sku, setSku] = useState("");
-  const [stockOnHand, setStockOnHand] = useState("");
+  const [variants, setVariants] = useState<ProductVariantDraft[]>([]);
+  const [doorFields, setDoorFields] = useState<DoorFields>(emptyDoorFields);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [prevOpen, setPrevOpen] = useState(open);
@@ -103,14 +192,30 @@ export function ProductDrawer({
         setImages(imagesFromProduct(product));
         setRemovedImageIds([]);
         setCategoryIds(product.categoryIds);
-        setPriceAmount(String(product.priceAmount));
-        setCompareAtAmount(
-          product.compareAtAmount != null
-            ? String(product.compareAtAmount)
-            : "",
+        setVariants(
+          product.variants.map((variant) => ({
+            ...variant,
+            includedComponents: variant.includedComponents ?? null,
+          })),
         );
-        setSku(product.sku);
-        setStockOnHand(String(product.stockOnHand));
+        setDoorFields({
+          doorClassification: product.doorClassification,
+          entranceEnvironments: product.entranceEnvironments ?? [],
+          brandName: product.brandName ?? "",
+          modelName: product.modelName ?? "",
+          collectionName: product.collectionName ?? "",
+          structuralMaterial: product.structuralMaterial ?? "",
+          coreMaterial: product.coreMaterial ?? "",
+          surfaceCoating: product.surfaceCoating ?? "",
+          hasGlazing: product.hasGlazing,
+          glazingType: product.glazingType ?? "",
+          manufacturer: product.manufacturer ?? "",
+          countryOfManufacture: product.countryOfManufacture ?? "",
+          openingMechanism: product.openingMechanism,
+          frameSystem: product.frameSystem,
+          leafConfiguration: product.leafConfiguration,
+          performanceSpecifications: product.performanceSpecifications,
+        });
         setError(null);
       } else {
         setTitle("");
@@ -119,10 +224,8 @@ export function ProductDrawer({
         setImages([]);
         setRemovedImageIds([]);
         setCategoryIds([]);
-        setPriceAmount("");
-        setCompareAtAmount("");
-        setSku("");
-        setStockOnHand("");
+        setVariants([createDefaultVariant()]);
+        setDoorFields(emptyDoorFields());
         setError(null);
       }
     }
@@ -142,6 +245,13 @@ export function ProductDrawer({
       setRemovedImageIds((prev) => [...prev, ...removedExisting]);
     }
     setImages(next);
+  }
+
+  function updateDoorField<K extends keyof DoorFields>(
+    key: K,
+    value: DoorFields[K],
+  ): void {
+    setDoorFields((current) => ({ ...current, [key]: value }));
   }
 
   return (
@@ -168,15 +278,32 @@ export function ProductDrawer({
               : null;
 
             const payload = {
-              sku: sku.trim(),
               title: title.trim(),
               slug: slug.trim(),
               description: description.trim() || undefined,
-              priceAmount: Number(priceAmount),
-              compareAtAmount: compareAtAmount.trim()
-                ? Number(compareAtAmount)
-                : null,
-              stockOnHand: Number(stockOnHand),
+              doorClassification: doorFields.doorClassification,
+              entranceEnvironments:
+                doorFields.doorClassification === "ENTRANCE"
+                  ? doorFields.entranceEnvironments
+                  : null,
+              brandName: doorFields.brandName.trim() || null,
+              modelName: doorFields.modelName.trim() || null,
+              collectionName: doorFields.collectionName.trim() || null,
+              structuralMaterial:
+                doorFields.structuralMaterial.trim() || null,
+              coreMaterial: doorFields.coreMaterial.trim() || null,
+              surfaceCoating: doorFields.surfaceCoating.trim() || null,
+              hasGlazing: doorFields.hasGlazing,
+              glazingType: doorFields.glazingType.trim() || null,
+              manufacturer: doorFields.manufacturer.trim() || null,
+              countryOfManufacture:
+                doorFields.countryOfManufacture.trim() || null,
+              openingMechanism: doorFields.openingMechanism,
+              frameSystem: doorFields.frameSystem,
+              leafConfiguration: doorFields.leafConfiguration,
+              performanceSpecifications:
+                doorFields.performanceSpecifications,
+              variants,
               categoryIds,
               status: (product?.status === "ACTIVE" ||
               product?.status === "ARCHIVED"
@@ -258,13 +385,445 @@ export function ProductDrawer({
               />
             </label>
 
-            <ProductDrawerImages
-              images={images}
+            <section className="space-y-4 rounded-lg border border-gray-200 p-4">
+              <h3 className="font-semibold text-gray-900">
+                {productCopy.doorTitle}
+              </h3>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label>
+                  <span className={ADMIN_LABEL}>
+                    {productCopy.classificationRequired}
+                  </span>
+                  <select
+                    value={doorFields.doorClassification ?? ""}
+                    onChange={(event) => {
+                      const value = event.target.value;
+                      updateDoorField(
+                        "doorClassification",
+                        value === "INTERIOR" || value === "ENTRANCE"
+                          ? value
+                          : null,
+                      );
+                    }}
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  >
+                    <option value="">{productCopy.selectValue}</option>
+                    <option value="INTERIOR">{productCopy.variant.interior}</option>
+                    <option value="ENTRANCE">{productCopy.variant.entrance}</option>
+                  </select>
+                </label>
+                <label>
+                  <span className={ADMIN_LABEL}>{productCopy.brandName}</span>
+                  <input
+                    value={doorFields.brandName}
+                    onChange={(event) =>
+                      updateDoorField("brandName", event.target.value)
+                    }
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  />
+                </label>
+                <label>
+                  <span className={ADMIN_LABEL}>{productCopy.modelName}</span>
+                  <input
+                    value={doorFields.modelName}
+                    onChange={(event) =>
+                      updateDoorField("modelName", event.target.value)
+                    }
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  />
+                </label>
+                <label>
+                  <span className={ADMIN_LABEL}>{productCopy.collectionName}</span>
+                  <input
+                    value={doorFields.collectionName}
+                    onChange={(event) =>
+                      updateDoorField("collectionName", event.target.value)
+                    }
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  />
+                </label>
+                {doorFields.doorClassification === "ENTRANCE" ? (
+                  <fieldset className="space-y-2 sm:col-span-2">
+                    <legend className={ADMIN_LABEL}>
+                      {productCopy.variant.installationEnvironment}
+                    </legend>
+                    {(
+                      [
+                        ["APARTMENT", productCopy.variant.apartment],
+                        ["OUTDOOR_HOUSE", productCopy.variant.outdoorHouse],
+                      ] as const
+                    ).map(([environment, label]) => (
+                      <label key={environment} className="flex items-center gap-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={doorFields.entranceEnvironments.includes(
+                            environment,
+                          )}
+                          onChange={(event) =>
+                            updateDoorField(
+                              "entranceEnvironments",
+                              event.target.checked
+                                ? [...doorFields.entranceEnvironments, environment]
+                                : doorFields.entranceEnvironments.filter(
+                                    (current) => current !== environment,
+                                  ),
+                            )
+                          }
+                        />
+                        {label}
+                      </label>
+                    ))}
+                  </fieldset>
+                ) : null}
+                <label>
+                  <span className={ADMIN_LABEL}>
+                    {productCopy.variant.structuralMaterial}
+                  </span>
+                  <input
+                    value={doorFields.structuralMaterial}
+                    onChange={(event) =>
+                      updateDoorField("structuralMaterial", event.target.value)
+                    }
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  />
+                </label>
+                <label>
+                  <span className={ADMIN_LABEL}>
+                    {productCopy.variant.coreMaterial}
+                  </span>
+                  <input
+                    value={doorFields.coreMaterial}
+                    onChange={(event) =>
+                      updateDoorField("coreMaterial", event.target.value)
+                    }
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  />
+                </label>
+                <label>
+                  <span className={ADMIN_LABEL}>
+                    {productCopy.variant.surfaceCoating}
+                  </span>
+                  <input
+                    value={doorFields.surfaceCoating}
+                    onChange={(event) =>
+                      updateDoorField("surfaceCoating", event.target.value)
+                    }
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  />
+                </label>
+                <label>
+                  <span className={ADMIN_LABEL}>
+                    {productCopy.variant.glazing}
+                  </span>
+                  <select
+                    value={
+                      doorFields.hasGlazing == null
+                        ? ""
+                        : doorFields.hasGlazing
+                          ? "yes"
+                          : "no"
+                    }
+                    onChange={(event) =>
+                      updateDoorField(
+                        "hasGlazing",
+                        event.target.value === "yes"
+                          ? true
+                          : event.target.value === "no"
+                            ? false
+                            : null,
+                      )
+                    }
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  >
+                    <option value="">{productCopy.selectValue}</option>
+                    <option value="yes">{productCopy.variant.yes}</option>
+                    <option value="no">{productCopy.variant.no}</option>
+                  </select>
+                </label>
+                <label>
+                  <span className={ADMIN_LABEL}>
+                    {productCopy.variant.glazingType}
+                  </span>
+                  <input
+                    value={doorFields.glazingType}
+                    onChange={(event) =>
+                      updateDoorField("glazingType", event.target.value)
+                    }
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  />
+                </label>
+                <label>
+                  <span className={ADMIN_LABEL}>
+                    {productCopy.variant.manufacturer}
+                  </span>
+                  <input
+                    value={doorFields.manufacturer}
+                    onChange={(event) =>
+                      updateDoorField("manufacturer", event.target.value)
+                    }
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  />
+                </label>
+                <label>
+                  <span className={ADMIN_LABEL}>
+                    {productCopy.variant.countryOfManufacture}
+                  </span>
+                  <input
+                    value={doorFields.countryOfManufacture}
+                    onChange={(event) =>
+                      updateDoorField("countryOfManufacture", event.target.value)
+                    }
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  />
+                </label>
+                <label>
+                  <span className={ADMIN_LABEL}>
+                    {productCopy.variant.mechanism}
+                  </span>
+                  <select
+                    value={doorFields.openingMechanism ?? ""}
+                    onChange={(event) =>
+                      updateDoorField(
+                        "openingMechanism",
+                        event.target.value === "HINGED" ||
+                          event.target.value === "SLIDING" ||
+                          event.target.value === "FOLDING"
+                          ? event.target.value
+                          : null,
+                      )
+                    }
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  >
+                    <option value="">{productCopy.selectValue}</option>
+                    <option value="HINGED">{productCopy.variant.hinged}</option>
+                    <option value="SLIDING">{productCopy.variant.sliding}</option>
+                    <option value="FOLDING">{productCopy.variant.folding}</option>
+                  </select>
+                </label>
+                <label>
+                  <span className={ADMIN_LABEL}>
+                    {productCopy.variant.frameSystem}
+                  </span>
+                  <select
+                    value={doorFields.frameSystem ?? ""}
+                    onChange={(event) =>
+                      updateDoorField(
+                        "frameSystem",
+                        event.target.value === "STANDARD" ||
+                          event.target.value === "CONCEALED"
+                          ? event.target.value
+                          : null,
+                      )
+                    }
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  >
+                    <option value="">{productCopy.selectValue}</option>
+                    <option value="STANDARD">
+                      {productCopy.variant.standardFrame}
+                    </option>
+                    <option value="CONCEALED">
+                      {productCopy.variant.concealedFrame}
+                    </option>
+                  </select>
+                </label>
+                <label>
+                  <span className={ADMIN_LABEL}>
+                    {productCopy.variant.leafConfiguration}
+                  </span>
+                  <select
+                    value={doorFields.leafConfiguration ?? ""}
+                    onChange={(event) =>
+                      updateDoorField(
+                        "leafConfiguration",
+                        event.target.value === "SINGLE" ||
+                          event.target.value === "DOUBLE" ||
+                          event.target.value === "UNEQUAL_DOUBLE"
+                          ? event.target.value
+                          : null,
+                      )
+                    }
+                    className={ADMIN_INPUT}
+                    disabled={isPending}
+                  >
+                    <option value="">{productCopy.selectValue}</option>
+                    <option value="SINGLE">
+                      {productCopy.variant.singleLeaf}
+                    </option>
+                    <option value="DOUBLE">
+                      {productCopy.variant.doubleLeaf}
+                    </option>
+                    <option value="UNEQUAL_DOUBLE">
+                      {productCopy.variant.unequalDoubleLeaf}
+                    </option>
+                  </select>
+                </label>
+              </div>
+              <fieldset className="space-y-3">
+                <legend className={ADMIN_LABEL}>
+                  {productCopy.variant.performance}
+                </legend>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <label>
+                    <span className={ADMIN_LABEL}>
+                      {productCopy.variant.thermalBreak}
+                    </span>
+                    <select
+                      value={
+                        doorFields.performanceSpecifications?.thermalBreak == null
+                          ? ""
+                          : doorFields.performanceSpecifications.thermalBreak
+                            ? "yes"
+                            : "no"
+                      }
+                      onChange={(event) =>
+                        setDoorFields((current) => ({
+                          ...current,
+                          performanceSpecifications: {
+                            ...current.performanceSpecifications,
+                            thermalBreak:
+                              event.target.value === "yes"
+                                ? true
+                                : event.target.value === "no"
+                                  ? false
+                                  : null,
+                          },
+                        }))
+                      }
+                      className={ADMIN_INPUT}
+                      disabled={isPending}
+                    >
+                      <option value="">{productCopy.selectValue}</option>
+                      <option value="yes">{productCopy.variant.yes}</option>
+                      <option value="no">{productCopy.variant.no}</option>
+                    </select>
+                  </label>
+                  {(
+                    [
+                      ["thermalTransmittance", productCopy.variant.thermalTransmittance],
+                      ["soundReduction", productCopy.variant.soundReduction],
+                    ] as const
+                  ).map(([field, label]) => {
+                    const measurement =
+                      doorFields.performanceSpecifications?.[field];
+                    return (
+                      <label key={field}>
+                        <span className={ADMIN_LABEL}>{label}</span>
+                        <div className="flex gap-2">
+                          <input
+                            min={0}
+                            step="any"
+                            type="number"
+                            value={measurement?.value ?? ""}
+                            onChange={(event) =>
+                              setDoorFields((current) => {
+                                const next =
+                                  current.performanceSpecifications ?? {};
+                                const value = event.target.value;
+                                return {
+                                  ...current,
+                                  performanceSpecifications: {
+                                    ...next,
+                                    [field]: value
+                                      ? {
+                                          value: Number(value),
+                                          unit: next[field]?.unit ?? "",
+                                        }
+                                      : null,
+                                  },
+                                };
+                              })
+                            }
+                            className={ADMIN_INPUT}
+                            disabled={isPending}
+                          />
+                          <input
+                            value={measurement?.unit ?? ""}
+                            onChange={(event) =>
+                              setDoorFields((current) => {
+                                const next =
+                                  current.performanceSpecifications ?? {};
+                                return {
+                                  ...current,
+                                  performanceSpecifications: {
+                                    ...next,
+                                    [field]: next[field]
+                                      ? {
+                                          ...next[field],
+                                          unit: event.target.value,
+                                        }
+                                      : null,
+                                  },
+                                };
+                              })
+                            }
+                            aria-label={`${label} unit`}
+                            className={ADMIN_INPUT}
+                            disabled={isPending}
+                          />
+                        </div>
+                      </label>
+                    );
+                  })}
+                  {(
+                    [
+                      ["fireClassification", productCopy.variant.fireClassification],
+                      ["securityClassification", productCopy.variant.securityClassification],
+                    ] as const
+                  ).map(([field, label]) => (
+                    <label key={field}>
+                      <span className={ADMIN_LABEL}>{label}</span>
+                      <input
+                        value={
+                          doorFields.performanceSpecifications?.[field]?.value ??
+                          ""
+                        }
+                        onChange={(event) =>
+                          setDoorFields((current) => {
+                            const next =
+                              current.performanceSpecifications ?? {};
+                            return {
+                              ...current,
+                              performanceSpecifications: {
+                                ...next,
+                                [field]: event.target.value
+                                  ? {
+                                      value: event.target.value,
+                                      ...(next[field]?.standard
+                                        ? { standard: next[field].standard }
+                                        : {}),
+                                    }
+                                  : null,
+                              },
+                            };
+                          })
+                        }
+                        className={ADMIN_INPUT}
+                        disabled={isPending}
+                      />
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            </section>
+
+            <ProductVariantsEditor
+              variants={variants}
               disabled={isPending}
-              open={open}
-              onChange={handleImagesChange}
-              onUploadingChange={setIsUploadingImages}
-              onError={setError}
+              labels={productCopy}
+              onChange={setVariants}
             />
 
             <ProductDrawerCategories
@@ -276,66 +835,14 @@ export function ProductDrawer({
               onSelectedChange={setCategoryIds}
             />
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label>
-                <span className={ADMIN_LABEL}>
-                  Price <span className="text-red-600">*</span>
-                </span>
-                <input
-                  required
-                  min={0}
-                  type="number"
-                  value={priceAmount}
-                  onChange={(event) => setPriceAmount(event.target.value)}
-                  placeholder="AMD price"
-                  className={ADMIN_INPUT}
-                  disabled={isPending}
-                />
-              </label>
-              <label>
-                <span className={ADMIN_LABEL}>Compare at price</span>
-                <input
-                  min={0}
-                  type="number"
-                  value={compareAtAmount}
-                  onChange={(event) => setCompareAtAmount(event.target.value)}
-                  placeholder="Optional"
-                  className={ADMIN_INPUT}
-                  disabled={isPending}
-                />
-              </label>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <label>
-                <span className={ADMIN_LABEL}>
-                  SKU <span className="text-red-600">*</span>
-                </span>
-                <input
-                  required
-                  value={sku}
-                  onChange={(event) => setSku(event.target.value)}
-                  placeholder="SKU"
-                  className={ADMIN_INPUT}
-                  disabled={isPending}
-                />
-              </label>
-              <label>
-                <span className={ADMIN_LABEL}>
-                  Quantity <span className="text-red-600">*</span>
-                </span>
-                <input
-                  required
-                  min={0}
-                  type="number"
-                  value={stockOnHand}
-                  onChange={(event) => setStockOnHand(event.target.value)}
-                  placeholder="Stock"
-                  className={ADMIN_INPUT}
-                  disabled={isPending}
-                />
-              </label>
-            </div>
+            <ProductDrawerImages
+              images={images}
+              disabled={isPending}
+              open={open}
+              onChange={handleImagesChange}
+              onUploadingChange={setIsUploadingImages}
+              onError={setError}
+            />
 
             {error ? <p className="text-sm text-red-700">{error}</p> : null}
           </div>

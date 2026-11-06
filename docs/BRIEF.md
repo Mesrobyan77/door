@@ -64,7 +64,7 @@ White Shop-ը բազմալեզու, բազմարժույթ, production-ready e-c
 ### P2 — launch-ից հետո կամ առանձին հաստատմամբ
 
 - Online payment provider-ներ (Ameriabank/ArCa/Idram/Telcell/FastShift կամ այլ)
-- Product variants-ի ամբողջական UI (schema extension point-ը v1-ում նախատեսվում է)
+- Advanced variant families beyond the user-approved door model/configuration scope
 - Advanced search provider, realtime inventory, background queue
 - Granular staff roles/permissions, refunds automation, tax engine
 - Advanced conversion tracking և personalization
@@ -82,7 +82,7 @@ White Shop-ը բազմալեզու, բազմարժույթ, production-ready e-c
 
 Exact dependency versions-ը pin է արվում implementation kickoff-ի պահին՝ latest stable compatible matrix-ով և lockfile-ով։
 
-Canonical PostgreSQL model-ը lean 25-table schema է։ UI copy-ն locale JSON files-ում է, admin-managed multilingual content-ը parent entity JSONB-ում, իսկ միավորված promotions/order/media model-ները մանրամասն սահմանված են `03-DATA-MODEL.md`-ում։
+User-approved door-store adaptation-ը supersedes է initial variant deferral-ը. `products`-ը ներկայացնում է door model/shared specifications, իսկ `product_variants`-ը՝ sellable configuration/SKU/price/stock։ Canonical PostgreSQL model-ը 26-table schema է։ UI copy-ն locale JSON files-ում է, admin-managed multilingual content-ը parent entity JSONB-ում, իսկ միավորված promotions/order/media model-ները մանրամասն սահմանված են `03-DATA-MODEL.md`-ում։
 
 ## Բիզնես invariants
 

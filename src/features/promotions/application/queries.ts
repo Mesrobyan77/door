@@ -1,9 +1,23 @@
 import "server-only";
 
-import { and, asc, count, desc, eq, ilike, type SQL } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  desc,
+  eq,
+  ilike,
+  inArray,
+  type SQL,
+} from "drizzle-orm";
 
 import { getDb } from "@/db/client";
-import { categories, products, promotions } from "@/db/schema";
+import {
+  categories,
+  productVariants,
+  products,
+  promotions,
+} from "@/db/schema";
 import type { AdminPromotionsFilter } from "@/features/promotions/schemas/admin-promotions";
 
 const PAGE_SIZE = 20;
@@ -96,7 +110,7 @@ export async function getAdminPromotionById(id: string) {
 
 /** Product/category options for automatic discount targeting. */
 export async function listPromotionTargetOptions(): Promise<{
-  products: Array<{ id: string; sku: string; title: string }>;
+  products: Array<{ id: string; sku: string | null; title: string }>;
   categories: Array<{ id: string; title: string }>;
 }> {
   const [productRows, categoryRows] = await Promise.all([
@@ -119,14 +133,42 @@ export async function listPromotionTargetOptions(): Promise<{
       .limit(200),
   ]);
 
+  const variantRows =
+    productRows.length === 0
+      ? []
+      : await getDb()
+          .select({
+            productId: productVariants.productId,
+            sku: productVariants.sku,
+          })
+          .from(productVariants)
+          .where(
+            and(
+              eq(productVariants.status, "ACTIVE"),
+              inArray(
+                productVariants.productId,
+                productRows.map((product) => product.id),
+              ),
+            ),
+          )
+          .orderBy(asc(productVariants.sku));
+  const skuByProduct = new Map<string, string>();
+  for (const variant of variantRows) {
+    if (!skuByProduct.has(variant.productId)) {
+      skuByProduct.set(variant.productId, variant.sku);
+    }
+  }
+
   return {
     products: productRows.map((product) => ({
       id: product.id,
-      sku: product.sku,
+      sku: skuByProduct.get(product.id) ?? product.sku,
       title:
         product.translations.en?.title ??
         product.translations.hy?.title ??
-        product.sku,
+        skuByProduct.get(product.id) ??
+        product.sku ??
+        product.id,
     })),
     categories: categoryRows.map((category) => ({
       id: category.id,

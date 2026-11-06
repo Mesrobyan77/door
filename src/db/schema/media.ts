@@ -13,6 +13,7 @@ import {
 
 import { blogPosts, heroSlides } from "@/db/schema/content";
 import { categories, products } from "@/db/schema/catalog";
+import { productVariants } from "@/db/schema/variants";
 import {
   createdAtColumn,
   idColumn,
@@ -45,6 +46,9 @@ export const mediaAssets = pgTable(
     productId: uuid("product_id").references(() => products.id, {
       onDelete: "restrict",
     }),
+    variantId: uuid("variant_id").references(() => productVariants.id, {
+      onDelete: "restrict",
+    }),
     categoryId: uuid("category_id").references(() => categories.id, {
       onDelete: "restrict",
     }),
@@ -63,12 +67,16 @@ export const mediaAssets = pgTable(
       table.cloudinaryPublicId,
     ),
     index("media_assets_product_idx").on(table.productId),
+    index("media_assets_variant_idx").on(table.variantId),
     index("media_assets_category_idx").on(table.categoryId),
     index("media_assets_hero_idx").on(table.heroSlideId),
     index("media_assets_blog_idx").on(table.blogPostId),
     uniqueIndex("media_assets_product_primary_uidx")
       .on(table.productId)
       .where(sql`${table.productId} IS NOT NULL AND ${table.isPrimary} = true`),
+    uniqueIndex("media_assets_variant_primary_uidx")
+      .on(table.variantId)
+      .where(sql`${table.variantId} IS NOT NULL AND ${table.isPrimary} = true`),
     uniqueIndex("media_assets_hero_desktop_uidx")
       .on(table.heroSlideId)
       .where(
@@ -89,12 +97,14 @@ export const mediaAssets = pgTable(
       sql`(
         (${table.uploadStatus} = 'PENDING'
           AND ${table.productId} IS NULL
+          AND ${table.variantId} IS NULL
           AND ${table.categoryId} IS NULL
           AND ${table.heroSlideId} IS NULL
           AND ${table.blogPostId} IS NULL)
         OR (${table.role} = 'BRANDING' AND ${table.purpose} IS NOT NULL)
         OR (
           (${table.productId} IS NOT NULL)::int
+          + (${table.variantId} IS NOT NULL)::int
           + (${table.categoryId} IS NOT NULL)::int
           + (${table.heroSlideId} IS NOT NULL)::int
           + (${table.blogPostId} IS NOT NULL)::int

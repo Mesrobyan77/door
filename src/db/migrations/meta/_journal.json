@@ -29,6 +29,13 @@
       "when": 1793952671009,
       "tag": "0003_cloudinary_media_storage",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1793956366907,
+      "tag": "0004_door_variants",
+      "breakpoints": true
     }
   ]
 }

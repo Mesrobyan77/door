@@ -26,7 +26,7 @@ function buildProductJsonLd(input: {
   title: string;
   description?: string;
   sku: string;
-  priceAmount: number;
+  priceAmount: number | null;
   imageUrl: string | null;
   inStock: boolean;
 }): Record<string, unknown> {
@@ -41,15 +41,19 @@ function buildProductJsonLd(input: {
     url,
     ...(input.description ? { description: input.description } : {}),
     ...(input.imageUrl ? { image: input.imageUrl } : {}),
-    offers: {
-      "@type": "Offer",
-      url,
-      priceCurrency: "AMD",
-      price: String(input.priceAmount),
-      availability: input.inStock
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-    },
+    ...(input.priceAmount != null
+      ? {
+          offers: {
+            "@type": "Offer",
+            url,
+            priceCurrency: "AMD",
+            price: String(input.priceAmount),
+            availability: input.inStock
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+          },
+        }
+      : {}),
   };
 }
 
@@ -113,21 +117,27 @@ export default async function ProductPage({ params }: ProductPageProps) {
     isProductInWishlist(product.id),
   ]);
   const formatPrice = await createDisplayPriceFormatter(locale, currency);
-  const price = formatPrice(product.priceAmount);
-  const compareAt =
-    product.compareAtAmount != null
-      ? formatPrice(product.compareAtAmount)
-      : null;
+  const variants = product.variants.map((variant) => ({
+    ...variant,
+    priceFormatted:
+      variant.priceAmount == null
+        ? null
+        : formatPrice(variant.priceAmount).formatted,
+    compareAtFormatted:
+      variant.compareAtAmount == null
+        ? null
+        : formatPrice(variant.compareAtAmount).formatted,
+  }));
 
   const jsonLd = buildProductJsonLd({
     locale,
     slug: product.translation.slug,
     title: product.translation.title,
     description: product.translation.description,
-    sku: product.sku,
+    sku: product.variants[0]?.sku ?? product.sku,
     priceAmount: product.priceAmount,
     imageUrl: product.images[0]?.url ?? product.imageUrl,
-    inStock: product.stockOnHand > 0,
+    inStock: product.variants.some((variant) => variant.purchasable),
   });
 
   const isSignedIn = Boolean(user);
@@ -136,8 +146,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     <ProductDetailView
       locale={locale}
       product={product}
-      priceFormatted={price.formatted}
-      compareAtFormatted={compareAt?.formatted ?? null}
+      variants={variants}
       isSignedIn={isSignedIn}
       inWishlist={inWishlist}
       dictionary={dictionary}

@@ -4,6 +4,7 @@ import { ADMIN_PAGE_TITLE } from "@/features/admin/ui/admin-form-classes";
 import { getAdminDiscountsBoard } from "@/features/promotions/application/discounts-board";
 import { AdminDiscountsView } from "@/features/promotions/ui/AdminDiscountsView";
 import { isLocale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/get-dictionary";
 
 type AdminDiscountsPageProps = {
   params: Promise<{ locale: string }>;
@@ -25,7 +26,11 @@ export default async function AdminDiscountsPage({
         <h1 className={ADMIN_PAGE_TITLE}>Discounts</h1>
       </div>
 
-      <AdminDiscountsView locale={locale} board={board} />
+      <AdminDiscountsView
+        locale={locale}
+        board={board}
+        inquiryLabel={getDictionary(locale).product.variant.inquiry}
+      />
     </section>
   );
 }

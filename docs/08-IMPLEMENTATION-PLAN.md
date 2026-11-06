@@ -49,7 +49,7 @@
 
 ### Deliverables
 
-- Canonical 25-table migration՝ ըստ `03-DATA-MODEL.md` exact inventory-ի։
+- Canonical 26-table migration՝ ըստ `03-DATA-MODEL.md` inventory-ի; the door-variant incremental migration requires an approved non-production target before application։
 - Identity schema՝ users/sessions/addresses, իսկ verification/reset tokens՝ Redis TTL/atomic consume contract-ով։
 - Catalog/content entities՝ validated translation JSONB + locale slug expression indexes։
 - Unified promotions, embedded order address/idempotency snapshots, order events, audit և outbox schema։
@@ -59,7 +59,7 @@
 ### Exit criteria
 
 - Fresh + incremental migrations pass։
-- Schema inventory assertion-ը հաստատում է ճիշտ 25 application table։
+- Schema inventory assertion-ը հաստատում է ճիշտ 26 application table։
 - Constraints/concurrency integration tests pass։
 - Seed-ը կրկնակի run-ից հետո duplicate չի ստեղծում։
 
@@ -86,6 +86,7 @@
 - Admin categories hierarchy և product CRUD/publish/archive։
 - Multilingual translations/slugs/SEO/media sorting/primary image։
 - Inventory adjustment + movements, featured/upcoming/badge fields։
+- Door model/shared specifications plus sellable variant SKU, dimensions, appearance, handing/swing, included components, price, stock and status management։
 - Admin table/drawer primitives և audit logs։
 
 ### Exit criteria
@@ -102,6 +103,7 @@
 - Home hero/featured/about/CTA։
 - Product list search/filter/sort/page URL contract։
 - Product detail gallery/quantity/related products։
+- Explicit door-variant selection, variant-aware pricing/availability and inquiry-only handling։
 - Dynamic metadata, canonical/hreflang, sitemap/robots և Product/Breadcrumb JSON-LD։
 
 ### Exit criteria
@@ -117,6 +119,7 @@
 - Delivery matcher/rules admin։
 - Address/contact checkout steps և server order calculator։
 - COD payment adapter, idempotent transactional order creation, stock decrement/movements/cart clear։
+- Variant-locked price/stock validation and immutable product/model/configuration order-item snapshots։
 - Confirmation page և order email event։
 
 ### Exit criteria

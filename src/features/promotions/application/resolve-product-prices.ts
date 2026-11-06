@@ -16,6 +16,13 @@ export type ProductPriceInput = {
   compareAtAmount?: number | null;
 };
 
+export type VariantPriceInput = {
+  id: string;
+  productId: string;
+  priceAmount: number;
+  compareAtAmount?: number | null;
+};
+
 type AutomaticPromoRow = {
   discountValue: number;
   productId: string | null;
@@ -29,12 +36,32 @@ type AutomaticPromoRow = {
 export async function resolveProductPrices(
   products: ProductPriceInput[],
 ): Promise<Map<string, ResolvedCatalogPrice>> {
+  return resolvePrices(
+    products.map((product) => ({
+      id: product.id,
+      productId: product.id,
+      priceAmount: product.priceAmount,
+      compareAtAmount: product.compareAtAmount,
+    })),
+  );
+}
+
+/** Resolves prices on the actual sellable variants using their parent promotions. */
+export async function resolveVariantPrices(
+  variants: VariantPriceInput[],
+): Promise<Map<string, ResolvedCatalogPrice>> {
+  return resolvePrices(variants);
+}
+
+async function resolvePrices(
+  products: VariantPriceInput[],
+): Promise<Map<string, ResolvedCatalogPrice>> {
   const result = new Map<string, ResolvedCatalogPrice>();
   if (products.length === 0) {
     return result;
   }
 
-  const productIds = products.map((product) => product.id);
+  const productIds = [...new Set(products.map((product) => product.productId))];
   const [globalDiscount, promoRows, categoryLinks] = await Promise.all([
     getStoreGlobalDiscount(),
     getDb()
@@ -85,7 +112,7 @@ export async function resolveProductPrices(
   }
 
   for (const product of products) {
-    const categoryIds = categoriesByProduct.get(product.id) ?? [];
+    const categoryIds = categoriesByProduct.get(product.productId) ?? [];
     const categoryPercents = categoryIds.map(
       (categoryId) => categoryPercent.get(categoryId) ?? null,
     );
@@ -94,7 +121,7 @@ export async function resolveProductPrices(
       product.id,
       resolveCatalogPrice({
         listAmount: product.priceAmount,
-        productPercent: productPercent.get(product.id) ?? null,
+        productPercent: productPercent.get(product.productId) ?? null,
         categoryPercents,
         globalPercent: globalDiscount.percentage,
         manualCompareAtAmount: product.compareAtAmount ?? null,

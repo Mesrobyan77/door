@@ -14,6 +14,7 @@ import { useSyncedState } from "@/lib/react/sync-state-from-prop";
 type ProductDiscountsSectionProps = {
   locale: string;
   products: DiscountBoardProduct[];
+  inquiryLabel: string;
 };
 
 function formatPrice(amount: number, currency = "AMD"): string {
@@ -43,6 +44,7 @@ function draftsFromProducts(
 export function ProductDiscountsSection({
   locale,
   products,
+  inquiryLabel,
 }: ProductDiscountsSectionProps) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -60,7 +62,7 @@ export function ProductDiscountsSection({
       (product) =>
         product.title.toLowerCase().includes(needle) ||
         product.slug.toLowerCase().includes(needle) ||
-        product.sku.toLowerCase().includes(needle),
+        (product.sku ?? "").toLowerCase().includes(needle),
     );
   }, [products, query]);
 
@@ -149,7 +151,10 @@ export function ProductDiscountsSection({
                       {product.title}
                     </p>
                     <p className="text-xs text-gray-500">
-                      {formatPrice(product.priceAmount)} · {product.sku}
+                      {product.priceAmount == null
+                        ? inquiryLabel
+                        : formatPrice(product.priceAmount)}{" "}
+                      · {product.sku ?? "—"}
                     </p>
                   </div>
                 </div>

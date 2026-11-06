@@ -4,7 +4,12 @@ import { and, eq, isNull } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { getDb } from "@/db/client";
-import { products, type TranslationsJson } from "@/db/schema";
+import {
+  productVariants,
+  products,
+  type TranslationsJson,
+} from "@/db/schema";
+import { withTransaction } from "@/db/transaction";
 import {
   productIdsSchema,
   type ProductIdsInput,
@@ -13,6 +18,7 @@ import { requireAdmin } from "@/lib/auth/policies";
 import { invalidateProductsCache } from "@/lib/cache/invalidate-public";
 import { createId } from "@/lib/id";
 import { isLocale, locales, type Locale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { err, ok, type Result } from "@/lib/result";
 
 function revalidateProducts(
@@ -119,31 +125,75 @@ export async function toggleProductVisibilityAction(
   }
 
   await requireAdmin(locale as Locale);
-  const [existing] = await getDb()
-    .select({
-      id: products.id,
-      status: products.status,
-      translations: products.translations,
-    })
-    .from(products)
-    .where(and(eq(products.id, productId), isNull(products.deletedAt)))
-    .limit(1);
+  const result = await withTransaction(async (tx) => {
+    const [existing] = await tx
+      .select({
+        id: products.id,
+        status: products.status,
+        translations: products.translations,
+        doorClassification: products.doorClassification,
+      })
+      .from(products)
+      .where(and(eq(products.id, productId), isNull(products.deletedAt)))
+      .for("update")
+      .limit(1);
 
-  if (!existing) {
-    return err("NOT_FOUND", "Product not found.");
+    if (!existing) return { error: "NOT_FOUND" as const };
+
+    const nextStatus = existing.status === "ACTIVE" ? "DRAFT" : "ACTIVE";
+    if (nextStatus === "ACTIVE") {
+      const variants = await tx
+        .select({
+          itemType: productVariants.itemType,
+          status: productVariants.status,
+        })
+        .from(productVariants)
+        .where(eq(productVariants.productId, existing.id));
+      const availableConfigurations = variants.filter(
+        (variant) => variant.status !== "ARCHIVED",
+      );
+      if (availableConfigurations.length === 0) {
+        return { error: "CONFIGURATION_REQUIRED" as const };
+      }
+      if (
+        availableConfigurations.some(
+          (variant) => variant.itemType !== "LEGACY",
+        ) &&
+        !existing.doorClassification
+      ) {
+        return { error: "CLASSIFICATION_REQUIRED" as const };
+      }
+    }
+
+    await tx
+      .update(products)
+      .set({ status: nextStatus, updatedAt: new Date() })
+      .where(eq(products.id, existing.id));
+    return {
+      existing,
+      nextStatus,
+    };
+  });
+
+  if ("error" in result) {
+    if (result.error === "NOT_FOUND") return err("NOT_FOUND", "Product not found.");
+    if (result.error === "CONFIGURATION_REQUIRED") {
+      return err(
+        "VALIDATION_ERROR",
+        getDictionary(locale as Locale).product.variant.publishNeedsConfiguration,
+      );
+    }
+    return err(
+      "VALIDATION_ERROR",
+      getDictionary(locale as Locale).product.variant.publishNeedsClassification,
+    );
   }
 
-  const nextStatus = existing.status === "ACTIVE" ? "DRAFT" : "ACTIVE";
-  await getDb()
-    .update(products)
-    .set({ status: nextStatus, updatedAt: new Date() })
-    .where(eq(products.id, existing.id));
-
   revalidateProducts(locale, {
-    id: existing.id,
-    translations: existing.translations,
+    id: result.existing.id,
+    translations: result.existing.translations,
   });
-  return ok({ status: nextStatus });
+  return ok({ status: result.nextStatus });
 }
 
 function withCopySuffix(translations: TranslationsJson): TranslationsJson {
@@ -182,25 +232,61 @@ export async function duplicateProductAction(
 
   const id = createId();
   const skuSuffix = createId().slice(0, 6);
-  await getDb().insert(products).values({
-    id,
-    sku: `${existing.sku}-COPY-${skuSuffix}`,
-    translations: withCopySuffix(existing.translations),
-    priceAmount: existing.priceAmount,
-    compareAtAmount: existing.compareAtAmount,
-    stockOnHand: 0,
-    lowStockThreshold: existing.lowStockThreshold,
-    status: "DRAFT",
-    isFeatured: false,
-    isUpcoming: existing.isUpcoming,
-    badgeTranslations: existing.badgeTranslations,
-    badgeStyle: existing.badgeStyle,
-    badgePosition: existing.badgePosition,
+  const translations = withCopySuffix(existing.translations);
+  const variants = await getDb()
+    .select()
+    .from(productVariants)
+    .where(eq(productVariants.productId, existing.id));
+
+  await withTransaction(async (tx) => {
+    await tx.insert(products).values({
+      id,
+      sku: `${existing.sku.slice(0, 100)}-COPY-${skuSuffix}`,
+      translations,
+      priceAmount: existing.priceAmount,
+      compareAtAmount: existing.compareAtAmount,
+      stockOnHand: 0,
+      lowStockThreshold: existing.lowStockThreshold,
+      status: "DRAFT",
+      isFeatured: false,
+      isUpcoming: existing.isUpcoming,
+      badgeTranslations: existing.badgeTranslations,
+      badgeStyle: existing.badgeStyle,
+      badgePosition: existing.badgePosition,
+      brandName: existing.brandName,
+      modelName: existing.modelName,
+      collectionName: existing.collectionName,
+      doorClassification: existing.doorClassification,
+      entranceEnvironments: existing.entranceEnvironments,
+      structuralMaterial: existing.structuralMaterial,
+      coreMaterial: existing.coreMaterial,
+      surfaceCoating: existing.surfaceCoating,
+      hasGlazing: existing.hasGlazing,
+      glazingType: existing.glazingType,
+      manufacturer: existing.manufacturer,
+      countryOfManufacture: existing.countryOfManufacture,
+      openingMechanism: existing.openingMechanism,
+      frameSystem: existing.frameSystem,
+      leafConfiguration: existing.leafConfiguration,
+      performanceSpecifications: existing.performanceSpecifications,
+    });
+
+    for (const variant of variants) {
+      await tx.insert(productVariants).values({
+        ...variant,
+        id: createId(),
+        productId: id,
+        sku: `${variant.sku.slice(0, 100)}-COPY-${createId().slice(0, 6)}`,
+        stockOnHand: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+    }
   });
 
   revalidateProducts(locale, {
     id,
-    translations: withCopySuffix(existing.translations),
+    translations,
   });
   return ok({ id });
 }

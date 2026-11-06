@@ -39,12 +39,13 @@ locales/
 - Namespace/key parity-ն `hy/en/ru`-ի միջև CI check ունի։
 - Missing key-ը development-ում visible failure է, production-ում controlled fallback + telemetry; launch namespaces-ում missing keys չեն թույլատրվում։
 - UI component-ում hardcoded visible copy չկա, ներառյալ aria labels, toast, validation, empty/error states և email templates։
+- Door classification, variant/item type, dimension, appearance, handing/swing, availability and included-component UI labels-ը համընկնում են `hy`/`en`/`ru` namespaces-ում; stored measurements remain integer millimetres and values are not translated.
 - Dates, times, lists, pluralization և numbers-ը locale-aware formatter են օգտագործում։ String concatenation-ի փոխարեն ամբողջ message template է թարգմանվում։
 - Translation value-ի մեջ raw unsanitized HTML default արգելված է։
 
 ## 3. Database translation model
 
-- Product, category, hero և blog admin-managed translations-ը պահվում են համապատասխան parent table-ի versioned `translations JSONB` դաշտում։ Առանձին translation tables չկան canonical 25-table schema-ում։
+- Product, category, hero և blog admin-managed translations-ը պահվում են համապատասխան parent table-ի versioned `translations JSONB` դաշտում։ Առանձին translation tables չկան canonical 26-table schema-ում։
 - JSON structure-ը entity-specific Zod schema ունի; `hy`/`en`/`ru` keys-ը optional են (partial translations թույլատրված են՝ `DEC-017`)։
 - Slug-ը unique է per locale/entity namespace՝ PostgreSQL expression unique indexes-ով (`translations->'hy'->>'slug'` և այլն) միայն առկա locale keys-ի համար։
 - Public publish command-ը ստուգում է առնվազն մեկ լրիվ locale-ի completeness-ը, ոչ բոլոր երեք locale-ները։

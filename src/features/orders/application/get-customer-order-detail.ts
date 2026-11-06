@@ -35,5 +35,5 @@ export async function getCustomerOrderDetailAction(
   }
 
   const identity = await getStoreIdentity();
-  return ok(toAdminOrderDetailView(loaded, identity.name));
+  return ok(toAdminOrderDetailView(loaded, identity.name, locale as Locale));
 }

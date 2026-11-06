@@ -9,11 +9,13 @@ import { ProductDiscountsSection } from "@/features/promotions/ui/ProductDiscoun
 type AdminDiscountsViewProps = {
   locale: string;
   board: AdminDiscountsBoard;
+  inquiryLabel: string;
 };
 
 export function AdminDiscountsView({
   locale,
   board,
+  inquiryLabel,
 }: AdminDiscountsViewProps) {
   return (
     <div className="flex w-full flex-col gap-6">
@@ -30,7 +32,11 @@ export function AdminDiscountsView({
         categories={board.categories}
       />
 
-      <ProductDiscountsSection locale={locale} products={board.products} />
+      <ProductDiscountsSection
+        locale={locale}
+        products={board.products}
+        inquiryLabel={inquiryLabel}
+      />
     </div>
   );
 }

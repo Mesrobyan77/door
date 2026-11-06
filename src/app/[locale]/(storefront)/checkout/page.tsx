@@ -5,10 +5,11 @@ import { getCheckoutDeliveryOptions } from "@/features/checkout/application/get-
 import { getCheckoutOrderProducts } from "@/features/checkout/application/get-checkout-order-products";
 import { CheckoutForm } from "@/features/checkout/ui/CheckoutForm";
 import { getDefaultShippingAddress } from "@/features/profile/application/address-queries";
-import { resolveProductPrices } from "@/features/promotions/application/resolve-product-prices";
+import { resolveVariantPrices } from "@/features/promotions/application/resolve-product-prices";
 import { getCurrentUser } from "@/lib/auth/session";
 import { isLocale } from "@/lib/i18n/config";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { isVariantPurchasable } from "@/features/products/domain/door-variant";
 
 type CheckoutPageProps = {
   params: Promise<{ locale: string }>;
@@ -29,17 +30,31 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
   ]);
   const [defaultAddress, prices, orderProducts] = await Promise.all([
     user ? getDefaultShippingAddress(user.id) : Promise.resolve(null),
-    resolveProductPrices(
-      items.map(({ product }) => ({
-        id: product.id,
-        priceAmount: product.priceAmount,
-        compareAtAmount: product.compareAtAmount,
-      })),
+    resolveVariantPrices(
+      items.flatMap(({ product, variant }) =>
+        variant.priceAmount == null
+          ? []
+          : [{
+              id: variant.id,
+              productId: product.id,
+              priceAmount: variant.priceAmount,
+              compareAtAmount: variant.compareAtAmount,
+            }],
+      ),
     ),
     getCheckoutOrderProducts(rawLocale, items),
   ]);
-  const subtotal = items.reduce((sum, { item, product }) => {
-    const unit = prices.get(product.id)?.unitAmount ?? product.priceAmount;
+  const canCheckout =
+    items.length > 0 &&
+    items.every(
+      ({ product, variant }) =>
+        product.status === "ACTIVE" &&
+        isVariantPurchasable({ product, variant }),
+    );
+  const subtotal = items.reduce((sum, { item, variant }) => {
+    if (variant.priceAmount == null) return sum;
+    const unit =
+      prices.get(variant.id)?.unitAmount ?? variant.priceAmount;
     return sum + item.quantity * unit;
   }, 0);
 
@@ -47,7 +62,8 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
     <CheckoutForm
       locale={rawLocale}
       productsHref={`/${rawLocale}/products`}
-      hasItems={items.length > 0}
+      hasItems={canCheckout}
+      hasCartLines={items.length > 0}
       orderProducts={orderProducts}
       defaultFirstName={
         defaultAddress?.recipientFirstName ?? user?.firstName ?? ""
@@ -117,6 +133,9 @@ export default async function CheckoutPage({ params }: CheckoutPageProps) {
         cartEmpty: copy.errors.cartEmpty,
         cartEmptyDescription: copy.errors.cartEmptyDescription,
         cartEmptyCta: copy.errors.cartEmptyCta,
+        variantUnavailable: copy.errors.variantUnavailable,
+        variantUnavailableDescription:
+          copy.errors.variantUnavailableDescription,
       }}
     />
   );

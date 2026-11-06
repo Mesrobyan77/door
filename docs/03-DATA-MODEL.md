@@ -2,9 +2,9 @@
 
 **Database.** PostgreSQL (Neon)
 **ORM/migrations.** Drizzle ORM / Drizzle Kit
-**Կարգավիճակ.** Canonical 25-table schema migrated; idempotent seed available (`pnpm db:seed`)
-**Canonical table count.** 25
-**Վերջին թարմացում.** 2026-07-18
+**Կարգավիճակ.** Canonical 26-table schema; door-variant migration prepared, not applied
+**Canonical table count.** 26
+**Վերջին թարմացում.** 2026-12-10
 
 ## 1. Սխեմայի նպատակը
 
@@ -29,7 +29,7 @@
 - Financial, stock և audit records-ը hard delete չեն ընդունում։
 - Flexible JSONB-ը միշտ Zod schema/version ունի և business-critical relational կապերը չի փոխարինում։
 
-## 3. Canonical 25-table inventory
+## 3. Canonical 26-table inventory
 
 | # | Table | Domain | Նշանակություն |
 |---:|---|---|---|
@@ -38,31 +38,32 @@
 | 3 | `addresses` | Customer | Saved shipping/billing addresses |
 | 4 | `media_assets` | Media | Cloudinary secure URL/public ID, owner, role, ordering |
 | 5 | `store_settings` | System | Typed public store configuration |
-| 6 | `products` | Catalog | Product, translations, price, current stock |
-| 7 | `categories` | Catalog | Hierarchy և translations |
-| 8 | `product_categories` | Catalog | Product/category many-to-many կապ |
-| 9 | `stock_movements` | Inventory | Immutable stock ledger |
-| 10 | `hero_slides` | Content | Hero configuration և translations |
-| 11 | `blog_posts` | Content | Blog content, translations և tags |
-| 12 | `carts` | Commerce | Guest/customer cart identity/lifecycle |
-| 13 | `cart_items` | Commerce | Cart product quantities |
-| 14 | `wishlist_items` | Commerce | Customer wishlist entries |
-| 15 | `promotions` | Pricing | Coupons և automatic discounts մեկ rule model-ում |
-| 16 | `promotion_users` | Pricing | User-restricted promotion allowlist |
-| 17 | `delivery_rules` | Fulfillment | Location-based delivery pricing |
-| 18 | `orders` | Orders | Order, address/money/promotion snapshots, idempotency |
-| 19 | `order_items` | Orders | Immutable purchased-item snapshots |
-| 20 | `order_events` | Orders | Status, notes և payment provider events |
-| 21 | `payments` | Payments | Payment attempts/current provider state |
-| 22 | `reviews` | Engagement | Verified-purchase reviews/moderation |
-| 23 | `contact_messages` | Support | Contact inbox |
-| 24 | `audit_logs` | Security | Immutable admin/security audit |
-| 25 | `outbox_events` | Reliability | Reliable post-commit email/provider/cache work |
+| 6 | `products` | Catalog | Door model, translations, shared specifications and lifecycle |
+| 7 | `product_variants` | Catalog | Sellable door configurations, SKU, price and inventory |
+| 8 | `categories` | Catalog | Hierarchy և translations |
+| 9 | `product_categories` | Catalog | Product/category many-to-many կապ |
+| 10 | `stock_movements` | Inventory | Immutable variant stock ledger |
+| 11 | `hero_slides` | Content | Hero configuration և translations |
+| 12 | `blog_posts` | Content | Blog content, translations և tags |
+| 13 | `carts` | Commerce | Guest/customer cart identity/lifecycle |
+| 14 | `cart_items` | Commerce | Sellable variant quantities |
+| 15 | `wishlist_items` | Commerce | Customer wishlist entries |
+| 16 | `promotions` | Pricing | Coupons և automatic discounts մեկ rule model-ում |
+| 17 | `promotion_users` | Pricing | User-restricted promotion allowlist |
+| 18 | `delivery_rules` | Fulfillment | Location-based delivery pricing |
+| 19 | `orders` | Orders | Order, address/money/promotion snapshots, idempotency |
+| 20 | `order_items` | Orders | Immutable purchased variant/model snapshots |
+| 21 | `order_events` | Orders | Status, notes և payment provider events |
+| 22 | `payments` | Payments | Payment attempts/current provider state |
+| 23 | `reviews` | Engagement | Verified-purchase reviews/moderation |
+| 24 | `contact_messages` | Support | Contact inbox |
+| 25 | `audit_logs` | Security | Immutable admin/security audit |
+| 26 | `outbox_events` | Reliability | Reliable post-commit email/provider/cache work |
 
 ### Count assumptions
 
 - Login-ը email/password է։ OAuth ավելացնելիս կարող է ավելանալ `accounts` table։
-- Product variants-ը launch scope-ում table չունի։ Variants ավելացնելիս առանձին schema migration է պահանջվում։
+- Sellable door configurations-ը պահվում են `product_variants`-ում, իսկ shared model/specification data-ն՝ `products`-ում։
 - COD և online payment attempts-ը երկուսն էլ տեղավորվում են `payments`-ում։
 - Verification/reset tokens-ը PostgreSQL table չեն. դրանք Upstash Redis-ում hashed, expiring, atomic single-use records են։
 
@@ -112,6 +113,7 @@ Fields՝ owner user, label, recipient names, phone, country code, region, city, 
 Entity ownership-ը պահվում է typed nullable FKs-ով՝
 
 - `product_id`
+- `variant_id`
 - `category_id`
 - `hero_slide_id`
 - `blog_post_id`
@@ -121,6 +123,7 @@ Entity ownership-ը պահվում է typed nullable FKs-ով՝
 Partial unique constraints՝
 
 - մեկ primary media per product,
+- մեկ primary media per variant,
 - մեկ desktop և մեկ mobile media role per hero slide,
 - մեկ cover media per blog post/category՝ ըստ role policy-ի։
 
@@ -139,18 +142,34 @@ Typed key/value model՝ store identity, public contacts/address, locales/currenc
 
 | Group | Fields/invariants |
 |---|---|
-| Identity | ID, normalized SKU UNIQUE |
+| Identity | ID; represents the door model, not an individual sellable configuration |
 | Translations | `translations JSONB` — optional per-locale objects (`hy`/`en`/`ru`) with title, slug, description, SEO |
-| Pricing | base/compare-at AMD integer amounts, non-negative checks |
-| Inventory | `stock_on_hand`, low-stock threshold, optional optimistic version; non-negative առանց backorder approval-ի |
+| Shared door data | Brand/model/collection, interior-or-entrance classification, entrance environment, material/coating/glazing, manufacturer/country, mechanism/frame/leaf configuration and performance specifications |
 | Lifecycle | draft/active/archived, featured/upcoming, timestamps/deleted_at |
 | Presentation | badge label translations/style/position |
 
 Translation JSON schema-ն թույլ է տալիս partial locales (`DEC-017`)։ Publish-ին պարտադիր է առնվազն մեկ լրիվ locale object; բացակա locale-ը այդ storefront լեզվում չի ցուցադրվում։ Fixed locale slug uniqueness-ը enforce է արվում expression unique indexes-ով միայն առկա locale keys-ի համար, օրինակ `translations->'hy'->>'slug'`։
 
-Current stock-ը `products`-ում է արագ և atomic availability check-ի համար։ Ամեն manual/order stock mutation-ը նույն transaction-ում `stock_movements` row է ստեղծում։
+Legacy `sku`, `price_amount`, compare-at և stock columns-ը պահվում են migration/compatibility transition-ի համար. նոր catalog/cart/checkout/admin price and inventory flows-ի source of truth-ը `product_variants`-ն է։
 
-### 6.2 `categories`
+### 6.2 `product_variants`
+
+Մեկ row-ը actual sellable configuration է՝ կապված մեկ model-ի հետ։
+
+| Group | Fields/invariants |
+|---|---|
+| Identity | Product FK, globally unique SKU, unique `(product_id, configuration_key)` |
+| Sellable state | `item_type` (`LEGACY`, `LEAF_ONLY`, `FRAMED_UNIT`, `FIXED_PACKAGE`), `status` (`ACTIVE`, `INQUIRY`, `ARCHIVED`) |
+| Money/inventory | Nullable integer AMD price/compare-at, stock and low-stock threshold; non-negative checks |
+| Measurements | Integer millimetres: leaf width/height/thickness, secondary leaf width, overall framed-unit width/height, frame depth and required rough-opening width/height |
+| Configuration | Color/finish (including exterior values), handing, swing and JSONB included-component statuses/quantities |
+| Media | Optional variant-owned media through `media_assets.variant_id` |
+
+`LEAF_ONLY` requires leaf width and height; `FRAMED_UNIT`/`FIXED_PACKAGE` require overall unit width and height. Supplied measurements must be positive. Compare-at cannot be below price. `INQUIRY` can have no confirmed price; it is not add-to-cart purchasable. `LEGACY` variants preserve existing catalog rows and retain their existing product UUID as variant UUID.
+
+Handing is stored as an explicit supplier/admin value (`LEFT`, `RIGHT`, `REVERSIBLE`, or `NOT_APPLICABLE`), separate from swing direction. The current model does not persist a viewing-side selector; never infer handing from a product photo or swing value.
+
+### 6.3 `categories`
 
 Self-referencing `parent_id`, `translations JSONB`, sort order, active/archive state և timestamps։
 
@@ -158,13 +177,13 @@ Self-referencing `parent_id`, `translations JSONB`, sort order, active/archive s
 - Self/descendant parent արգելքը application recursive check + transaction guard է։
 - Children/products ունեցող category-ն reassign կամ archive է արվում։
 
-### 6.3 `product_categories`
+### 6.4 `product_categories`
 
 Composite unique `(product_id, category_id)`, optional `is_primary`, sort metadata և reverse lookup indexes։ Պահվում է, որովհետև product-ը կարող է ունենալ մի քանի category։
 
-### 6.4 `stock_movements`
+### 6.5 `stock_movements`
 
-Immutable ledger՝ product, signed delta, reason (`ORDER`,`CANCEL`,`RETURN`,`ADMIN_ADJUSTMENT`,`IMPORT`...), optional order/actor, resulting balance, correlation ID և timestamp։
+Immutable ledger՝ product and required variant FK, signed delta, reason (`ORDER`,`CANCEL`,`RETURN`,`ADMIN_ADJUSTMENT`,`IMPORT`...), optional order/actor, resulting variant balance, correlation ID և timestamp։
 
 Direct unexplained stock overwrite չի թույլատրվում։
 
@@ -188,7 +207,7 @@ Nullable user կամ guest token hash, status (`ACTIVE`,`MERGED`,`CONVERTED`,`AB
 
 ### 8.2 `cart_items`
 
-Cart/product, quantity > 0, timestamps և unique `(cart_id, product_id)`։ Cart-ի ցուցադրվող price-ը authoritative snapshot չէ. checkout-ը նորից հաշվարկում է։
+Cart/product/variant, quantity > 0, timestamps և unique `(cart_id, variant_id)`։ Cart-ի ցուցադրվող price-ը authoritative snapshot չէ. checkout-ը variant-ից նորից հաշվարկում է։
 
 ### 8.3 `wishlist_items`
 
@@ -246,7 +265,7 @@ Order JSON snapshots-ը versioned Zod schema ունեն։ Client total/stock/pro
 
 ### 10.2 `order_items`
 
-Order, nullable product reference, product title/SKU/image/attributes snapshots, quantity, unit base/display amounts, compare-at, discount/tax/line totals և currency context։ Product update/archive-ից հետո պատմական order-ը նույնն է մնում։
+Order, nullable product/variant references, product title and variant SKU, shared model/specification and sellable configuration snapshots (measurements, appearance, handing/swing and included components), image, quantity, unit base/display amounts, compare-at, discount/tax/line totals և currency context։ Product/variant update/archive-ից հետո պատմական order-ը նույնն է մնում։
 
 ### 10.3 `order_events`
 
@@ -316,8 +335,8 @@ Redis loss-ը չի կորցնում order/cart/product/user durable source of tr
 - Products/categories/blog/hero՝ status/date/sort + fixed-locale slug expression unique indexes։
 - Media՝ object key unique, owner/role/sort և partial primary/cover/desktop/mobile uniqueness։
 - Product-category both lookup directions։
-- Products stock/low-stock և stock movements product/time/order։
-- Carts active owner/token և cart items composite unique։
+- Product variants՝ product/status, availability, global SKU and configuration identity; stock movements variant/time/order։
+- Carts active owner/token և cart items `(cart_id, variant_id)` composite unique։
 - Wishlist user/product unique։
 - Promotions normalized code unique, active/date/target indexes; promotion users composite unique։
 - Delivery active country/region/city/priority։
@@ -342,10 +361,9 @@ Actual indexes-ը validate են արվում representative data-ի `EXPLAIN (AN
 | `audit_logs` / `outbox_events` | Immutable evidence vs mutable retry queue |
 | `users` / `addresses` | Multiple saved addresses և independent defaults |
 
-## 17. Optional future tables — canonical 25-ի մեջ չեն
+## 17. Optional future tables — canonical 26-ի մեջ չեն
 
 - `accounts` — OAuth/social login ավելացնելիս։
-- Variant/inventory tables — իրական product variants ավելացնելիս։
 - `refunds`/`returns` — partial refund/return workflows launch scope մտնելիս։
 - Durable analytics aggregates — միայն measured query/load need-ից հետո։
 
@@ -353,7 +371,9 @@ Actual indexes-ը validate են արվում representative data-ի `EXPLAIN (AN
 
 ## 18. Migration և seed acceptance criteria
 
-- [x] Fresh migration-ը ստեղծում է ճիշտ 25 application table։
+- [x] Fresh migration baseline-ը ստեղծում է 25 application table։
+- [x] Door-variant migration-ը ավելացնում է `product_variants` և compatibility variant-ներ՝ առանց legacy data rewrite-ի։
+- [ ] Incremental door-variant migration-ը կիրառել միայն հաստատված non-production target-ում, հետո ստուգել product/cart/stock/order reconciliation-ը։
 - [x] Յուրաքանչյուր FK ունի explicit delete behavior։
 - [ ] JSONB schemas/versioning և locale expression indexes tested են։
 - [ ] Money/range/exactly-one-owner/target constraints tested են։

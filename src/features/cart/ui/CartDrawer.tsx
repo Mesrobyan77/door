@@ -52,6 +52,7 @@ export function CartDrawer({
   const [loadingView, setLoadingView] = useState(false);
   const [pending, startTransition] = useTransition();
   const labels = dictionary.cartDrawer;
+  const variantLabels = dictionary.product.variant;
   // Prefer live server count while closed — cached view goes stale after addToCart.
   const badgeCount = open && view != null ? view.itemCount : itemCount;
   const hasItems = Boolean(view && view.items.length > 0);
@@ -184,12 +185,17 @@ export function CartDrawer({
                           <p className="line-clamp-2 text-sm font-medium text-gray-900">
                             {item.title}
                           </p>
+                          <p className="mt-1 text-xs text-gray-500">
+                            {item.configuration}
+                          </p>
                           <p className="mt-1 text-sm font-semibold text-gray-900">
-                            {item.lineTotalFormatted}
+                            {item.lineTotalFormatted ?? variantLabels.inquiry}
                           </p>
-                          <p className="mt-0.5 text-xs text-gray-500">
-                            {item.unitPriceFormatted} × {item.quantity}
-                          </p>
+                          {item.unitPriceFormatted ? (
+                            <p className="mt-0.5 text-xs text-gray-500">
+                              {item.unitPriceFormatted} × {item.quantity}
+                            </p>
+                          ) : null}
                         </div>
                         <button
                           type="button"
@@ -259,7 +265,19 @@ export function CartDrawer({
             </div>
           </dl>
 
-          {hasItems ? (
+          {view?.hasUnpricedItems ? (
+            <p className="mt-3 text-sm text-amber-800" role="status">
+              {variantLabels.inquiry}
+            </p>
+          ) : null}
+          {view?.hasUnavailableItems && !view.hasUnpricedItems ? (
+            <p className="mt-3 text-sm text-amber-800" role="status">
+              {variantLabels.unavailable}
+            </p>
+          ) : null}
+          {hasItems &&
+          !view?.hasUnpricedItems &&
+          !view?.hasUnavailableItems ? (
             <AppLink
               href={`/${locale}/checkout`}
               prefetchPolicy="intent"

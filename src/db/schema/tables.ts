@@ -9,6 +9,7 @@ export const CANONICAL_TABLES = [
   "media_assets",
   "store_settings",
   "products",
+  "product_variants",
   "categories",
   "product_categories",
   "stock_movements",

@@ -9,6 +9,7 @@ import { adminProductsFilterSchema } from "@/features/products/schemas/admin-lis
 import { AdminProductsFilters } from "@/features/products/ui/AdminProductsFilters";
 import { AdminProductsView } from "@/features/products/ui/AdminProductsView";
 import { isLocale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/get-dictionary";
 
 type AdminProductsPageProps = {
   params: Promise<{ locale: string }>;
@@ -124,6 +125,7 @@ export default async function AdminProductsPage({
         products={rows}
         sortLinks={sortLinks}
         categories={categories}
+        productCopy={getDictionary(locale).product}
       />
 
       {totalPages > 1 ? (

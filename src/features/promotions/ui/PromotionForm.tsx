@@ -22,7 +22,7 @@ import type {
 import type { UpsertPromotionInput } from "@/features/promotions/schemas/admin-promotions";
 
 type TargetOptions = {
-  products: Array<{ id: string; sku: string; title: string }>;
+  products: Array<{ id: string; sku: string | null; title: string }>;
   categories: Array<{ id: string; title: string }>;
 };
 
@@ -176,7 +176,9 @@ export function PromotionForm({
                 <option value="">— none —</option>
                 {targets.products.map((product) => (
                   <option key={product.id} value={product.id}>
-                    {product.sku} · {product.title}
+                    {product.sku
+                      ? `${product.sku} · ${product.title}`
+                      : product.title}
                   </option>
                 ))}
               </select>

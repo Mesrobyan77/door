@@ -136,6 +136,9 @@ export function CheckoutProductsInOrder({
                   >
                     {product.title}
                   </p>
+                  <p className="line-clamp-3 text-xs text-gray-500">
+                    {product.configuration}
+                  </p>
                   <button
                     type="button"
                     onClick={() => onRemove(product.id)}

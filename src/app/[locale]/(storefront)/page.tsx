@@ -40,7 +40,10 @@ export default async function HomePage({ params }: HomePageProps) {
   ]);
 
   const featuredCards = featuredProducts.map((product) => {
-    const price = formatPrice(product.priceAmount);
+    const priceFormatted =
+      product.priceAmount == null
+        ? dictionary.product.variant.inquiry
+        : formatPrice(product.priceAmount).formatted;
     const compareAt =
       product.compareAtAmount != null
         ? formatPrice(product.compareAtAmount)
@@ -48,9 +51,13 @@ export default async function HomePage({ params }: HomePageProps) {
 
     return {
       id: product.id,
+      variantId:
+        product.variants.filter((variant) => variant.purchasable).length === 1
+          ? product.variants.find((variant) => variant.purchasable)?.id
+          : undefined,
       href: `/${locale}/products/${product.translation.slug}`,
       title: product.translation.title,
-      priceFormatted: price.formatted,
+      priceFormatted,
       compareAtFormatted: compareAt?.formatted ?? null,
       discountPercent: product.discountPercent,
       imageUrl: product.imageUrl,

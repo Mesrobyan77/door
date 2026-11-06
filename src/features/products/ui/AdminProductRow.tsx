@@ -15,6 +15,7 @@ import { formatMoneyAmount } from "@/lib/money/format";
 
 type AdminProductRowProps = {
   locale: string;
+  inquiryLabel: string;
   product: AdminProductListItem;
   selected: boolean;
   disabled: boolean;
@@ -28,6 +29,7 @@ type AdminProductRowProps = {
 
 export function AdminProductRow({
   locale,
+  inquiryLabel,
   product,
   selected,
   disabled,
@@ -81,9 +83,12 @@ export function AdminProductRow({
       <td className={ADMIN_TABLE_TD}>
         <div className="flex flex-col">
           <span className="font-medium text-gray-900">
-            {formatMoneyAmount(product.priceAmount, "AMD", locale)}
+            {product.priceAmount == null
+              ? inquiryLabel
+              : formatMoneyAmount(product.priceAmount, "AMD", locale)}
           </span>
           {product.compareAtAmount != null &&
+          product.priceAmount != null &&
           product.compareAtAmount > product.priceAmount ? (
             <span className="text-xs text-gray-400 line-through">
               {formatMoneyAmount(product.compareAtAmount, "AMD", locale)}

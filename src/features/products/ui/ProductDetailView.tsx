@@ -2,15 +2,19 @@ import Link from "next/link";
 
 import { ProductGallery } from "@/features/products/ui/ProductGallery";
 import { ProductPurchaseControls } from "@/features/products/ui/ProductPurchaseControls";
-import type { ProductDetail } from "@/features/products/types";
+import type { ProductDetail, ProductVariantOption } from "@/features/products/types";
 import type { Dictionary } from "@/lib/i18n/get-dictionary";
 import type { Locale } from "@/lib/i18n/config";
 
 type ProductDetailViewProps = {
   locale: Locale;
   product: ProductDetail;
-  priceFormatted: string;
-  compareAtFormatted: string | null;
+  variants: Array<
+    ProductVariantOption & {
+      priceFormatted: string | null;
+      compareAtFormatted: string | null;
+    }
+  >;
   isSignedIn: boolean;
   inWishlist: boolean;
   dictionary: Dictionary;
@@ -22,8 +26,7 @@ type ProductDetailViewProps = {
 export function ProductDetailView({
   locale,
   product,
-  priceFormatted,
-  compareAtFormatted,
+  variants,
   isSignedIn,
   inWishlist,
   dictionary,
@@ -32,7 +35,117 @@ export function ProductDetailView({
   reviewsSlot,
 }: ProductDetailViewProps) {
   const labels = dictionary.product;
-  const inStock = product.stockOnHand > 0;
+  const inStock = variants.some((variant) => variant.purchasable);
+  const specifications = product.doorSpecifications;
+  const performance = specifications.performanceSpecifications;
+  const specificationRows: Array<[string, string | null]> = [
+    [labels.variant.brand, specifications.brandName],
+    [labels.variant.model, specifications.modelName],
+    [labels.variant.collection, specifications.collectionName],
+    [
+      labels.variant.classification,
+      specifications.classification === "INTERIOR"
+        ? labels.variant.interior
+        : specifications.classification === "ENTRANCE"
+          ? labels.variant.entrance
+          : null,
+    ],
+    [
+      labels.variant.installationEnvironment,
+      specifications.entranceEnvironments
+        ?.map((environment) =>
+          environment === "APARTMENT"
+            ? labels.variant.apartment
+            : labels.variant.outdoorHouse,
+        )
+        .join(", ") ?? null,
+    ],
+    [
+      labels.variant.mechanism,
+      specifications.openingMechanism === "HINGED"
+        ? labels.variant.hinged
+        : specifications.openingMechanism === "SLIDING"
+          ? labels.variant.sliding
+          : specifications.openingMechanism === "FOLDING"
+            ? labels.variant.folding
+            : null,
+    ],
+    [
+      labels.variant.frameSystem,
+      specifications.frameSystem === "STANDARD"
+        ? labels.variant.standardFrame
+        : specifications.frameSystem === "CONCEALED"
+          ? labels.variant.concealedFrame
+          : null,
+    ],
+    [
+      labels.variant.leafConfiguration,
+      specifications.leafConfiguration === "SINGLE"
+        ? labels.variant.singleLeaf
+        : specifications.leafConfiguration === "DOUBLE"
+          ? labels.variant.doubleLeaf
+          : specifications.leafConfiguration === "UNEQUAL_DOUBLE"
+            ? labels.variant.unequalDoubleLeaf
+            : null,
+    ],
+    [labels.variant.structuralMaterial, specifications.structuralMaterial],
+    [labels.variant.coreMaterial, specifications.coreMaterial],
+    [labels.variant.surfaceCoating, specifications.surfaceCoating],
+    [
+      labels.variant.glazing,
+      specifications.hasGlazing == null
+        ? null
+        : specifications.hasGlazing
+          ? labels.variant.yes
+          : labels.variant.no,
+    ],
+    [labels.variant.glazingType, specifications.glazingType],
+    [labels.variant.manufacturer, specifications.manufacturer],
+    [
+      labels.variant.countryOfManufacture,
+      specifications.countryOfManufacture,
+    ],
+    [
+      labels.variant.thermalBreak,
+      performance?.thermalBreak == null
+        ? null
+        : performance.thermalBreak
+          ? labels.variant.yes
+          : labels.variant.no,
+    ],
+    [
+      labels.variant.thermalTransmittance,
+      performance?.thermalTransmittance
+        ? `${performance.thermalTransmittance.value} ${performance.thermalTransmittance.unit}`
+        : null,
+    ],
+    [
+      labels.variant.soundReduction,
+      performance?.soundReduction
+        ? `${performance.soundReduction.value} ${performance.soundReduction.unit}`
+        : null,
+    ],
+    [
+      labels.variant.fireClassification,
+      performance?.fireClassification
+        ? `${performance.fireClassification.value}${
+            performance.fireClassification.standard
+              ? ` (${performance.fireClassification.standard})`
+              : ""
+          }`
+        : null,
+    ],
+    [
+      labels.variant.securityClassification,
+      performance?.securityClassification
+        ? `${performance.securityClassification.value}${
+            performance.securityClassification.standard
+              ? ` (${performance.securityClassification.standard})`
+              : ""
+          }`
+        : null,
+    ],
+  ];
 
   return (
     <article className="flex flex-col gap-16 md:gap-20">
@@ -49,7 +162,7 @@ export function ProductDetailView({
         <ProductGallery
           images={product.images}
           title={product.translation.title}
-          discountPercent={product.discountPercent}
+          discountPercent={null}
           inStock={inStock}
           outOfStockLabel={labels.outOfStock}
         />
@@ -65,46 +178,39 @@ export function ProductDetailView({
             {product.translation.title}
           </h1>
 
-          <div className="flex flex-wrap items-baseline gap-3">
-            <p className="text-2xl font-semibold text-gray-900">
-              {priceFormatted}
-            </p>
-            {compareAtFormatted ? (
-              <p className="text-base text-gray-500 line-through">
-                {compareAtFormatted}
-              </p>
-            ) : null}
-            {product.discountPercent != null ? (
-              <span className="rounded bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
-                -{product.discountPercent}%
-              </span>
-            ) : null}
-          </div>
-
-          <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-            <span>
-              {labels.sku}: {product.sku}
-            </span>
-            <span aria-hidden>·</span>
-            <span className={inStock ? "text-green-700" : "text-red-700"}>
-              {inStock ? labels.inStock : labels.outOfStock}
-            </span>
-          </div>
-
           {product.translation.description ? (
             <p className="whitespace-pre-wrap text-base leading-relaxed text-gray-600">
               {product.translation.description}
             </p>
           ) : null}
 
+          {specificationRows.some(([, value]) => value != null) ? (
+            <section className="space-y-3">
+              <h2 className="text-lg font-semibold text-gray-900">
+                {labels.variant.productSpecifications}
+              </h2>
+              <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
+                {specificationRows
+                  .filter(([, value]) => value)
+                  .map(([label, value]) => (
+                    <div key={label} className="flex gap-2">
+                      <dt className="text-gray-500">{label}:</dt>
+                      <dd className="font-medium text-gray-800">{value}</dd>
+                    </div>
+                  ))}
+              </dl>
+            </section>
+          ) : null}
+
           <ProductPurchaseControls
             locale={locale}
             productId={product.id}
-            stockOnHand={product.stockOnHand}
+            variants={variants}
             inWishlist={inWishlist}
             isSignedIn={isSignedIn}
             wishlistLabel={dictionary.nav.wishlist}
             imageUrl={product.images[0]?.url ?? null}
+            variantCopy={labels.variant}
             labels={{
               quantity: labels.quantity,
               decreaseQuantity: dictionary.cartDrawer.decreaseQuantity,
@@ -114,6 +220,9 @@ export function ProductDetailView({
               outOfStock: labels.outOfStock,
               added: labels.added,
               error: labels.addError,
+              sku: labels.sku,
+              inStock: labels.inStock,
+              selectValue: labels.selectValue,
             }}
           />
         </div>

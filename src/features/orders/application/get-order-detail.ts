@@ -24,7 +24,7 @@ export async function getAdminOrderDetailAction(
 
   await requireAdmin(locale as Locale);
 
-  const detail = await getAdminOrderDetailView(trimmed);
+  const detail = await getAdminOrderDetailView(trimmed, locale as Locale);
   if (!detail) {
     return err("NOT_FOUND", "Order not found.");
   }

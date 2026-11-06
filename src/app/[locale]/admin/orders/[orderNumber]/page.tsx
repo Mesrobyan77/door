@@ -24,6 +24,8 @@ import {
 } from "@/features/admin/ui/status-badge";
 import { getAdminOrderByNumber } from "@/features/orders/application/queries";
 import { isLocale } from "@/lib/i18n/config";
+import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { formatOrderItemConfiguration } from "@/features/orders/domain/format-order-item-configuration";
 
 type AdminOrderDetailPageProps = {
   params: Promise<{ locale: string; orderNumber: string }>;
@@ -48,6 +50,7 @@ export default async function AdminOrderDetailPage({
 
   const { order, items, events } = detail;
   const address = order.shippingAddress;
+  const variantLabels = getDictionary(locale).product.variant;
 
   return (
     <section>
@@ -151,6 +154,13 @@ export default async function AdminOrderDetailPage({
                     </p>
                     <p className="text-xs text-gray-500">
                       {item.productSkuSnapshot}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {formatOrderItemConfiguration(
+                        item.productSkuSnapshot,
+                        item.variantSnapshot,
+                        variantLabels,
+                      )}
                     </p>
                   </td>
                   <td className={ADMIN_TABLE_TD}>×{item.quantity}</td>

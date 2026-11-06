@@ -6,11 +6,8 @@ import {
   count,
   desc,
   eq,
-  gt,
-  ilike,
   inArray,
   isNull,
-  lte,
   or,
   sql,
   type SQL,
@@ -21,7 +18,9 @@ import {
   categories,
   mediaAssets,
   productCategories,
+  productVariants,
   products,
+  type PerformanceSpecifications,
   type LocaleTranslation,
 } from "@/db/schema";
 import { loadProductImagesForAdmin } from "@/features/products/application/persist-product-media";
@@ -40,7 +39,7 @@ export type AdminProductListItem = {
   id: string;
   sku: string;
   status: string;
-  priceAmount: number;
+  priceAmount: number | null;
   compareAtAmount: number | null;
   stockOnHand: number;
   isFeatured: boolean;
@@ -52,6 +51,23 @@ export type AdminProductListItem = {
   categoryIds: string[];
   categoryLabels: string[];
   images: AdminProductImage[];
+  doorClassification: "INTERIOR" | "ENTRANCE" | null;
+  entranceEnvironments: ("APARTMENT" | "OUTDOOR_HOUSE")[] | null;
+  brandName: string | null;
+  modelName: string | null;
+  collectionName: string | null;
+  structuralMaterial: string | null;
+  coreMaterial: string | null;
+  surfaceCoating: string | null;
+  hasGlazing: boolean | null;
+  glazingType: string | null;
+  manufacturer: string | null;
+  countryOfManufacture: string | null;
+  openingMechanism: "HINGED" | "SLIDING" | "FOLDING" | null;
+  frameSystem: "STANDARD" | "CONCEALED" | null;
+  leafConfiguration: "SINGLE" | "DOUBLE" | "UNEQUAL_DOUBLE" | null;
+  performanceSpecifications: PerformanceSpecifications | null;
+  variants: Array<typeof productVariants.$inferSelect>;
 };
 
 export type AdminCategoryOption = {
@@ -82,17 +98,35 @@ function buildWhere(filters: AdminProductsFilter, locale: Locale): SQL | undefin
   }
 
   if (filters.sku) {
-    conditions.push(ilike(products.sku, `%${filters.sku}%`));
+    conditions.push(sql`exists (
+      select 1 from ${productVariants}
+      where ${productVariants.productId} = ${products.id}
+        and ${productVariants.sku} ILIKE ${`%${filters.sku}%`}
+    )`);
   }
 
   if (filters.stock === "in_stock") {
-    conditions.push(gt(products.stockOnHand, 0));
+    conditions.push(sql`exists (
+      select 1 from ${productVariants}
+      where ${productVariants.productId} = ${products.id}
+        and ${productVariants.status} = 'ACTIVE'
+        and ${productVariants.stockOnHand} > 0
+    )`);
   } else if (filters.stock === "out_of_stock") {
-    conditions.push(eq(products.stockOnHand, 0));
+    conditions.push(sql`not exists (
+      select 1 from ${productVariants}
+      where ${productVariants.productId} = ${products.id}
+        and ${productVariants.status} = 'ACTIVE'
+        and ${productVariants.stockOnHand} > 0
+    )`);
   } else if (filters.stock === "low_stock") {
-    conditions.push(
-      and(gt(products.stockOnHand, 0), lte(products.stockOnHand, products.lowStockThreshold))!,
-    );
+    conditions.push(sql`exists (
+      select 1 from ${productVariants}
+      where ${productVariants.productId} = ${products.id}
+        and ${productVariants.status} = 'ACTIVE'
+        and ${productVariants.stockOnHand} > 0
+        and ${productVariants.stockOnHand} <= ${productVariants.lowStockThreshold}
+    )`);
   }
 
   if (filters.categoryId) {
@@ -112,9 +146,20 @@ function orderByClause(filters: AdminProductsFilter, locale: Locale) {
   const direction = filters.dir === "asc" ? asc : desc;
   switch (filters.sort) {
     case "stock":
-      return direction(products.stockOnHand);
+      return direction(sql`(
+        select coalesce(sum(${productVariants.stockOnHand}), 0)
+        from ${productVariants}
+        where ${productVariants.productId} = ${products.id}
+          and ${productVariants.status} = 'ACTIVE'
+      )`);
     case "price":
-      return direction(products.priceAmount);
+      return direction(sql`(
+        select min(${productVariants.priceAmount})
+        from ${productVariants}
+        where ${productVariants.productId} = ${products.id}
+          and ${productVariants.status} = 'ACTIVE'
+          and ${productVariants.priceAmount} is not null
+      )`);
     case "title":
       return direction(
         sql`${products.translations}->${locale}->>'title'`,
@@ -210,11 +255,24 @@ export async function listAdminProducts(
     .offset(offset);
 
   const ids = rows.map((row) => row.id);
-  const [primaryImages, categoryMap, galleryImages] = await Promise.all([
+  const [primaryImages, categoryMap, galleryImages, variants] = await Promise.all([
     loadPrimaryImages(ids),
     loadCategoryMeta(ids, locale),
     loadProductImagesForAdmin(ids),
+    ids.length === 0
+      ? Promise.resolve([])
+      : db
+          .select()
+          .from(productVariants)
+          .where(inArray(productVariants.productId, ids))
+          .orderBy(asc(productVariants.createdAt)),
   ]);
+  const variantsByProduct = new Map<string, typeof variants>();
+  for (const variant of variants) {
+    const list = variantsByProduct.get(variant.productId) ?? [];
+    list.push(variant);
+    variantsByProduct.set(variant.productId, list);
+  }
 
   return {
     total,
@@ -222,13 +280,30 @@ export async function listAdminProducts(
     rows: rows.map((product) => {
       const translation = translationFor(product.translations, locale);
       const categoryMeta = categoryMap.get(product.id);
+      const productVariantRows = variantsByProduct.get(product.id) ?? [];
+      const pricedVariants = productVariantRows
+        .filter(
+          (variant) =>
+            variant.status === "ACTIVE" && variant.priceAmount != null,
+        )
+        .sort(
+          (first, second) =>
+            (first.priceAmount ?? Number.MAX_SAFE_INTEGER) -
+            (second.priceAmount ?? Number.MAX_SAFE_INTEGER),
+        );
+      const priceVariant = pricedVariants[0];
       return {
         id: product.id,
-        sku: product.sku,
+        sku: productVariantRows[0]?.sku ?? product.sku,
         status: product.status,
-        priceAmount: product.priceAmount,
-        compareAtAmount: product.compareAtAmount,
-        stockOnHand: product.stockOnHand,
+        priceAmount: priceVariant?.priceAmount ?? null,
+        compareAtAmount: priceVariant?.compareAtAmount ?? null,
+        stockOnHand: productVariantRows.reduce(
+          (total, variant) =>
+            total +
+            (variant.status === "ACTIVE" ? variant.stockOnHand : 0),
+          0,
+        ),
         isFeatured: product.isFeatured,
         createdAt: product.createdAt,
         title: translation?.title ?? product.sku,
@@ -238,6 +313,23 @@ export async function listAdminProducts(
         categoryIds: categoryMeta?.ids ?? [],
         categoryLabels: categoryMeta?.labels ?? [],
         images: galleryImages.get(product.id) ?? [],
+        doorClassification: product.doorClassification,
+        entranceEnvironments: product.entranceEnvironments,
+        brandName: product.brandName,
+        modelName: product.modelName,
+        collectionName: product.collectionName,
+        structuralMaterial: product.structuralMaterial,
+        coreMaterial: product.coreMaterial,
+        surfaceCoating: product.surfaceCoating,
+        hasGlazing: product.hasGlazing,
+        glazingType: product.glazingType,
+        manufacturer: product.manufacturer,
+        countryOfManufacture: product.countryOfManufacture,
+        openingMechanism: product.openingMechanism,
+        frameSystem: product.frameSystem,
+        leafConfiguration: product.leafConfiguration,
+        performanceSpecifications: product.performanceSpecifications,
+        variants: productVariantRows,
       };
     }),
   };

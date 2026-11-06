@@ -18,7 +18,15 @@ import {
   idColumn,
   updatedAtColumn,
 } from "@/db/schema/columns";
-import { categoryStatusEnum, productStatusEnum } from "@/db/schema/enums";
+import {
+  categoryStatusEnum,
+  doorClassificationEnum,
+  doorFrameSystemEnum,
+  doorLeafConfigurationEnum,
+  doorMechanismEnum,
+  entranceEnvironmentEnum,
+  productStatusEnum,
+} from "@/db/schema/enums";
 
 export type LocaleTranslation = {
   title: string;
@@ -31,6 +39,14 @@ export type LocaleTranslation = {
 export type TranslationsJson = Partial<
   Record<"hy" | "en" | "ru", LocaleTranslation>
 >;
+
+export type PerformanceSpecifications = {
+  thermalBreak?: boolean | null;
+  thermalTransmittance?: { value: number; unit: string } | null;
+  soundReduction?: { value: number; unit: string } | null;
+  fireClassification?: { value: string; standard?: string } | null;
+  securityClassification?: { value: string; standard?: string } | null;
+};
 
 export const products = pgTable(
   "products",
@@ -51,6 +67,22 @@ export const products = pgTable(
     >(),
     badgeStyle: text("badge_style"),
     badgePosition: text("badge_position"),
+    brandName: text("brand_name"),
+    modelName: text("model_name"),
+    collectionName: text("collection_name"),
+    doorClassification: doorClassificationEnum("door_classification"),
+    entranceEnvironments: entranceEnvironmentEnum("entrance_environments").array(),
+    structuralMaterial: text("structural_material"),
+    coreMaterial: text("core_material"),
+    surfaceCoating: text("surface_coating"),
+    hasGlazing: boolean("has_glazing"),
+    glazingType: text("glazing_type"),
+    manufacturer: text("manufacturer"),
+    countryOfManufacture: text("country_of_manufacture"),
+    openingMechanism: doorMechanismEnum("opening_mechanism"),
+    frameSystem: doorFrameSystemEnum("frame_system"),
+    leafConfiguration: doorLeafConfigurationEnum("leaf_configuration"),
+    performanceSpecifications: jsonb("performance_specifications").$type<PerformanceSpecifications>(),
     createdAt: createdAtColumn(),
     updatedAt: updatedAtColumn(),
     deletedAt: deletedAtColumn(),

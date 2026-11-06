@@ -60,7 +60,7 @@
 | Money | Integer amount + ISO currency code | ✅ | No float/JS `number` arithmetic beyond safe integer range |
 | Transactions | Checkout, stock, order/status critical flows | ✅ | Row lock/conditional update strategy պետք է test արվի |
 | Search | PostgreSQL indexes/FTS initial release | ✅ | External search deferred (DEF-002) |
-| Canonical schema | 25 application tables | ✅ | Lean model-ը սահմանված է `03-DATA-MODEL.md`-ում |
+| Canonical schema | 26 application tables | ✅ | Door sellable variants-ը `product_variants` table-ում; inventory-ը սահմանված է `03-DATA-MODEL.md`-ում |
 | Multilingual content | Parent-table `translations JSONB` | ✅ | UI copy-ն առանձին locale JSON files-ում է |
 | Soft delete | Products/categories/users-ի համար ըստ lifecycle-ի | ✅ | Orders/payments/audit immutable/archived |
 | Migrations | Forward-only production migrations | ✅ | Production migration այս task-ի scope-ում չէ |

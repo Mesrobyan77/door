@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import {
@@ -8,7 +8,7 @@ import {
   orderEvents,
   orderItems,
   orders,
-  products,
+  productVariants,
   stockMovements,
 } from "@/db/schema";
 import { withTransaction } from "@/db/transaction";
@@ -121,35 +121,36 @@ export async function changeOrderStatusAction(
           .where(eq(orderItems.orderId, locked.id));
 
         for (const line of lines) {
-          if (!line.productId) {
+          const variantId = line.variantId ?? line.productId;
+          if (!variantId) {
             continue;
           }
 
-          const [product] = await tx
+          const [variant] = await tx
             .select()
-            .from(products)
-            .where(eq(products.id, line.productId))
+            .from(productVariants)
+            .where(eq(productVariants.id, variantId))
             .for("update")
             .limit(1);
 
-          if (!product) {
+          if (!variant) {
             continue;
           }
 
-          const nextStock = product.stockOnHand + line.quantity;
+          const nextStock = variant.stockOnHand + line.quantity;
 
           await tx
-            .update(products)
+            .update(productVariants)
             .set({
               stockOnHand: nextStock,
-              version: sql`${products.version} + 1`,
               updatedAt: now,
             })
-            .where(eq(products.id, product.id));
+            .where(eq(productVariants.id, variant.id));
 
           await tx.insert(stockMovements).values({
             id: createId(),
-            productId: product.id,
+            productId: variant.productId,
+            variantId: variant.id,
             delta: line.quantity,
             reason: "CANCEL",
             orderId: locked.id,

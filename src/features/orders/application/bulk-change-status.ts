@@ -1,6 +1,6 @@
 "use server";
 
-import { eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import {
@@ -8,7 +8,7 @@ import {
   orderEvents,
   orderItems,
   orders,
-  products,
+  productVariants,
   stockMovements,
 } from "@/db/schema";
 import { withTransaction } from "@/db/transaction";
@@ -84,26 +84,27 @@ export async function bulkChangeOrderStatusAction(
             .where(eq(orderItems.orderId, existing.id));
 
           for (const item of items) {
-            if (!item.productId) continue;
+            const variantId = item.variantId ?? item.productId;
+            if (!variantId) continue;
             const [locked] = await tx
               .select()
-              .from(products)
-              .where(eq(products.id, item.productId))
+              .from(productVariants)
+              .where(eq(productVariants.id, variantId))
               .for("update")
               .limit(1);
             if (!locked) continue;
             const nextStock = locked.stockOnHand + item.quantity;
             await tx
-              .update(products)
+              .update(productVariants)
               .set({
                 stockOnHand: nextStock,
-                version: sql`${products.version} + 1`,
                 updatedAt: now,
               })
-              .where(eq(products.id, locked.id));
+              .where(eq(productVariants.id, locked.id));
             await tx.insert(stockMovements).values({
               id: createId(),
-              productId: locked.id,
+              productId: locked.productId,
+              variantId: locked.id,
               delta: item.quantity,
               reason: "CANCEL",
               orderId: existing.id,

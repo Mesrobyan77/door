@@ -4,6 +4,7 @@ import type { Locale } from "@/lib/i18n/config";
 
 type FeaturedItem = {
   id: string;
+  variantId?: string;
   href: string;
   title: string;
   priceFormatted: string;
@@ -70,6 +71,7 @@ export function HomeFeaturedProducts({
                 priority={index < 4}
                 locale={locale}
                 productId={product.id}
+                variantId={product.variantId}
                 inWishlist={product.inWishlist ?? false}
                 isSignedIn={isSignedIn}
                 wishlistLabel={wishlistLabel}

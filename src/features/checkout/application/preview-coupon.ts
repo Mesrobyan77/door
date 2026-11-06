@@ -11,7 +11,7 @@ import {
   evaluateCouponDiscount,
 } from "@/features/promotions/domain/evaluate-coupon";
 import { normalizePromotionCode } from "@/features/promotions/domain/promotion-rules";
-import { resolveProductPrices } from "@/features/promotions/application/resolve-product-prices";
+import { resolveVariantPrices } from "@/features/promotions/application/resolve-product-prices";
 
 const previewCouponSchema = z.object({
   couponCode: z.string().trim().min(1).max(64),
@@ -40,15 +40,24 @@ export async function previewCouponAction(
     return { ok: false, error: "Cart is empty." };
   }
 
-  const prices = await resolveProductPrices(
-    items.map(({ product }) => ({
-      id: product.id,
-      priceAmount: product.priceAmount,
-      compareAtAmount: product.compareAtAmount,
-    })),
+  const prices = await resolveVariantPrices(
+    items.flatMap(({ product, variant }) =>
+      variant.priceAmount == null
+        ? []
+        : [{
+            id: variant.id,
+            productId: product.id,
+            priceAmount: variant.priceAmount,
+            compareAtAmount: variant.compareAtAmount,
+          }],
+    ),
   );
-  const subtotal = items.reduce((sum, { item, product }) => {
-    const unit = prices.get(product.id)?.unitAmount ?? product.priceAmount;
+  if (items.some(({ variant }) => variant.priceAmount == null)) {
+    return { ok: false, error: "A cart item needs a confirmed price." };
+  }
+  const subtotal = items.reduce((sum, { item, variant }) => {
+    const unit =
+      prices.get(variant.id)?.unitAmount ?? variant.priceAmount!;
     return sum + item.quantity * unit;
   }, 0);
 

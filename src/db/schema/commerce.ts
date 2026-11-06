@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 import { products } from "@/db/schema/catalog";
+import { productVariants } from "@/db/schema/variants";
 import {
   createdAtColumn,
   idColumn,
@@ -65,14 +66,17 @@ export const cartItems = pgTable(
     productId: uuid("product_id")
       .notNull()
       .references(() => products.id, { onDelete: "restrict" }),
+    variantId: uuid("variant_id")
+      .notNull()
+      .references(() => productVariants.id, { onDelete: "restrict" }),
     quantity: integer("quantity").notNull(),
     createdAt: createdAtColumn(),
     updatedAt: updatedAtColumn(),
   },
   (table) => [
-    uniqueIndex("cart_items_cart_product_uidx").on(
+    uniqueIndex("cart_items_cart_variant_uidx").on(
       table.cartId,
-      table.productId,
+      table.variantId,
     ),
     check("cart_items_qty_chk", sql`${table.quantity} > 0`),
   ],

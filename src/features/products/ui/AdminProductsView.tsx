@@ -9,6 +9,7 @@ import type {
 } from "@/features/products/application/list-admin-products";
 import { AdminProductsTable } from "@/features/products/ui/AdminProductsTable";
 import { ProductDrawer } from "@/features/products/ui/ProductDrawer";
+import type { Dictionary } from "@/lib/i18n/get-dictionary";
 
 type AdminProductsSortLinks = {
   title: string;
@@ -22,6 +23,7 @@ type AdminProductsViewProps = {
   products: AdminProductListItem[];
   sortLinks: AdminProductsSortLinks;
   categories: AdminCategoryOption[];
+  productCopy: Dictionary["product"];
 };
 
 export function AdminProductsView({
@@ -29,6 +31,7 @@ export function AdminProductsView({
   products,
   sortLinks,
   categories,
+  productCopy,
 }: AdminProductsViewProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingProduct, setEditingProduct] =
@@ -64,6 +67,7 @@ export function AdminProductsView({
         locale={locale}
         products={products}
         sortLinks={sortLinks}
+        inquiryLabel={productCopy.variant.inquiry}
         onEdit={openEdit}
       />
 
@@ -73,6 +77,7 @@ export function AdminProductsView({
         onClose={closeDrawer}
         product={editingProduct}
         categories={categories}
+        productCopy={productCopy}
       />
     </>
   );

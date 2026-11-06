@@ -77,6 +77,8 @@ type CheckoutLabels = {
   cartEmpty: string;
   cartEmptyDescription: string;
   cartEmptyCta: string;
+  variantUnavailable: string;
+  variantUnavailableDescription: string;
 };
 
 type CheckoutFormProps = {
@@ -92,6 +94,7 @@ type CheckoutFormProps = {
   subtotalAmount: number;
   deliveryOptions: CheckoutDeliveryOption[];
   hasItems: boolean;
+  hasCartLines: boolean;
 };
 
 function quoteDeliveryAmount(
@@ -121,6 +124,7 @@ export function CheckoutForm({
   subtotalAmount,
   deliveryOptions,
   hasItems,
+  hasCartLines,
 }: CheckoutFormProps) {
   const router = useRouter();
   const idempotencyKey = useMemo(() => crypto.randomUUID(), []);
@@ -248,9 +252,13 @@ export function CheckoutForm({
         </h1>
         <Card className="rounded-2xl border border-gray-200/80 p-6 text-center shadow-none">
           <p className="mb-2 text-lg font-semibold text-gray-900">
-            {labels.cartEmpty}
+            {hasCartLines ? labels.variantUnavailable : labels.cartEmpty}
           </p>
-          <p className="mb-6 text-gray-600">{labels.cartEmptyDescription}</p>
+          <p className="mb-6 text-gray-600">
+            {hasCartLines
+              ? labels.variantUnavailableDescription
+              : labels.cartEmptyDescription}
+          </p>
           <Link
             href={productsHref}
             className="inline-flex h-11 items-center justify-center rounded-xl bg-gray-900 px-4 text-sm font-medium text-white hover:bg-gray-800"

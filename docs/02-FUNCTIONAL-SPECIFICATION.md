@@ -62,6 +62,7 @@
 | CAT-008 | Transparent PNG/WebP asset-ի container-ը theme-aware/transparent է և պարտադիր սպիտակ background չի ավելացնում։ |
 | CAT-009 | Card click-ը տանում է `/{locale}/products/{slug}`; wishlist interaction-ը չի trigger անում card navigation-ը։ |
 | CAT-010 | Unpublished/archived product-ը public catalog-ում չի ցուցադրվում։ |
+| CAT-011 | Catalog price/availability-ը derive է արվում sellable variants-ից; card quick-add-ը variant ընտրություն չի գուշակում և հասանելի է միայն մեկ purchasable variant ունեցող product-ի համար։ |
 
 ### 4.2 Product detail
 
@@ -73,6 +74,8 @@
 | PDP-004 | Add to Cart-ը server-side վերահաստատում է product status/stock/price և վերադարձնում է actionable conflict error։ |
 | PDP-005 | Related products-ը նույն category-ից active products են, current product-ը բացառված է։ |
 | PDP-006 | Metadata/JSON-LD-ը համապատասխանում է locale-specific canonical product data-ին։ |
+| PDP-007 | Multiple configurations ունեցող product-ը պահանջում է explicit variant selection; selected SKU, AMD/display price, availability, measurements (mm), appearance, handing/swing and included components-ը համապատասխանում են հենց ընտրած variant-ին։ |
+| PDP-008 | Inquiry/no-confirmed-price configurations-ը գին չեն հորինում և checkout/cart purchase-ը չեն թույլատրում։ |
 
 ### 4.3 Reviews
 
@@ -242,13 +245,13 @@
 
 | ID | Պահանջ / acceptance criteria |
 |---|---|
-| APROD-001 | Fields՝ title/description/SEO + generated/editable slug **ընտրված locale-ի համար** (մեկ դաշտերի հավաքածու + locale selector, `DEC-017`), SKU, media, primary/sort, categories, price, compare-at, stock, threshold, status, featured/upcoming, badge style/position։ Locale-ից անկախ fields-ը (SKU, price, stock, …) մեկ անգամ են։ |
-| APROD-002 | SKU unique է; `(locale, slug)` unique է և server-side ստուգվում է constraint-ով՝ յուրաքանչյուր լրացված locale-ի համար։ |
-| APROD-003 | Price/compare-at/stock/threshold constraints-ը server + DB checks ունեն։ |
+| APROD-001 | Door model-ը պահում է translated identity/shared specs; յուրաքանչյուր sellable configuration-ը ունի առանձին SKU, item type, measurements, appearance, handing/swing, included-component declarations, price, stock and status։ |
+| APROD-002 | Variant SKU-ն globally unique է; product-ի ներսում effective configuration-ը unique է; `(locale, slug)` unique է ու server/DB-ով enforced։ |
+| APROD-003 | Variant price/compare-at/stock/threshold and item-type measurement constraints-ը server + DB checks ունեն։ |
 | APROD-004 | Multiple images-ի primary uniqueness և sort order-ը պահպանվում են transaction-safe։ |
 | APROD-005 | Product delete-ը archive/soft delete է; պատմական order item-ը չի փոխվում։ |
-| APROD-006 | Stock manual adjustment-ը ստեղծում է stock movement, ոչ ուղղակի անբացատրելի overwrite։ |
-| APROD-007 | Variant model-ի extension point կա, բայց launch UI-ը `OPEN-007`-ով է որոշվում։ |
+| APROD-006 | Variant stock manual adjustment-ը նույն transaction-ում ստեղծում է variant-linked stock movement։ |
+| APROD-007 | Removed variants-ը archive են արվում, referenced variant/order history-ն hard delete չի արվում; product + variants edit-ը transaction-ով է։ |
 | APROD-008 | Publish-ին պարտադիր է առնվազն մեկ լրիվ locale translation; բացակա locale-ում product-ը public catalog-ում չի երևում։ |
 
 ## 14. Admin categories

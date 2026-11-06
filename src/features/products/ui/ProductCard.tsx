@@ -16,6 +16,7 @@ type ProductCardProps = {
   priority?: boolean;
   locale?: Locale;
   productId?: string;
+  variantId?: string;
   inWishlist?: boolean;
   isSignedIn?: boolean;
   wishlistLabel?: string;
@@ -33,6 +34,7 @@ export function ProductCard({
   priority = false,
   locale,
   productId,
+  variantId,
   inWishlist = false,
   isSignedIn = false,
   wishlistLabel,
@@ -41,7 +43,7 @@ export function ProductCard({
   const onSale = Boolean(compareAtFormatted);
   const showWishlist =
     locale != null && productId != null && wishlistLabel != null;
-  const showAddToCart = productId != null && addToCartLabel != null;
+  const showAddToCart = variantId != null && addToCartLabel != null;
 
   return (
     <div className="group relative overflow-hidden rounded-lg border border-gray-200 bg-white transition-shadow hover:shadow-md">
@@ -90,7 +92,7 @@ export function ProductCard({
 
         {showAddToCart ? (
           <AddToCartButton
-            productId={productId}
+            variantId={variantId}
             label={addToCartLabel}
             disabled={!inStock}
             size="sm"

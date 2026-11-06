@@ -33,6 +33,7 @@
 | Slugs | Unicode/transliteration policy, normalization, empty/reserved values, uniqueness retry mapping |
 | Permissions | Guest/customer/admin, suspended user, ownership, last-admin behavior |
 | Stock | Add/update clamp policy, decrement, insufficient stock, movement reason/result |
+| Door variants | Canonical configuration identity, required measurements by item type, handing/swing purchase readiness, inquiry/no-price and archived-state handling |
 | Order totals | Item lines, subtotal, discount, tax, delivery, total snapshots, invariant checks |
 | Exchange rates | Fresh/stale/fallback snapshots, unsupported currency, deterministic rate snapshot |
 | State machines | Allowed/forbidden order/payment/review transitions |
@@ -60,6 +61,7 @@ Boundary values և invalid inputs յուրաքանչյուր pure function-ի te
 - Category parent cycle/self/descendant rejection and reassign/archive behavior։
 - Media primary uniqueness/reorder/finalization authorization։
 - Stock adjustment writes movement atomically։
+- Product variant SKU/configuration uniqueness, item-type dimensions, archive preservation and variant stock-ledger reconciliation։
 - Hero/blog publish status and cache-tag invalidation events։
 
 ### Cart/checkout/orders
@@ -69,6 +71,7 @@ Boundary values և invalid inputs յուրաքանչյուր pure function-ի te
 - Checkout profile/saved address → order address snapshot։
 - Server ignores tampered price/total/coupon/delivery data։
 - Concurrent last-stock checkout՝ առավելագույնը eligible orders, stock never negative։
+- Concurrent checkout for the same variant locks variant stock and preserves variant-specific price/configuration snapshots։
 - Same idempotency key/same payload returns same order; changed payload conflicts։
 - Coupon total/per-user limit concurrent enforcement։
 - Transaction rollback leaves cart/stock/order consistent on failure։
@@ -88,6 +91,7 @@ Boundary values և invalid inputs յուրաքանչյուր pure function-ի te
 - Mobile nav/dialog/drawer focus trap, Escape, restore focus։
 - Product card nested wishlist action does not navigate։
 - Product gallery thumbnail keyboard behavior և quantity bounds։
+- Product-detail variant selection updates the selected SKU/price/availability/configuration; no card quick-add silently selects among multiple variants։
 - Catalog filter chips/clear controls update intended URL params։
 - Forms՝ label/error summary/field error/pending/double-submit prevention։
 - Data table empty/loading/error/mobile rendering և bulk selection semantics։
@@ -192,7 +196,7 @@ Failure-ը `continue-on-error`, ignored exit code կամ disabled rule-ով չի
 - [ ] Relevant unit/component/integration tests pass
 - [ ] Critical flow E2E pass երբ feature slice-ը end-to-end հասանելի է
 - [ ] Fresh migration/seed pass database փոփոխության դեպքում
-- [ ] Canonical schema inventory check-ը հաստատում է ճիշտ 25 application table
+- [ ] Canonical schema inventory check-ը հաստատում է ճիշտ 26 application table
 - [ ] Security/accessibility/responsive checks ըստ risk-ի
 - [ ] No hidden/skipped failure առանց linked approved issue-ի
 - [ ] Docs/route/schema/decision records updated
