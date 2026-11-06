@@ -1,21 +1,11 @@
-import { createId } from "@/lib/id";
-import type { EmailAdapter } from "@/lib/email/types";
-import { logger } from "@/lib/observability/logger";
+import type { EmailAdapter } from '@/lib/email/types';
 
 export function createStubEmailAdapter(): EmailAdapter {
   return {
-    name: "stub-email",
-    async send(message) {
-      const id = createId();
-      logger.info("email.stub.send", {
-        id,
-        to: message.to,
-        subject: message.subject,
-        ...(process.env.NODE_ENV !== "production"
-          ? { text: message.text }
-          : {}),
-      });
-      return { id };
+    name: 'stub-email',
+    async send() {
+      // Never claim delivery or log a raw verification URL when no provider exists.
+      throw new Error('EMAIL_PROVIDER_NOT_CONFIGURED');
     },
   };
 }

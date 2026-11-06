@@ -1,14 +1,17 @@
-import "server-only";
+import 'server-only';
 
-import { getStoreFxRates } from "@/features/settings/application/queries";
-import { createStubEmailAdapter } from "@/lib/email/stub-adapter";
-import type { EmailAdapter } from "@/lib/email/types";
-import { createStaticExchangeRateAdapter } from "@/lib/fx/static-adapter";
-import type { ExchangeRateAdapter } from "@/lib/fx/types";
-import { createCodPaymentAdapter } from "@/lib/payments/cod-adapter";
-import type { PaymentAdapter } from "@/lib/payments/types";
-import { createMemoryRedisAdapter } from "@/lib/redis/memory-adapter";
-import type { RedisAdapter } from "@/lib/redis/types";
+import { getStoreFxRates } from '@/features/settings/application/queries';
+import { createStubEmailAdapter } from '@/lib/email/stub-adapter';
+import { createResendEmailAdapter } from '@/lib/email/resend-adapter';
+import type { EmailAdapter } from '@/lib/email/types';
+import { createStaticExchangeRateAdapter } from '@/lib/fx/static-adapter';
+import type { ExchangeRateAdapter } from '@/lib/fx/types';
+import { createCodPaymentAdapter } from '@/lib/payments/cod-adapter';
+import type { PaymentAdapter } from '@/lib/payments/types';
+import { createMemoryRedisAdapter } from '@/lib/redis/memory-adapter';
+import { createUpstashRedisAdapter } from '@/lib/redis/upstash-adapter';
+import { getEnv } from '@/config/env';
+import type { RedisAdapter } from '@/lib/redis/types';
 
 export type AppProviders = {
   redis: RedisAdapter;
@@ -28,9 +31,19 @@ export function getProviders(): AppProviders {
     return cachedProviders;
   }
 
+  const env = getEnv();
   cachedProviders = {
-    redis: createMemoryRedisAdapter(),
-    email: createStubEmailAdapter(),
+    redis:
+      env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN
+        ? createUpstashRedisAdapter({
+            url: env.UPSTASH_REDIS_REST_URL,
+            token: env.UPSTASH_REDIS_REST_TOKEN,
+          })
+        : createMemoryRedisAdapter(),
+    email:
+      env.RESEND_API_KEY && env.EMAIL_FROM
+        ? createResendEmailAdapter({ apiKey: env.RESEND_API_KEY, from: env.EMAIL_FROM })
+        : createStubEmailAdapter(),
     payment: createCodPaymentAdapter(),
     exchangeRates: createStaticExchangeRateAdapter({
       getRatesFromAmd: async () => {

@@ -100,3 +100,11 @@
 - Online payment provider selection (OPEN-002)
 - Real Upstash/Resend adapters when credentials provided
 - Re-upload historical media rows that have no Cloudinary secure URL
+
+### Registration email verification — 2026-11-06
+
+- Registration now creates an unverified account, issues a purpose-bound hashed Redis token with a 24-hour TTL, sends a localized Resend message, and renders localized pending/success/already-used/invalid states at `/[locale]/verify-email`.
+- Authenticated resend is limited to one successful request per account per minute. Delivery failure is reported as failure and releases the cooldown for an immediate retry; the fallback adapter never claims or logs a delivery.
+- Purpose and user binding are validated before atomic `GETDEL`. The verified database state is persisted before destructive token consumption so a transient database failure cannot strand the account.
+- Existing-account login restrictions remain unchanged pending the unresolved legacy-account policy; this slice does not lock existing accounts out.
+- Verification: `pnpm typecheck`, `pnpm lint`, `pnpm test` (134 tests), the isolated real-Upstash concurrency integration test (1 test), and `pnpm build` passed. No real email was sent, and no production deployment or migration was performed.

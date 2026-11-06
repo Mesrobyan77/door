@@ -43,6 +43,10 @@
 | `/[locale]/reset-password`  | Token holder | Token query is never logged/rendered into analytics |
 | `/[locale]/verify-email`    | Token holder | Single-use result state                             |
 
+Email verification records are purpose-bound (`email_verification`) SHA-256 token hashes in Redis. Their documented TTL is 24 hours; the user binding and purpose are read and validated before the atomic single-use consume. Resends are limited to one successful request per account per minute; a provider failure releases that cooldown so the user can retry.
+
+An unconfigured or failing email adapter is treated as delivery failure. The UI does not report a sent message in that state, and the authenticated account retains access to the resend control.
+
 `callbackUrl`/return-to value-ը միայն same-origin allowlisted path է. open redirect չի թույլատրվում։
 
 ## 4. Customer routes
