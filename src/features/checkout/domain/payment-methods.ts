@@ -1,14 +1,8 @@
-export const CHECKOUT_PAYMENT_METHODS = [
-  "cash_on_delivery",
-  "idram",
-  "arca",
-] as const;
+export const CHECKOUT_PAYMENT_METHODS = ['cash_on_delivery', 'idram', 'arca'] as const;
 
 export type CheckoutPaymentMethod = (typeof CHECKOUT_PAYMENT_METHODS)[number];
 
-export function isCheckoutPaymentMethod(
-  value: string,
-): value is CheckoutPaymentMethod {
+export function isCheckoutPaymentMethod(value: string): value is CheckoutPaymentMethod {
   return (CHECKOUT_PAYMENT_METHODS as readonly string[]).includes(value);
 }
 
@@ -18,11 +12,15 @@ export function toPaymentRecord(method: CheckoutPaymentMethod): {
   method: string;
 } {
   switch (method) {
-    case "idram":
-      return { provider: "idram", method: "IDRAM" };
-    case "arca":
-      return { provider: "arca", method: "ARCA" };
-    case "cash_on_delivery":
-      return { provider: "cod", method: "COD" };
+    case 'idram':
+      return { provider: 'idram', method: 'IDRAM' };
+    case 'arca':
+      return { provider: 'arca', method: 'ARCA' };
+    case 'cash_on_delivery':
+      return { provider: 'cod', method: 'COD' };
   }
+}
+
+export function isOnlinePaymentMethod(method: CheckoutPaymentMethod): boolean {
+  return method !== 'cash_on_delivery';
 }

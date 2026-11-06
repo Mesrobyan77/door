@@ -5,7 +5,6 @@ import { createHash } from 'node:crypto';
 import { and, asc, eq, inArray, or, sql } from 'drizzle-orm';
 import { cookies } from 'next/headers';
 
-import { getProviders } from '@/config/providers';
 import {
   cartItems,
   carts,
@@ -27,7 +26,7 @@ import { getCartWithItems, revalidateCartPaths } from '@/features/cart/cart';
 import { hashGuestToken, peekGuestCartToken } from '@/features/cart/guest-token';
 import { checkoutSchema, type CheckoutInput } from '@/features/checkout/schemas';
 import { createCheckoutRequestFingerprint } from '@/features/checkout/domain/idempotency';
-import { toPaymentRecord } from '@/features/checkout/domain/payment-methods';
+import { isOnlinePaymentMethod, toPaymentRecord } from '@/features/checkout/domain/payment-methods';
 import {
   ORDER_NUMBER_LOCK_KEY,
   formatOrderNumber,
@@ -46,6 +45,18 @@ import { createId } from '@/lib/id';
 import { convertAmount } from '@/lib/money/convert';
 import { defaultCurrency } from '@/lib/money/currency';
 import { CURRENCY_COOKIE_NAME, parseCurrencyCookie } from '@/lib/money/currency-cookie';
+import {
+  getPaymentConfiguration,
+  getArcaCredentials,
+  getIdramCredentials,
+} from '@/lib/payments/online-config';
+import { registerArcaOrder } from '@/lib/payments/arca-client';
+import { formatIdramAmount, IDRAM_PAYMENT_URL, idramLanguage } from '@/lib/payments/idram';
+import {
+  createGuestOrderAccessToken,
+  hashGuestOrderAccessToken,
+  GUEST_ORDER_ACCESS_COOKIE_PREFIX,
+} from '@/lib/payments/guest-order-access';
 
 function deliveryLabel(countryCode: string, city: string | null): string {
   const cityPart = city?.trim();
@@ -55,7 +66,14 @@ function deliveryLabel(countryCode: string, city: string | null): string {
   return countryCode;
 }
 
-export type CreateOrderResult = { ok: true; orderNumber: string } | { ok: false; error: string };
+export type CreateOrderResult =
+  | {
+      ok: true;
+      orderNumber: string;
+      redirectUrl?: string;
+      form?: { action: string; fields: Record<string, string> };
+    }
+  | { ok: false; error: string };
 
 /** Creates a COD order with server-side totals, stock decrement, and cart clear. */
 export async function createOrderAction(raw: CheckoutInput): Promise<CreateOrderResult> {
@@ -65,7 +83,14 @@ export async function createOrderAction(raw: CheckoutInput): Promise<CreateOrder
   }
 
   const input = parsed.data;
+  if (
+    (input.paymentMethod === 'arca' || input.paymentMethod === 'idram') &&
+    !getPaymentConfiguration(input.paymentMethod).enabled
+  ) {
+    return { ok: false, error: 'Selected payment method is not configured.' };
+  }
   const user = await getCurrentUser();
+  const guestAccessToken = user ? null : createGuestOrderAccessToken();
   const { cart, items } = await getCartWithItems();
   const guestToken = user ? null : await peekGuestCartToken();
   const cookieStore = await cookies();
@@ -156,7 +181,7 @@ export async function createOrderAction(raw: CheckoutInput): Promise<CreateOrder
       displayCurrency,
     );
 
-    const orderNumber = await withTransaction(async (tx) => {
+    const created = await withTransaction(async (tx) => {
       await tx.execute(
         sql`select pg_advisory_xact_lock(hashtext(${scopeHash}), hashtext(${keyHash}))`,
       );
@@ -199,7 +224,7 @@ export async function createOrderAction(raw: CheckoutInput): Promise<CreateOrder
         ) {
           throw new Error('IDEMPOTENCY_CONFLICT');
         }
-        return existing.orderNumber;
+        return { orderNumber: existing.orderNumber, orderId: existing.id, totalAmount: null };
       }
 
       let delivery: typeof deliveryRules.$inferSelect | null = null;
@@ -556,12 +581,6 @@ export async function createOrderAction(raw: CheckoutInput): Promise<CreateOrder
         });
       }
 
-      const payment = await getProviders().payment.createPayment({
-        orderId,
-        amount: BigInt(totalAmount),
-        currency: defaultCurrency,
-        idempotencyKey: input.idempotencyKey,
-      });
       const paymentRecord = toPaymentRecord(input.paymentMethod);
 
       await tx.insert(payments).values({
@@ -569,11 +588,21 @@ export async function createOrderAction(raw: CheckoutInput): Promise<CreateOrder
         orderId,
         provider: paymentRecord.provider,
         method: paymentRecord.method,
-        providerReference: payment.providerReference,
+        providerReference: null,
         amount: totalAmount,
         currency: defaultCurrency,
         status: 'PENDING',
         attemptNumber: 1,
+        metadata: {
+          cartId: cart.id,
+          ...(guestAccessToken
+            ? { guestAccessHash: hashGuestOrderAccessToken(guestAccessToken) }
+            : {}),
+          checkoutItems: lineSnapshots.map((line) => ({
+            variantId: line.variantId,
+            quantity: line.quantity,
+          })),
+        },
       });
 
       await tx.insert(orderEvents).values({
@@ -587,17 +616,80 @@ export async function createOrderAction(raw: CheckoutInput): Promise<CreateOrder
         payload: { source: 'checkout' },
       });
 
-      await tx.delete(cartItems).where(eq(cartItems.cartId, cart.id));
-      await tx
-        .update(carts)
-        .set({ status: 'CONVERTED', updatedAt: now })
-        .where(eq(carts.id, cart.id));
+      if (!isOnlinePaymentMethod(input.paymentMethod)) {
+        await tx.delete(cartItems).where(eq(cartItems.cartId, cart.id));
+        await tx
+          .update(carts)
+          .set({ status: 'CONVERTED', updatedAt: now })
+          .where(eq(carts.id, cart.id));
+      }
 
-      return number;
+      return { orderNumber: number, orderId, totalAmount };
     });
 
     await revalidateCartPaths();
-    return { ok: true, orderNumber };
+    if (guestAccessToken) {
+      cookieStore.set(
+        `${GUEST_ORDER_ACCESS_COOKIE_PREFIX}${created.orderNumber}`,
+        guestAccessToken,
+        {
+          httpOnly: true,
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+          path: '/',
+          maxAge: 60 * 60 * 24 * 30,
+        },
+      );
+    }
+    if (input.paymentMethod === 'idram') {
+      const credentials = getIdramCredentials();
+      if (!credentials || created.totalAmount === null)
+        return { ok: true, orderNumber: created.orderNumber };
+      return {
+        ok: true,
+        orderNumber: created.orderNumber,
+        form: {
+          action: IDRAM_PAYMENT_URL,
+          fields: {
+            EDP_LANGUAGE: idramLanguage(input.locale),
+            EDP_REC_ACCOUNT: credentials.recAccount,
+            EDP_DESCRIPTION: `White Shop order ${created.orderNumber}`,
+            EDP_AMOUNT: formatIdramAmount(created.totalAmount),
+            EDP_BILL_NO: created.orderNumber,
+            EDP_EMAIL: input.contactEmail,
+            order_number: created.orderNumber,
+          },
+        },
+      };
+    }
+    if (input.paymentMethod === 'arca' && created.totalAmount !== null) {
+      const credentials = getArcaCredentials();
+      const configuration = getPaymentConfiguration('arca');
+      if (!credentials || !configuration.appUrl)
+        return { ok: true, orderNumber: created.orderNumber };
+      try {
+        const registration = await registerArcaOrder(credentials, {
+          orderNumber: created.orderNumber,
+          amount: created.totalAmount,
+          returnUrl: `${configuration.appUrl}/api/payments/arca/callback?order=${encodeURIComponent(created.orderNumber)}&locale=${input.locale}`,
+          description: `White Shop order ${created.orderNumber}`,
+          language: input.locale,
+        });
+        await getDb()
+          .update(payments)
+          .set({ providerReference: registration.orderId, updatedAt: new Date() })
+          .where(and(eq(payments.orderId, created.orderId), eq(payments.provider, 'arca')));
+        return { ok: true, orderNumber: created.orderNumber, redirectUrl: registration.formUrl };
+      } catch {
+        // A network timeout is an unknown outcome; retain stock and the pending attempt.
+        return {
+          ok: false,
+          error:
+            'Payment gateway is temporarily unavailable. Your pending order was retained for reconciliation.',
+        };
+      }
+    }
+    return { ok: true, orderNumber: created.orderNumber };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unable to place order.';
     if (message === 'IDEMPOTENCY_CONFLICT') {

@@ -79,7 +79,9 @@
   },
   "success": {
     "title": "Order confirmed",
+    "pendingTitle": "Payment pending",
     "body": "Order {orderNumber} was placed successfully. Your cart has been cleared.",
+    "pendingBody": "Order {orderNumber} is awaiting payment confirmation. Your cart will update after confirmation.",
     "total": "Total: {amount}",
     "continueShopping": "Continue shopping",
     "viewOrders": "View orders"

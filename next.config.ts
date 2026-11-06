@@ -32,7 +32,7 @@ const securityHeaders = [
 function buildImageRemotePatterns(): NonNullable<
   NextConfig["images"]
 >["remotePatterns"] {
-  return [
+  const remotePatterns: NonNullable<NextConfig["images"]>["remotePatterns"] = [
     {
       protocol: "https",
       hostname: "images.pexels.com",
@@ -43,6 +43,15 @@ function buildImageRemotePatterns(): NonNullable<
       pathname: "/**",
     },
   ];
+
+  if (process.env.NODE_ENV !== "production") {
+    remotePatterns.push({
+      protocol: "https",
+      hostname: "example.test",
+    });
+  }
+
+  return remotePatterns;
 }
 
 const nextConfig: NextConfig = {

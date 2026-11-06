@@ -1,12 +1,12 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import { Card } from "@/components/ui/Card";
+import { Card } from '@/components/ui/Card';
 import {
   ADMIN_PAGE_SUBTITLE,
   ADMIN_PAGE_TITLE,
   ADMIN_SECTION_TITLE,
-} from "@/features/admin/ui/admin-form-classes";
+} from '@/features/admin/ui/admin-form-classes';
 import {
   ADMIN_TABLE,
   ADMIN_TABLE_CARD,
@@ -16,28 +16,27 @@ import {
   ADMIN_TABLE_TD,
   ADMIN_TABLE_TH,
   ADMIN_TABLE_THEAD,
-} from "@/features/admin/ui/admin-table-classes";
+} from '@/features/admin/ui/admin-table-classes';
 import {
   ADMIN_BADGE,
   orderStatusBadgeClass,
   paymentStatusBadgeClass,
-} from "@/features/admin/ui/status-badge";
-import { getAdminOrderByNumber } from "@/features/orders/application/queries";
-import { isLocale } from "@/lib/i18n/config";
-import { getDictionary } from "@/lib/i18n/get-dictionary";
-import { formatOrderItemConfiguration } from "@/features/orders/domain/format-order-item-configuration";
+} from '@/features/admin/ui/status-badge';
+import { getAdminOrderByNumber } from '@/features/orders/application/queries';
+import { isLocale } from '@/lib/i18n/config';
+import { getDictionary } from '@/lib/i18n/get-dictionary';
+import { formatOrderItemConfiguration } from '@/features/orders/domain/format-order-item-configuration';
+import { ReconcilePaymentButton } from '@/features/orders/ui/ReconcilePaymentButton';
 
 type AdminOrderDetailPageProps = {
   params: Promise<{ locale: string; orderNumber: string }>;
 };
 
 function formatMoney(amount: number, currency: string): string {
-  return `${amount.toLocaleString("en-US")} ${currency}`;
+  return `${amount.toLocaleString('en-US')} ${currency}`;
 }
 
-export default async function AdminOrderDetailPage({
-  params,
-}: AdminOrderDetailPageProps) {
+export default async function AdminOrderDetailPage({ params }: AdminOrderDetailPageProps) {
   const { locale, orderNumber } = await params;
   if (!isLocale(locale)) {
     notFound();
@@ -48,7 +47,7 @@ export default async function AdminOrderDetailPage({
     notFound();
   }
 
-  const { order, items, events } = detail;
+  const { order, items, events, payments } = detail;
   const address = order.shippingAddress;
   const variantLabels = getDictionary(locale).product.variant;
 
@@ -66,20 +65,14 @@ export default async function AdminOrderDetailPage({
           </p>
           <h1 className={ADMIN_PAGE_TITLE}>{order.orderNumber}</h1>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span
-              className={`${ADMIN_BADGE} ${orderStatusBadgeClass(order.status)}`}
-            >
+            <span className={`${ADMIN_BADGE} ${orderStatusBadgeClass(order.status)}`}>
               {order.status}
             </span>
-            <span
-              className={`${ADMIN_BADGE} ${paymentStatusBadgeClass(order.paymentStatus)}`}
-            >
+            <span className={`${ADMIN_BADGE} ${paymentStatusBadgeClass(order.paymentStatus)}`}>
               {order.paymentStatus}
             </span>
             {order.isArchived ? (
-              <span className={`${ADMIN_BADGE} bg-gray-100 text-gray-800`}>
-                Archived
-              </span>
+              <span className={`${ADMIN_BADGE} bg-gray-100 text-gray-800`}>Archived</span>
             ) : null}
           </div>
         </div>
@@ -93,13 +86,13 @@ export default async function AdminOrderDetailPage({
           <p className="text-sm text-gray-600">{order.contactPhone}</p>
           <p className="mt-3 text-sm text-gray-600">
             {address.line1}
-            {address.line2 ? `, ${address.line2}` : ""}
+            {address.line2 ? `, ${address.line2}` : ''}
             <br />
             {address.city}
-            {address.region ? `, ${address.region}` : ""}
+            {address.region ? `, ${address.region}` : ''}
             <br />
             {address.countryCode}
-            {address.postalCode ? ` ${address.postalCode}` : ""}
+            {address.postalCode ? ` ${address.postalCode}` : ''}
           </p>
         </Card>
 
@@ -110,25 +103,31 @@ export default async function AdminOrderDetailPage({
           </p>
           <p className="text-sm text-gray-700">
             Delivery
-            {order.deliveryLabelSnapshot
-              ? ` (${order.deliveryLabelSnapshot})`
-              : ""}
-            : {formatMoney(order.deliveryAmount, order.baseCurrency)}
+            {order.deliveryLabelSnapshot ? ` (${order.deliveryLabelSnapshot})` : ''}:{' '}
+            {formatMoney(order.deliveryAmount, order.baseCurrency)}
           </p>
           <p className="text-sm text-gray-700">
             Coupon discount
-            {order.promotionCodeSnapshot
-              ? ` (${order.promotionCodeSnapshot})`
-              : ""}
-            : {formatMoney(order.discountAmount, order.baseCurrency)}
+            {order.promotionCodeSnapshot ? ` (${order.promotionCodeSnapshot})` : ''}:{' '}
+            {formatMoney(order.discountAmount, order.baseCurrency)}
           </p>
           <p className="mt-2 text-sm font-semibold text-gray-900">
             Total: {formatMoney(order.totalAmount, order.baseCurrency)}
           </p>
           <p className="mt-2 text-sm text-gray-500">
-            Placed{" "}
-            {order.placedAt.toISOString().slice(0, 16).replace("T", " ")} UTC
+            Placed {order.placedAt.toISOString().slice(0, 16).replace('T', ' ')} UTC
           </p>
+        </Card>
+        <Card className="p-6">
+          <h2 className={`mb-3 ${ADMIN_SECTION_TITLE}`}>Payment reconciliation</h2>
+          <p className="text-sm text-gray-600">
+            Provider status is verified server-to-server when the provider documents a status API.
+          </p>
+          <ReconcilePaymentButton
+            locale={locale}
+            orderNumber={order.orderNumber}
+            provider={payments[0]?.provider ?? ''}
+          />
         </Card>
       </div>
 
@@ -149,12 +148,8 @@ export default async function AdminOrderDetailPage({
               {items.map((item) => (
                 <tr key={item.id} className={ADMIN_TABLE_ROW}>
                   <td className={ADMIN_TABLE_TD}>
-                    <p className="font-medium text-gray-900">
-                      {item.productTitleSnapshot}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {item.productSkuSnapshot}
-                    </p>
+                    <p className="font-medium text-gray-900">{item.productTitleSnapshot}</p>
+                    <p className="text-xs text-gray-500">{item.productSkuSnapshot}</p>
                     <p className="text-xs text-gray-500">
                       {formatOrderItemConfiguration(
                         item.productSkuSnapshot,
@@ -178,32 +173,26 @@ export default async function AdminOrderDetailPage({
         <h2 className={`mb-4 ${ADMIN_SECTION_TITLE}`}>History</h2>
         <ol className="space-y-3">
           {events.map((event) => (
-            <li
-              key={event.id}
-              className="rounded-lg border border-gray-200 p-3 text-sm"
-            >
+            <li key={event.id} className="rounded-lg border border-gray-200 p-3 text-sm">
               <p className="font-medium text-gray-900">
                 {event.eventType}
                 {event.fromState || event.toState
-                  ? ` · ${event.fromState ?? "—"} → ${event.toState ?? "—"}`
+                  ? ` · ${event.fromState ?? '—'} → ${event.toState ?? '—'}`
                   : null}
               </p>
               <p className="text-gray-500">
-                {event.createdAt.toISOString().slice(0, 19).replace("T", " ")}{" "}
-                UTC
-                {event.isCustomerVisible ? " · customer-visible" : " · internal"}
+                {event.createdAt.toISOString().slice(0, 19).replace('T', ' ')} UTC
+                {event.isCustomerVisible ? ' · customer-visible' : ' · internal'}
               </p>
               {event.payload &&
-              typeof event.payload === "object" &&
-              "note" in event.payload &&
-              typeof event.payload.note === "string" ? (
+              typeof event.payload === 'object' &&
+              'note' in event.payload &&
+              typeof event.payload.note === 'string' ? (
                 <p className="mt-1 text-gray-700">{event.payload.note}</p>
               ) : null}
             </li>
           ))}
-          {events.length === 0 ? (
-            <li className="text-sm text-gray-600">No events yet.</li>
-          ) : null}
+          {events.length === 0 ? <li className="text-sm text-gray-600">No events yet.</li> : null}
         </ol>
       </Card>
     </section>

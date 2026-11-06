@@ -1,23 +1,24 @@
-"use server";
+'use server';
 
-import { desc, eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { desc, eq } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
 
-import { auditLogs, orderEvents, orders, payments } from "@/db/schema";
-import { withTransaction } from "@/db/transaction";
+import { auditLogs, orderEvents, orderItems, orders, payments } from '@/db/schema';
+import { restoreOrderStock } from '@/features/orders/application/order-stock';
+import { withTransaction } from '@/db/transaction';
 import {
   canTransitionPaymentStatus,
   isPaymentStatus,
   type PaymentStatus,
-} from "@/features/orders/domain/payment-status";
+} from '@/features/orders/domain/payment-status';
 import {
   changePaymentStatusSchema,
   type ChangePaymentStatusInput,
-} from "@/features/orders/schemas/change-payment-status";
-import { requireAdmin } from "@/lib/auth/policies";
-import { createId } from "@/lib/id";
-import { isLocale, type Locale } from "@/lib/i18n/config";
-import { err, ok, type Result } from "@/lib/result";
+} from '@/features/orders/schemas/change-payment-status';
+import { requireAdmin } from '@/lib/auth/policies';
+import { createId } from '@/lib/id';
+import { isLocale, type Locale } from '@/lib/i18n/config';
+import { err, ok, type Result } from '@/lib/result';
 
 export type ChangePaymentStatusData = {
   orderNumber: string;
@@ -34,12 +35,12 @@ export async function changePaymentStatusAction(
   raw: ChangePaymentStatusInput,
 ): Promise<Result<ChangePaymentStatusData>> {
   if (!isLocale(locale)) {
-    return err("INVALID_LOCALE", "Invalid locale.");
+    return err('INVALID_LOCALE', 'Invalid locale.');
   }
 
   const parsed = changePaymentStatusSchema.safeParse(raw);
   if (!parsed.success) {
-    return err("VALIDATION_ERROR", "Invalid payment status payload.");
+    return err('VALIDATION_ERROR', 'Invalid payment status payload.');
   }
 
   const actor = await requireAdmin(locale as Locale);
@@ -51,25 +52,25 @@ export async function changePaymentStatusAction(
         .select()
         .from(orders)
         .where(eq(orders.orderNumber, orderNumber))
-        .for("update")
+        .for('update')
         .limit(1);
 
       if (!locked) {
-        throw new Error("ORDER_NOT_FOUND");
+        throw new Error('ORDER_NOT_FOUND');
       }
 
       if (!isPaymentStatus(locked.paymentStatus)) {
-        throw new Error("INVALID_CURRENT_STATUS");
+        throw new Error('INVALID_CURRENT_STATUS');
       }
 
       const fromStatus = locked.paymentStatus;
 
       if (fromStatus === toStatus) {
-        throw new Error("SAME_STATUS");
+        throw new Error('SAME_STATUS');
       }
 
       if (!canTransitionPaymentStatus(fromStatus, toStatus)) {
-        throw new Error("INVALID_TRANSITION");
+        throw new Error('INVALID_TRANSITION');
       }
 
       const now = new Date();
@@ -94,16 +95,48 @@ export async function changePaymentStatusAction(
           .where(eq(payments.id, latestPayment.id));
       }
 
+      // DEC-024: release a checkout reservation only after every known attempt
+      // is terminal and unpaid. `restoreOrderStock` derives its idempotency from
+      // stock movements, so repeated admin reconciliation cannot over-restock.
+      const attemptRows = await tx
+        .select({ status: payments.status })
+        .from(payments)
+        .where(eq(payments.orderId, locked.id));
+      const allTerminalUnpaid =
+        attemptRows.length > 0 &&
+        attemptRows.every(
+          (attempt) => attempt.status === 'FAILED' || attempt.status === 'CANCELLED',
+        );
+      if (allTerminalUnpaid) {
+        const lines = await tx.select().from(orderItems).where(eq(orderItems.orderId, locked.id));
+        await restoreOrderStock(tx, lines, locked.id, actor.id, correlationId, now);
+        await tx
+          .update(orders)
+          .set({ status: 'CANCELLED', updatedAt: now })
+          .where(eq(orders.id, locked.id));
+        await tx.insert(orderEvents).values({
+          id: createId(),
+          orderId: locked.id,
+          eventType: 'PAYMENT_PROVIDER',
+          fromState: fromStatus,
+          toState: 'STOCK_RELEASED',
+          actorUserId: actor.id,
+          isCustomerVisible: false,
+          payload: { source: 'admin_reconciliation', reason: 'all_attempts_terminal_unpaid' },
+          correlationId,
+        });
+      }
+
       await tx.insert(orderEvents).values({
         id: createId(),
         orderId: locked.id,
-        eventType: "PAYMENT_PROVIDER",
+        eventType: 'PAYMENT_PROVIDER',
         fromState: fromStatus,
         toState: toStatus,
         actorUserId: actor.id,
         isCustomerVisible: true,
         payload: {
-          source: "admin",
+          source: 'admin',
           paymentId: latestPayment?.id ?? null,
           note: note ?? null,
         },
@@ -114,10 +147,10 @@ export async function changePaymentStatusAction(
         await tx.insert(orderEvents).values({
           id: createId(),
           orderId: locked.id,
-          eventType: "NOTE",
+          eventType: 'NOTE',
           actorUserId: actor.id,
           isCustomerVisible: false,
-          payload: { note, context: "payment_status" },
+          payload: { note, context: 'payment_status' },
           correlationId,
         });
       }
@@ -125,8 +158,8 @@ export async function changePaymentStatusAction(
       await tx.insert(auditLogs).values({
         id: createId(),
         actorUserId: actor.id,
-        action: "order.change_payment_status",
-        targetType: "order",
+        action: 'order.change_payment_status',
+        targetType: 'order',
         targetId: locked.id,
         beforeDiff: { paymentStatus: fromStatus },
         afterDiff: { paymentStatus: toStatus },
@@ -143,28 +176,19 @@ export async function changePaymentStatusAction(
 
     return ok(result);
   } catch (error) {
-    const code = error instanceof Error ? error.message : "UNKNOWN";
+    const code = error instanceof Error ? error.message : 'UNKNOWN';
 
     switch (code) {
-      case "ORDER_NOT_FOUND":
-        return err("ORDER_NOT_FOUND", "Order not found.");
-      case "SAME_STATUS":
-        return err("SAME_STATUS", "Payment already has this status.");
-      case "INVALID_TRANSITION":
-        return err(
-          "INVALID_TRANSITION",
-          "That payment transition is not allowed.",
-        );
-      case "INVALID_CURRENT_STATUS":
-        return err(
-          "INVALID_CURRENT_STATUS",
-          "Order has an unknown payment status.",
-        );
+      case 'ORDER_NOT_FOUND':
+        return err('ORDER_NOT_FOUND', 'Order not found.');
+      case 'SAME_STATUS':
+        return err('SAME_STATUS', 'Payment already has this status.');
+      case 'INVALID_TRANSITION':
+        return err('INVALID_TRANSITION', 'That payment transition is not allowed.');
+      case 'INVALID_CURRENT_STATUS':
+        return err('INVALID_CURRENT_STATUS', 'Order has an unknown payment status.');
       default:
-        return err(
-          "PAYMENT_STATUS_FAILED",
-          "Unable to update payment status.",
-        );
+        return err('PAYMENT_STATUS_FAILED', 'Unable to update payment status.');
     }
   }
 }
