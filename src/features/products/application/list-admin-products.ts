@@ -27,7 +27,6 @@ import {
 import { loadProductImagesForAdmin } from "@/features/products/application/persist-product-media";
 import type { AdminProductsFilter } from "@/features/products/schemas/admin-list";
 import type { Locale } from "@/lib/i18n/config";
-import { mediaPublicUrl } from "@/lib/media/public-url";
 
 const PAGE_SIZE = 20;
 
@@ -135,7 +134,7 @@ async function loadPrimaryImages(
   const rows = await getDb()
     .select({
       productId: mediaAssets.productId,
-      objectKey: mediaAssets.objectKey,
+      secureUrl: mediaAssets.secureUrl,
     })
     .from(mediaAssets)
     .where(
@@ -148,8 +147,8 @@ async function loadPrimaryImages(
     .orderBy(asc(mediaAssets.sortOrder));
 
   for (const row of rows) {
-    if (!row.productId || map.has(row.productId)) continue;
-    map.set(row.productId, mediaPublicUrl(row.objectKey));
+    if (!row.productId || !row.secureUrl || map.has(row.productId)) continue;
+    map.set(row.productId, row.secureUrl);
   }
   return map;
 }

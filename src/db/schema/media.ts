@@ -24,7 +24,9 @@ export const mediaAssets = pgTable(
   "media_assets",
   {
     id: idColumn(),
-    objectKey: text("object_key").notNull(),
+    legacyObjectKey: text("object_key"),
+    secureUrl: text("secure_url"),
+    cloudinaryPublicId: text("cloudinary_public_id"),
     mimeType: text("mime_type").notNull(),
     byteSize: integer("byte_size").notNull(),
     width: integer("width"),
@@ -56,7 +58,10 @@ export const mediaAssets = pgTable(
     updatedAt: updatedAtColumn(),
   },
   (table) => [
-    uniqueIndex("media_assets_object_key_uidx").on(table.objectKey),
+    uniqueIndex("media_assets_object_key_uidx").on(table.legacyObjectKey),
+    uniqueIndex("media_assets_cloudinary_public_id_uidx").on(
+      table.cloudinaryPublicId,
+    ),
     index("media_assets_product_idx").on(table.productId),
     index("media_assets_category_idx").on(table.categoryId),
     index("media_assets_hero_idx").on(table.heroSlideId),

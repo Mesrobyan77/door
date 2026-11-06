@@ -2,37 +2,30 @@ import "server-only";
 
 import { and, asc, eq, inArray } from "drizzle-orm";
 
-import { getProviders } from "@/config/providers";
 import { getDb } from "@/db/client";
 import { mediaAssets } from "@/db/schema";
-import { createId } from "@/lib/id";
-import {
-  extensionForImageMime,
-  validateImageFile,
-} from "@/lib/media/image-file";
-import { mediaPublicUrl } from "@/lib/media/public-url";
+import { deleteCloudinaryImage } from "@/lib/media/cloudinary";
+import { attachPendingCloudinaryUpload } from "@/lib/media/persist-upload";
 
 const MAX_IMAGES = 12;
 
 export type ProductMediaInput = {
   productId: string;
-  files: File[];
+  mediaAssetIds: string[];
   primaryNewIndex: number | null;
   primaryExistingId: string | null;
   removeImageIds: string[];
 };
 
-/** Saves new product images and updates primary/removal via object storage. */
+/** Attaches pending Cloudinary images and updates the product gallery. */
 export async function persistProductMedia(
   input: ProductMediaInput,
 ): Promise<{ error: string | null }> {
   const db = getDb();
-  const storage = getProviders().storage;
   const existing = await db
     .select({
       id: mediaAssets.id,
-      objectKey: mediaAssets.objectKey,
-      isPrimary: mediaAssets.isPrimary,
+      cloudinaryPublicId: mediaAssets.cloudinaryPublicId,
     })
     .from(mediaAssets)
     .where(eq(mediaAssets.productId, input.productId))
@@ -41,87 +34,75 @@ export async function persistProductMedia(
   const remainingAfterRemove = existing.filter(
     (row) => !input.removeImageIds.includes(row.id),
   );
-
-  if (remainingAfterRemove.length + input.files.length > MAX_IMAGES) {
+  if (remainingAfterRemove.length + input.mediaAssetIds.length > MAX_IMAGES) {
     return { error: `At most ${MAX_IMAGES} images are allowed.` };
   }
 
-  for (const file of input.files) {
-    const validationError = validateImageFile(file);
-    if (validationError) {
+  if (new Set(input.mediaAssetIds).size !== input.mediaAssetIds.length) {
+    return { error: "Duplicate image uploads are not allowed." };
+  }
+
+  if (input.mediaAssetIds.length > 0) {
+    const pending = await db
+      .select({ id: mediaAssets.id })
+      .from(mediaAssets)
+      .where(
+        and(
+          inArray(mediaAssets.id, input.mediaAssetIds),
+          eq(mediaAssets.uploadStatus, "PENDING"),
+          eq(mediaAssets.purpose, "product"),
+        ),
+      );
+    if (pending.length !== input.mediaAssetIds.length) {
       return {
-        error:
-          validationError === "Image must be 5MB or smaller."
-            ? "Each image must be 5MB or smaller."
-            : validationError,
+        error: "One or more uploaded images are no longer available. Upload them again.",
       };
     }
   }
 
-  if (input.removeImageIds.length > 0) {
-    const toRemove = existing.filter((row) =>
-      input.removeImageIds.includes(row.id),
-    );
-    if (toRemove.length > 0) {
-      await db
-        .delete(mediaAssets)
-        .where(
-          inArray(
-            mediaAssets.id,
-            toRemove.map((row) => row.id),
-          ),
-        );
-      await Promise.all(
-        toRemove.map((row) => storage.deleteObject(row.objectKey)),
+  const toRemove = existing.filter((row) =>
+    input.removeImageIds.includes(row.id),
+  );
+  if (toRemove.length > 0) {
+    await db
+      .delete(mediaAssets)
+      .where(
+        inArray(
+          mediaAssets.id,
+          toRemove.map((row) => row.id),
+        ),
       );
-    }
   }
 
+  let sortOrder = remainingAfterRemove.length;
   const createdIds: string[] = [];
-  let sortBase = remainingAfterRemove.length;
-
-  for (const file of input.files) {
-    const id = createId();
-    const objectKey = `uploads/products/${input.productId}/${id}.${extensionForImageMime(file.type)}`;
-    const body = Buffer.from(await file.arrayBuffer());
-    await storage.putObject({
-      objectKey,
-      body,
-      contentType: file.type,
-    });
-
-    await db.insert(mediaAssets).values({
-      id,
-      objectKey,
-      mimeType: file.type,
-      byteSize: file.size,
-      uploadStatus: "READY",
+  for (const mediaAssetId of input.mediaAssetIds) {
+    const attached = await attachPendingCloudinaryUpload({
+      mediaAssetId,
+      purpose: "product",
+      owner: { productId: input.productId },
       role: "GALLERY",
-      sortOrder: sortBase,
+      sortOrder,
       isPrimary: false,
-      productId: input.productId,
     });
-    createdIds.push(id);
-    sortBase += 1;
+    if (!attached) {
+      return {
+        error: "One or more uploaded images are no longer available. Upload them again.",
+      };
+    }
+    createdIds.push(attached.id);
+    sortOrder += 1;
   }
 
-  let nextPrimaryId: string | null = null;
-  if (
+  const nextPrimaryId =
     input.primaryNewIndex != null &&
     input.primaryNewIndex >= 0 &&
     input.primaryNewIndex < createdIds.length
-  ) {
-    nextPrimaryId = createdIds[input.primaryNewIndex] ?? null;
-  } else if (
-    input.primaryExistingId &&
-    !input.removeImageIds.includes(input.primaryExistingId)
-  ) {
-    nextPrimaryId = input.primaryExistingId;
-  } else if (remainingAfterRemove[0]) {
-    nextPrimaryId = remainingAfterRemove[0].id;
-  } else if (createdIds[0]) {
-    nextPrimaryId = createdIds[0];
-  }
+      ? (createdIds[input.primaryNewIndex] ?? null)
+      : input.primaryExistingId &&
+          remainingAfterRemove.some((row) => row.id === input.primaryExistingId)
+        ? input.primaryExistingId
+        : (remainingAfterRemove[0]?.id ?? createdIds[0] ?? null);
 
   await db
     .update(mediaAssets)
@@ -144,10 +125,18 @@ export async function persistProductMedia(
       .where(eq(mediaAssets.id, nextPrimaryId));
   }
 
+  await Promise.all(
+    toRemove.flatMap((asset) =>
+      asset.cloudinaryPublicId
+        ? [deleteCloudinaryImage(asset.cloudinaryPublicId)]
+        : [],
+    ),
+  );
+
   return { error: null };
 }
 
-/** Loads gallery images for admin product editing. */
+/** Loads Cloudinary gallery URLs for admin product editing. */
 export async function loadProductImagesForAdmin(
   productIds: string[],
 ): Promise<Map<string, { id: string; url: string; isPrimary: boolean }[]>> {
@@ -161,7 +150,7 @@ export async function loadProductImagesForAdmin(
     .select({
       id: mediaAssets.id,
       productId: mediaAssets.productId,
-      objectKey: mediaAssets.objectKey,
+      secureUrl: mediaAssets.secureUrl,
       isPrimary: mediaAssets.isPrimary,
       sortOrder: mediaAssets.sortOrder,
     })
@@ -175,11 +164,11 @@ export async function loadProductImagesForAdmin(
     .orderBy(asc(mediaAssets.sortOrder));
 
   for (const row of rows) {
-    if (!row.productId) continue;
+    if (!row.productId || !row.secureUrl) continue;
     const list = map.get(row.productId) ?? [];
     list.push({
       id: row.id,
-      url: mediaPublicUrl(row.objectKey),
+      url: row.secureUrl,
       isPrimary: row.isPrimary,
     });
     map.set(row.productId, list);

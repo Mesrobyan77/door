@@ -32,6 +32,7 @@ const productUpsertSchema = z.object({
   primaryExistingId: z.string().uuid().nullable(),
   primaryNewIndex: z.number().int().nullable(),
   removeImageIds: z.array(z.string().uuid()),
+  mediaAssetIds: z.array(z.string().uuid()).max(12),
 });
 
 export type ProductUpsertInput = z.infer<typeof productUpsertSchema>;
@@ -71,12 +72,6 @@ function parsePayload(formData: FormData): ProductUpsertInput | null {
   } catch {
     return null;
   }
-}
-
-function collectImageFiles(formData: FormData): File[] {
-  return formData
-    .getAll("images")
-    .filter((entry): entry is File => entry instanceof File && entry.size > 0);
 }
 
 async function syncProductCategories(
@@ -144,8 +139,6 @@ export async function createProductFromDrawerAction(
 
   const actor = await requireAdmin(locale as Locale);
   const id = createId();
-  const files = collectImageFiles(formData);
-
   await getDb().insert(products).values({
     id,
     sku: data.sku,
@@ -174,8 +167,9 @@ export async function createProductFromDrawerAction(
 
   const mediaResult = await persistProductMedia({
     productId: id,
-    files,
-    primaryNewIndex: data.primaryNewIndex ?? (files.length > 0 ? 0 : null),
+    mediaAssetIds: data.mediaAssetIds,
+    primaryNewIndex:
+      data.primaryNewIndex ?? (data.mediaAssetIds.length > 0 ? 0 : null),
     primaryExistingId: null,
     removeImageIds: [],
   });
@@ -213,8 +207,6 @@ export async function updateProductFromDrawerAction(
   }
 
   const actor = await requireAdmin(locale as Locale);
-  const files = collectImageFiles(formData);
-
   const [existing] = await getDb()
     .select({
       id: products.id,
@@ -265,7 +257,7 @@ export async function updateProductFromDrawerAction(
 
   const mediaResult = await persistProductMedia({
     productId: existing.id,
-    files,
+    mediaAssetIds: data.mediaAssetIds,
     primaryNewIndex: data.primaryNewIndex ?? null,
     primaryExistingId: data.primaryExistingId ?? null,
     removeImageIds: data.removeImageIds,

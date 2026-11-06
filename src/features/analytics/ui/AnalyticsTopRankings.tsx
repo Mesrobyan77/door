@@ -58,7 +58,7 @@ export function AnalyticsTopRankings({
               <RankBadge rank={index + 1} tone="amber" />
               <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white">
                 {product.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- remote R2 URLs; admin list pattern
+                  // eslint-disable-next-line @next/next/no-img-element -- compact unoptimized admin thumbnail
                   <img
                     src={product.imageUrl}
                     alt=""

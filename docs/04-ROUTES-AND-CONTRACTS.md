@@ -86,8 +86,8 @@
 | Endpoint family | Method | Purpose/security |
 |---|---|---|
 | `/api/auth/[...nextauth]` | Auth.js-defined | Auth callbacks/session; Auth.js contract |
-| `/api/uploads/intents` | POST | Admin upload intent; auth, purpose/MIME/size validation, rate limit |
-| `/api/uploads/[id]/finalize` | POST | Ownership/object metadata verification |
+| `/api/admin/media/upload` | POST | Admin-only same-origin image upload; returns secure URL, public ID, dimensions and pending media ID |
+| `/api/admin/media/upload` | DELETE | Removes an unclaimed pending upload from Cloudinary and the media table |
 | `/api/webhooks/payments/[provider]` | POST | Signature verification, raw body requirements, provider-event idempotency |
 | `/api/exports/admin/analytics` | GET/POST | Admin-only, bounded date range, CSV injection protection |
 | `/sitemap.xml` | GET | Locale-aware generated sitemap |

@@ -11,6 +11,7 @@ import { requireAdmin } from "@/lib/auth/policies";
 import { invalidateProductsCache } from "@/lib/cache/invalidate-public";
 import { createId } from "@/lib/id";
 import { isLocale, type Locale } from "@/lib/i18n/config";
+import { parseMediaAssetId } from "@/lib/media/types";
 import { err, ok, type Result } from "@/lib/result";
 
 const createCategorySchema = z.object({
@@ -114,13 +115,20 @@ export async function createCategoryFromDrawerAction(
     return err("VALIDATION_ERROR", "Invalid category payload.");
   }
 
+  const mediaAssetId = parseMediaAssetId(formData.get("mediaAssetId"));
+  if (mediaAssetId === undefined) {
+    return err("VALIDATION_ERROR", "Invalid uploaded image.");
+  }
+
   await requireAdmin(locale as Locale);
   const created = await insertCategory(locale, parsed.data);
   if (!created.ok) return created;
 
-  const image = formData.get("image");
-  if (image instanceof File && image.size > 0) {
-    const mediaResult = await persistCategoryImage(created.value.id, image);
+  if (mediaAssetId) {
+    const mediaResult = await persistCategoryImage(
+      created.value.id,
+      mediaAssetId,
+    );
     if (mediaResult.error) {
       return err("VALIDATION_ERROR", mediaResult.error);
     }
@@ -153,6 +161,11 @@ export async function updateCategoryFromDrawerAction(
 
   if (!parsed.success) {
     return err("VALIDATION_ERROR", "Invalid category payload.");
+  }
+
+  const mediaAssetId = parseMediaAssetId(formData.get("mediaAssetId"));
+  if (mediaAssetId === undefined) {
+    return err("VALIDATION_ERROR", "Invalid uploaded image.");
   }
 
   if (parsed.data.parentId === categoryId) {
@@ -197,11 +210,10 @@ export async function updateCategoryFromDrawerAction(
     })
     .where(eq(categories.id, existing.id));
 
-  const image = formData.get("image");
   const removeImage = formData.get("removeImage") === "1";
 
-  if (image instanceof File && image.size > 0) {
-    const mediaResult = await persistCategoryImage(existing.id, image);
+  if (mediaAssetId) {
+    const mediaResult = await persistCategoryImage(existing.id, mediaAssetId);
     if (mediaResult.error) {
       return err("VALIDATION_ERROR", mediaResult.error);
     }

@@ -10,7 +10,7 @@
 - Storefront, customer և admin surfaces-ը կիսում են նույն catalog/order/auth domain-ը։
 - Checkout, stock և money flows-ը պահանջում են transaction consistency և մեկ source of truth։
 - SEO էջերը շահում են Server Components/streaming/caching-ից։
-- External providers-ը (payment, email, R2, rates, Redis) պետք է փոխարինելի լինեն առանց domain rewrite-ի։
+- External providers-ը (payment, email, Cloudinary, rates, Redis) պետք է փոխարինելի լինեն առանց domain rewrite-ի։
 - Մեծ feature count-ը պահանջում է module boundaries, բայց առանձին services-ի operational cost-ը դեռ հիմնավորված չէ։
 
 ## 2. Բարձր մակարդակի համակարգ
@@ -25,7 +25,7 @@ flowchart LR
   D --> DB["Neon PostgreSQL"]
   Q --> DB
   D --> REDIS["Upstash Redis / Ratelimit"]
-  D --> R2["Cloudflare R2"]
+  D --> CLOUDINARY["Cloudinary"]
   D --> EMAIL["Email Provider Adapter"]
   D --> PAY["Payment Provider Adapter"]
   D --> FX["Exchange Rate Adapter"]
@@ -54,7 +54,7 @@ flowchart LR
 
 ### Infrastructure
 
-- Drizzle repositories/queries, Auth.js adapter/config, Redis, R2, email, payment, exchange-rate և observability adapters
+- Drizzle repositories/queries, Auth.js adapter/config, Redis, Cloudinary, email, payment, exchange-rate և observability adapters
 - External error-ները map են արվում stable application errors-ի
 - Secrets-ը միայն server-only modules-ում են
 
@@ -81,7 +81,9 @@ src/
       admin/
     api/
       auth/
-      uploads/
+      admin/
+        media/
+          upload/
       webhooks/
       exports/
     sitemap.ts
@@ -234,11 +236,11 @@ sequenceDiagram
 
 ### 7.5 Upload lifecycle
 
-1. Authorized client-ը խնդրում է upload intent։
-2. Server-ը validate է անում purpose, MIME, size և ownership, ստեղծում unique object key/pending media record։
-3. Client-ը upload է անում presigned URL-ով։
-4. Server finalize-ը ստուգում է object metadata-ն և կապում է media asset-ը entity-ին transaction-ում։
-5. Replaced object-ը cleanup queue/mark է ստանում միայն DB commit-ից հետո։
+1. Same-origin authenticated admin-ը ուղարկում է file-ը `/api/admin/media/upload` endpoint-ին։
+2. Server-ը ստուգում է admin role-ը, media purpose-ը, image signature-ը, MIME-ը և 5 MB size limit-ը։
+3. Server-ը image-ը փոխանցում է Cloudinary `upload_stream`-ով և ստեղծում է PENDING media row՝ `secure_url`, public ID և provider metadata-ով։
+4. Feature Server Action-ը ստուգում է upload-ի purpose/status-ը և atomically կապում media asset-ը entity-ին։
+5. Չպահված PENDING upload-ը կարող է նույն endpoint-ի DELETE-ով մաքրվել; նախկին Cloudinary asset-ը ջնջվում է DB replacement-ից հետո։
 
 ## 8. Cache architecture
 
@@ -254,7 +256,7 @@ sequenceDiagram
 |---|---|
 | Payment | `createPayment`, `verifyCallback`, `getStatus`, optional `refund` |
 | Email | templated `send` with provider message ID and retry-safe key |
-| Object storage | presign upload, head object, delete object, public URL builder |
+| Media | server-side Cloudinary upload/delete, stored secure URL and public ID |
 | Exchange rate | fetch base-relative rates with effective timestamp/source |
 | Observability | structured log, capture error, metric/timing |
 
@@ -267,7 +269,7 @@ Provider payloads/types չեն արտահոսում domain/storefront DTO-ներ
 - Duplicate payment webhook-ը idempotent է provider event ID unique constraint-ով։
 - Stock conflict-ը տալիս է recoverable conflict error և updated availability։
 - Cache invalidation failure-ը log/metric է և retryable է; DB state-ը մնում է canonical։
-- R2 cleanup failure-ը orphan cleanup job/report-ով վերականգնելի է։
+- Cloudinary cleanup failure-ը log-վում է և caller-ին վերադարձվում է որպես provider error; orphaned pending uploads-ը կարող են հեռացվել upload endpoint-ով։
 
 ## 11. Deployment topology
 
@@ -279,7 +281,7 @@ Edge/CDN/WAF
 Next.js Node runtime (same region family as database when possible)
     ├── Neon PostgreSQL
     ├── Upstash Redis
-    ├── Cloudflare R2
+    ├── Cloudinary
     ├── Email provider
     └── Payment/rate providers
 ```

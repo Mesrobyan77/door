@@ -6,7 +6,6 @@ import { getDb } from "@/db/client";
 import { cartItems, mediaAssets, products } from "@/db/schema";
 import type { CheckoutOrderProduct } from "@/features/checkout/ui/checkout-order-product";
 import type { Locale } from "@/lib/i18n/config";
-import { mediaPublicUrl } from "@/lib/media/public-url";
 
 export type { CheckoutOrderProduct };
 
@@ -26,7 +25,7 @@ async function loadPrimaryProductImages(
   const rows = await getDb()
     .select({
       productId: mediaAssets.productId,
-      objectKey: mediaAssets.objectKey,
+      secureUrl: mediaAssets.secureUrl,
     })
     .from(mediaAssets)
     .where(
@@ -39,10 +38,10 @@ async function loadPrimaryProductImages(
     .orderBy(asc(mediaAssets.sortOrder));
 
   for (const row of rows) {
-    if (!row.productId || map.has(row.productId)) {
+    if (!row.productId || !row.secureUrl || map.has(row.productId)) {
       continue;
     }
-    map.set(row.productId, mediaPublicUrl(row.objectKey));
+    map.set(row.productId, row.secureUrl);
   }
 
   return map;

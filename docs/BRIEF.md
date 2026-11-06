@@ -47,7 +47,7 @@ White Shop-ը բազմալեզու, բազմարժույթ, production-ready e-c
 - Customer profile, addresses և orders
 - Admin dashboard, products, categories և orders
 - Cash on Delivery payment adapter և admin-managed payment status
-- R2 image storage, Redis rate limiting/cache, Resend-compatible email abstraction
+- Cloudinary image storage, Redis rate limiting/cache, Resend-compatible email abstraction
 - Security baseline, SEO baseline, accessibility, responsive states
 - Unit, integration և critical Playwright E2E tests
 
@@ -74,7 +74,7 @@ White Shop-ը բազմալեզու, բազմարժույթ, production-ready e-c
 - Next.js App Router, React Server Components, TypeScript strict
 - PostgreSQL on Neon և Drizzle ORM
 - Auth.js, Argon2id, Upstash Redis/Ratelimit
-- Cloudflare R2, Tailwind CSS, shadcn/ui
+- Cloudinary, Tailwind CSS, shadcn/ui
 - React Hook Form + Zod, TanStack Table, selective TanStack Query
 - Embla Carousel, Lucide React, email provider abstraction (սկզբնական adapter՝ Resend)
 - Vitest, React Testing Library, Playwright, ESLint, Prettier, pnpm

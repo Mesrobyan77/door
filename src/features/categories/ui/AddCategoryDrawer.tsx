@@ -1,7 +1,6 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
-import Image from "next/image";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
@@ -10,12 +9,14 @@ import {
   ADMIN_INPUT,
   ADMIN_LABEL,
 } from "@/features/admin/ui/admin-form-classes";
+import { CloudinaryImagePicker } from "@/features/admin/ui/CloudinaryImagePicker";
 import {
   createCategoryFromDrawerAction,
   updateCategoryFromDrawerAction,
 } from "@/features/categories/actions";
 import { slugifyCategoryTitle } from "@/features/categories/domain/slugify";
 import type { AdminCategoryListItem } from "@/features/categories/application/list-admin-categories";
+import type { UploadedMedia } from "@/lib/media/types";
 
 type AddCategoryDrawerProps = {
   locale: string;
@@ -34,14 +35,13 @@ export function AddCategoryDrawer({
 }: AddCategoryDrawerProps) {
   const router = useRouter();
   const isEdit = category != null;
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [title, setTitle] = useState("");
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
   const [parentId, setParentId] = useState("");
   const [status, setStatus] = useState<"ACTIVE" | "ARCHIVED">("ACTIVE");
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploadedImage, setUploadedImage] = useState<UploadedMedia | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -58,8 +58,7 @@ export function AddCategoryDrawer({
         setSlugTouched(true);
         setParentId(category.parentId ?? "");
         setStatus(category.status === "ARCHIVED" ? "ARCHIVED" : "ACTIVE");
-        setImageFile(null);
-        setImagePreview(category.imageUrl);
+        setUploadedImage(null);
         setRemoveExistingImage(false);
         setError(null);
       } else {
@@ -68,8 +67,7 @@ export function AddCategoryDrawer({
         setSlugTouched(false);
         setParentId("");
         setStatus("ACTIVE");
-        setImageFile(null);
-        setImagePreview(null);
+        setUploadedImage(null);
         setRemoveExistingImage(false);
         setError(null);
       }
@@ -106,8 +104,8 @@ export function AddCategoryDrawer({
             formData.set("slug", nextSlug);
             formData.set("parentId", parentId);
             formData.set("status", status);
-            if (imageFile) {
-              formData.set("image", imageFile);
+            if (uploadedImage) {
+              formData.set("mediaAssetId", uploadedImage.mediaAssetId);
             }
             if (removeExistingImage) {
               formData.set("removeImage", "1");
@@ -202,74 +200,31 @@ export function AddCategoryDrawer({
             </div>
 
             <div>
-              <span className={ADMIN_LABEL}>Image</span>
-              <div className="mt-1 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center rounded-xl border border-dashed border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50"
-                >
-                  {imagePreview ? "Change Image" : "+ Upload Image"}
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-                  className="hidden"
-                  disabled={isPending}
-                  onChange={(event) => {
-                    const file = event.target.files?.[0] ?? null;
-                    event.target.value = "";
-                    setImagePreview((current) => {
-                      if (current?.startsWith("blob:")) {
-                        URL.revokeObjectURL(current);
-                      }
-                      return file ? URL.createObjectURL(file) : null;
-                    });
-                    setImageFile(file);
-                    setRemoveExistingImage(false);
-                  }}
-                />
-                {imagePreview ? (
-                  <button
-                    type="button"
-                    disabled={isPending}
-                    onClick={() => {
-                      setImageFile(null);
-                      setImagePreview((current) => {
-                        if (current?.startsWith("blob:")) {
-                          URL.revokeObjectURL(current);
-                        }
-                        return null;
-                      });
-                      if (isEdit && category?.imageUrl) {
-                        setRemoveExistingImage(true);
-                      }
-                    }}
-                    className="text-sm font-medium text-gray-600 hover:text-red-600"
-                  >
-                    Remove
-                  </button>
-                ) : null}
-              </div>
-              {imagePreview ? (
-                <Image
-                  src={imagePreview}
-                  alt=""
-                  width={112}
-                  height={112}
-                  className="mt-3 h-28 w-28 rounded-xl border border-gray-200 object-cover"
-                  unoptimized={imagePreview.startsWith("blob:")}
-                />
-              ) : null}
+              <CloudinaryImagePicker
+                key={`${open}-${category?.id ?? "create"}`}
+                open={open}
+                purpose="category"
+                initialUrl={category?.imageUrl ?? null}
+                disabled={isPending}
+                label="Image"
+                onChange={(media) => {
+                  setUploadedImage(media);
+                  setRemoveExistingImage(
+                    !media && Boolean(isEdit && category?.imageUrl),
+                  );
+                }}
+                onUploadingChange={setIsUploadingImage}
+              />
             </div>
 
             {error ? <p className="text-sm text-red-700">{error}</p> : null}
           </div>
 
           <div className="flex items-center gap-4 border-t border-gray-200 px-5 py-4">
-            <Button type="submit" disabled={isPending || !title.trim()}>
+            <Button
+              type="submit"
+              disabled={isPending || isUploadingImage || !title.trim()}
+            >
               {isPending
                 ? isEdit
                   ? "Saving…"

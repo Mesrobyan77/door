@@ -79,7 +79,7 @@ function ProductThumb({
   }
 
   return (
-    // Admin/R2 hosts vary — native img avoids brittle next/image allowlists.
+    // Keep an unoptimized native image for immutable order snapshots.
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={imageUrl}

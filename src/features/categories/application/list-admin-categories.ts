@@ -5,7 +5,6 @@ import { and, asc, eq, isNotNull, isNull, or } from "drizzle-orm";
 import { getDb } from "@/db/client";
 import { categories, mediaAssets, type LocaleTranslation } from "@/db/schema";
 import type { Locale } from "@/lib/i18n/config";
-import { mediaPublicUrl } from "@/lib/media/public-url";
 
 export type AdminCategoryListItem = {
   id: string;
@@ -48,7 +47,7 @@ export async function listAdminCategories(
     const mediaRows = await getDb()
       .select({
         categoryId: mediaAssets.categoryId,
-        objectKey: mediaAssets.objectKey,
+        secureUrl: mediaAssets.secureUrl,
       })
       .from(mediaAssets)
       .where(
@@ -64,9 +63,11 @@ export async function listAdminCategories(
       );
 
     for (const media of mediaRows) {
-      if (!media.categoryId || images.has(media.categoryId)) continue;
+      if (!media.categoryId || !media.secureUrl || images.has(media.categoryId)) {
+        continue;
+      }
       if (!byId.has(media.categoryId)) continue;
-      images.set(media.categoryId, mediaPublicUrl(media.objectKey));
+      images.set(media.categoryId, media.secureUrl);
     }
   }
 

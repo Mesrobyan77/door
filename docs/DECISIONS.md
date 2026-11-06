@@ -28,7 +28,7 @@
 | DEC-007 | Initial payment | Approved by brief | Payment abstraction; provider չլինելու դեպքում COD | COD-ը P0 adapter է |
 | DEC-008 | Durable cart | Approved by brief | PostgreSQL source of truth; guest session cart; login merge | Redis-ը optional accelerator է |
 | DEC-009 | Deletes | Approved by brief | Finance/audit hard delete չի արվում | Archive/soft delete/anonymize |
-| DEC-010 | Images | Approved by brief | R2 object key database-ում, public URL config-ից | Presigned upload, delayed old-object cleanup |
+| DEC-010 | Images | Superseded by user request (2026-11-06) | Cloudinary `secure_url` + public ID database-ում | Admin-only server upload; legacy `object_key` retained nullable for historical rows, which must be re-uploaded |
 | DEC-011 | Database footprint | Approved by user | Canonical lean schema՝ 25 PostgreSQL table | Նոր table միայն migration rationale-ով |
 | DEC-012 | Dynamic translations | Approved by user | Product/category/hero/blog translations-ը parent table-ի validated JSONB-ում | UI copy-ն մնում է locale JSON files-ում |
 | DEC-017 | Admin content locale UX | Approved by user | Admin create/edit forms-ը մեկ դաշտերի հավաքածու ունեն (Title/Slug/Description/…) + active locale selector; զուգահեռ `hy`/`en`/`ru` դաշտեր չեն ցուցադրվում | Լրացվում է միայն ընտրված locale-ը; publish-ին պարտադիր է առնվազն մեկ լրիվ locale, ոչ բոլոր երեքը |

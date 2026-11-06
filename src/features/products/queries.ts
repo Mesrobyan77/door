@@ -23,7 +23,6 @@ import {
   PUBLIC_CACHE_REVALIDATE_SECONDS,
 } from "@/lib/cache/tags";
 import type { Locale } from "@/lib/i18n/config";
-import { mediaPublicUrl } from "@/lib/media/public-url";
 
 export type {
   CatalogProduct,
@@ -68,7 +67,7 @@ async function loadPrimaryProductImages(
   const rows = await getDb()
     .select({
       productId: mediaAssets.productId,
-      objectKey: mediaAssets.objectKey,
+      secureUrl: mediaAssets.secureUrl,
       isPrimary: mediaAssets.isPrimary,
       role: mediaAssets.role,
       sortOrder: mediaAssets.sortOrder,
@@ -84,10 +83,10 @@ async function loadPrimaryProductImages(
     .orderBy(asc(mediaAssets.sortOrder));
 
   for (const row of rows) {
-    if (!row.productId || map.has(row.productId)) {
+    if (!row.productId || !row.secureUrl || map.has(row.productId)) {
       continue;
     }
-    map.set(row.productId, mediaPublicUrl(row.objectKey));
+    map.set(row.productId, row.secureUrl);
   }
 
   return map;
@@ -274,7 +273,7 @@ async function loadProductGallery(
   const rows = await getDb()
     .select({
       id: mediaAssets.id,
-      objectKey: mediaAssets.objectKey,
+      secureUrl: mediaAssets.secureUrl,
       isPrimary: mediaAssets.isPrimary,
       sortOrder: mediaAssets.sortOrder,
       altTranslations: mediaAssets.altTranslations,
@@ -289,12 +288,16 @@ async function loadProductGallery(
     .orderBy(asc(mediaAssets.sortOrder));
 
   return rows
-    .map((row) => ({
+    .flatMap((row) =>
+      row.secureUrl
+        ? [{
       id: row.id,
-      url: mediaPublicUrl(row.objectKey),
+      url: row.secureUrl,
       alt: row.altTranslations?.[locale] ?? fallbackTitle,
       isPrimary: row.isPrimary,
-    }))
+        }]
+        : [],
+    )
     .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));
 }
 

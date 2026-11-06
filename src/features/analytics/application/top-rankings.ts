@@ -12,7 +12,6 @@ import {
 } from "@/db/schema";
 import type { OrderStatus } from "@/features/orders/domain/order-status";
 import type { Locale } from "@/lib/i18n/config";
-import { mediaPublicUrl } from "@/lib/media/public-url";
 
 export type AnalyticsTopProduct = {
   productId: string;
@@ -91,7 +90,7 @@ export async function queryTopSellingProducts(input: {
     productId: row.productId ?? `sku:${row.sku}`,
     title: row.title,
     sku: row.sku,
-    imageUrl: row.imageKey ? mediaPublicUrl(row.imageKey) : null,
+    imageUrl: row.imageKey,
     quantitySold: row.quantitySold,
     orderCount: row.orderCount,
     revenueAmount: row.revenueAmount,

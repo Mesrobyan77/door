@@ -7,7 +7,6 @@ import { mediaAssets, products, promotions } from "@/db/schema";
 import { listAdminCategories } from "@/features/categories/application/list-admin-categories";
 import { getStoreGlobalDiscount } from "@/features/settings/application/queries";
 import type { Locale } from "@/lib/i18n/config";
-import { mediaPublicUrl } from "@/lib/media/public-url";
 
 export type DiscountBoardCategory = {
   id: string;
@@ -79,7 +78,7 @@ export async function getAdminDiscountsBoard(
       getDb()
         .select({
           productId: mediaAssets.productId,
-          objectKey: mediaAssets.objectKey,
+          secureUrl: mediaAssets.secureUrl,
         })
         .from(mediaAssets)
         .where(
@@ -104,8 +103,8 @@ export async function getAdminDiscountsBoard(
 
   const images = new Map<string, string>();
   for (const row of imageRows) {
-    if (!row.productId || images.has(row.productId)) continue;
-    images.set(row.productId, mediaPublicUrl(row.objectKey));
+    if (!row.productId || !row.secureUrl || images.has(row.productId)) continue;
+    images.set(row.productId, row.secureUrl);
   }
 
   return {

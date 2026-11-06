@@ -30,6 +30,7 @@ import { requireAdmin } from "@/lib/auth/policies";
 import { invalidateBlogCache } from "@/lib/cache/invalidate-public";
 import { createId } from "@/lib/id";
 import { isLocale, locales, type Locale } from "@/lib/i18n/config";
+import { parseMediaAssetId } from "@/lib/media/types";
 import { err, ok, type Result } from "@/lib/result";
 import { sanitizeBlogHtml } from "@/lib/sanitize/html";
 
@@ -42,18 +43,20 @@ async function applyBlogCoverMedia(
     return null;
   }
 
-  const image = mediaForm.get("image");
-  const hasImage = image instanceof File && image.size > 0;
+  const mediaAssetId = parseMediaAssetId(mediaForm.get("mediaAssetId"));
+  if (mediaAssetId === undefined) {
+    return err("VALIDATION_ERROR", "Invalid uploaded image.");
+  }
   const removeImage = mediaForm.get("removeImage") === "1";
 
-  if (removeImage && !hasImage) {
+  if (removeImage && !mediaAssetId) {
     await removeBlogCoverImage(postId);
     revalidateBlog(locale, postId);
     return null;
   }
 
-  if (hasImage) {
-    const mediaResult = await persistBlogCoverImage(postId, image);
+  if (mediaAssetId) {
+    const mediaResult = await persistBlogCoverImage(postId, mediaAssetId);
     if (mediaResult.error) {
       return err("VALIDATION_ERROR", mediaResult.error);
     }
@@ -141,6 +144,12 @@ export async function createBlogPostAction(
   if (!parsed.success) {
     return err("VALIDATION_ERROR", "Invalid blog post payload.");
   }
+  if (
+    mediaForm &&
+    parseMediaAssetId(mediaForm.get("mediaAssetId")) === undefined
+  ) {
+    return err("VALIDATION_ERROR", "Invalid uploaded image.");
+  }
 
   const editingLocale = parsed.data.editingLocale;
   const translations = mergeTranslations(null, editingLocale, parsed.data);
@@ -210,6 +219,12 @@ export async function updateBlogPostAction(
   const parsed = upsertBlogPostSchema.safeParse(raw);
   if (!parsed.success) {
     return err("VALIDATION_ERROR", "Invalid blog post payload.");
+  }
+  if (
+    mediaForm &&
+    parseMediaAssetId(mediaForm.get("mediaAssetId")) === undefined
+  ) {
+    return err("VALIDATION_ERROR", "Invalid uploaded image.");
   }
 
   const actor = await requireAdmin(locale as Locale);

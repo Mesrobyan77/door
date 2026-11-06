@@ -216,7 +216,7 @@
 
 - List + create/edit/delete/archive/active toggle/reorder։
 - Fields՝ desktop/mobile media, multilingual title/subtitle/button label, button URL, sort order, active։
-- Media upload-ը R2 lifecycle-ով է; reorder-ը atomic կամ conflict-safe է։
+- Media upload-ը Cloudinary server-side route-ով է; reorder-ը atomic կամ conflict-safe է։
 - Public home cache/tag-ը invalid է դառնում publish-affecting mutation-ից հետո։
 
 ## 12. Admin orders
@@ -318,15 +318,16 @@ Store settings-ը ներառում են store name/email/phone/address, default/
 - Critical setting changes-ը audit log և relevant cache invalidation ունեն։
 - Maintenance mode-ը չի lock անում authorized admin/health-required access-ը՝ approved policy-ի սահմաններում։
 
-## 21. Media/R2
+## 21. Media/Cloudinary
 
 | ID | Պահանջ / acceptance criteria |
 |---|---|
-| MED-001 | Product/category/hero/blog/branding media-ն R2-ում է, DB-ում՝ object key + metadata + alt text։ |
-| MED-002 | Upload-ը presigned է և purpose/MIME/size/authorization սահմանափակումներ ունի։ |
-| MED-003 | Object key-ը unique, unguessable և environment/purpose namespaced է։ |
-| MED-004 | Full CDN URL-ը entity table-ում hardcode չի արվում; URL-ը config-ից է կառուցվում։ |
-| MED-005 | Old object-ը delete է արվում միայն successful DB replacement-ից հետո; orphan cleanup strategy կա։ |
+| MED-001 | Product/category/hero/blog media-ն Cloudinary-ում է, DB-ում՝ `secure_url`, public ID և upload metadata։ |
+| MED-002 | Upload-ը admin-only, same-origin route-ով է; image signature/MIME/5 MB size limits-ը server-side են։ |
+| MED-003 | Public ID-ն server-generated է և purpose-specific Cloudinary folder-ում է։ |
+| MED-004 | UI-ն պահում/ցուցադրում է Cloudinary secure URL-ը, API credentials-ը երբեք client-ում չեն հայտնվում։ |
+| MED-005 | Feature action-ը միայն matching PENDING media record է կապում entity-ին; canceled upload-ը կարող է ջնջվել Cloudinary-ից։ |
+| MED-006 | Cloudinary image-ների removal-ը DB mutation-ից հետո է; legacy R2 media-ն պետք է re-upload արվի։ |
 
 ## 22. Responsive և accessibility common criteria
 

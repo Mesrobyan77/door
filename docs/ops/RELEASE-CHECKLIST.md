@@ -8,7 +8,7 @@
 - [ ] `pnpm typecheck`, `pnpm lint`, `pnpm test`, `pnpm build` green on release commit
 - [ ] Neon production DB provisioned; app role is not owner; migrations reviewed
 - [ ] Restore drill documented (Neon PITR / backup retention / RPO/RTO)
-- [ ] Upstash Redis, R2, Resend (or stubs replaced) credentials in hosting env only
+- [ ] Upstash Redis, Cloudinary, Resend credentials in hosting env only
 - [ ] `AUTH_SECRET`, `DATABASE_URL`, `NEXT_PUBLIC_APP_URL` set per environment
 - [ ] Production env inventory recorded (owner + rotation notes)
 - [ ] Security headers verified (CSP/HSTS hosting-aware; HSTS only behind HTTPS)

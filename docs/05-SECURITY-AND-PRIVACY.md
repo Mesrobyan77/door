@@ -22,7 +22,7 @@
 | Admin surface | Privilege escalation, destructive mistakes | Server RBAC, re-auth for high risk, confirmation, audit, last-admin invariant |
 | App → PostgreSQL | SQL injection, excessive privilege, data loss | Parameterized Drizzle queries, non-owner app role, timeouts, migrations |
 | App → Redis | Secret leakage, cache poisoning | Server-only credential, namespaced keys, TTL, no durable commerce authority, minimal token metadata |
-| App/browser → R2 | Malicious files, overwrite, secret exposure | Presigned scoped upload, key ownership, MIME/size validation, metadata verify |
+| Browser → upload route → Cloudinary | Malicious files, unauthorized upload, secret exposure | Admin RBAC, same-origin POST/DELETE, MIME/signature/size validation, server-only credentials |
 | Provider webhooks | Forgery, replay, duplicate processing | Signature, timestamp policy, event unique key, state/amount verification |
 | Logs/analytics | PII/token leakage | Structured allowlist, redaction, retention/access policy |
 
@@ -103,26 +103,25 @@ Redis unavailable լինելու դեպքում high-risk endpoints-ը fail-clos
 - Admin payment change-ը audit trail ունի և չի ջնջում provider history-ը։
 - Financial records-ը hard delete չեն արվում; corrections-ը status/event/adjustment records են։
 
-## 10. File upload/R2 security
+## 10. File upload/Cloudinary security
 
-- Client-ը երբեք չի ստանում R2 access key/secret։
-- Upload intent-ը server-side authorize է անում entity purpose-ը և սահմանում է unique exact object key, MIME, size, expiry։
-- Extension-ը վստահելի չէ; finalize-ը ստուգում է object metadata/MIME և հնարավորության դեպքում image decode/dimensions։
-- Allowed image types-ը allowlist են; SVG-ը default արգելված է կամ sanitize/separate delivery policy է պահանջում։
-- File size/dimension limits-ը purpose-specific են։
-- Object key-ը չի պարունակում untrusted path traversal կամ PII։
-- Public bucket policy-ն write չի թույլատրում; delivery domain-ը config-controlled է։
-- Replaced asset-ը delete չի արվում մինչև DB commit; orphan cleanup-ը audit/retry-safe է։
+- Client-ը երբեք չի ստանում Cloudinary API key/secret։
+- Upload route-ը server-side ստուգում է ակտիվ ADMIN role-ը, same-origin request-ը և purpose allowlist-ը։
+- MIME header-ը միայնակ վստահելի չէ. JPEG/PNG/WebP/GIF signatures-ը ստուգվում են մինչև `upload_stream`։
+- SVG-ը և non-image uploads-ը արգելված են; maximum image size-ը 5 MB է։
+- Cloudinary folder-ը purpose-ից է կառուցվում, public ID-ն server-generated է, իսկ overwrite-ն անջատված է։
+- URL/public ID/metadata-ն pending DB row-ում է պահվում և purpose/status-ով ստուգվում է մինչև entity-ին կապելը։
+- PENDING upload-ի browser cleanup-ը authenticated DELETE route-ով է արվում; Cloudinary secrets-ը մնում են server-only։
 
 ## 11. Secrets և environment security
 
 - `.env.example`-ը միայն names է պարունակում, ոչ իրական values։
 - Environment-ը startup-ում server-side Zod schema-ով validate է արվում։
-- `DATABASE_URL`, `AUTH_SECRET`, Redis write token, R2 credentials և provider secrets-ը server-only են։
+- `DATABASE_URL`, `AUTH_SECRET`, Redis write token, Cloudinary credentials և provider secrets-ը server-only են։
 - `NEXT_PUBLIC_*` prefix-ը օգտագործվում է միայն դիտավորյալ public config-ի համար։
 - Secrets-ը logs, errors, audit diff, analytics, source maps կամ client bundle չեն մտնում։
 - Production/preview/local credentials-ը տարբեր են և least-privilege scopes ունեն։
-- Rotation/runbook-ը սահմանվում է Auth, DB, Redis, R2, email և payment secret-ների համար։
+- Rotation/runbook-ը սահմանվում է Auth, DB, Redis, Cloudinary, email և payment secret-ների համար։
 
 ## 12. Database security
 

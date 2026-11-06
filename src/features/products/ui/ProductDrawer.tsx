@@ -71,6 +71,7 @@ export function ProductDrawer({
   const [slug, setSlug] = useState("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState<ProductDraftImage[]>([]);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [removedImageIds, setRemovedImageIds] = useState<string[]>([]);
   const [categories, setCategories] =
     useState<AdminCategoryOption[]>(initialCategories);
@@ -160,9 +161,9 @@ export function ProductDrawer({
           className="flex min-h-0 flex-1 flex-col"
           onSubmit={(event) => {
             event.preventDefault();
-            const newImages = images.filter((image) => image.file);
+            const newImages = images.filter((image) => image.mediaAssetId);
             const primaryImage = images.find((image) => image.isPrimary);
-            const primaryNewIndex = primaryImage?.file
+            const primaryNewIndex = primaryImage?.mediaAssetId
               ? newImages.findIndex((image) => image.key === primaryImage.key)
               : null;
 
@@ -187,13 +188,13 @@ export function ProductDrawer({
                   ? primaryNewIndex
                   : null,
               removeImageIds: removedImageIds,
+              mediaAssetIds: newImages.flatMap((image) =>
+                image.mediaAssetId ? [image.mediaAssetId] : [],
+              ),
             };
 
             const formData = new FormData();
             formData.set("data", JSON.stringify(payload));
-            for (const image of newImages) {
-              if (image.file) formData.append("images", image.file);
-            }
 
             startTransition(async () => {
               setError(null);
@@ -260,7 +261,10 @@ export function ProductDrawer({
             <ProductDrawerImages
               images={images}
               disabled={isPending}
+              open={open}
               onChange={handleImagesChange}
+              onUploadingChange={setIsUploadingImages}
+              onError={setError}
             />
 
             <ProductDrawerCategories
@@ -337,7 +341,7 @@ export function ProductDrawer({
           </div>
 
           <div className="sticky bottom-0 flex items-center gap-4 border-t border-gray-200 bg-white px-5 py-4">
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending || isUploadingImages}>
               {isPending
                 ? isEdit
                   ? "Saving…"

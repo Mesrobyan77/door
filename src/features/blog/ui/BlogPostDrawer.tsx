@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/Button";
 import { SelectDropdown } from "@/components/ui/SelectDropdown";
 import { SideSheet } from "@/components/ui/SideSheet";
@@ -10,6 +10,7 @@ import {
   ADMIN_LABEL,
   ADMIN_TEXTAREA,
 } from "@/features/admin/ui/admin-form-classes";
+import { CloudinaryImagePicker } from "@/features/admin/ui/CloudinaryImagePicker";
 import {
   createBlogPostAction,
   updateBlogPostAction,
@@ -21,6 +22,7 @@ import {
   type BlogTranslations,
 } from "@/features/blog/domain/blog-rules";
 import { localeLabels, locales, type Locale } from "@/lib/i18n/config";
+import type { UploadedMedia } from "@/lib/media/types";
 
 type LocaleDraft = {
   title: string;
@@ -86,7 +88,6 @@ export function BlogPostDrawer({
   post = null,
 }: BlogPostDrawerProps) {
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const isEdit = post != null;
   const [activeLocale, setActiveLocale] = useState<Locale>(() => {
     if (!post) return "en";
@@ -105,10 +106,8 @@ export function BlogPostDrawer({
   const [publishedAt, setPublishedAt] = useState(
     () => post?.publishedAt ?? "",
   );
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(
-    () => post?.coverUrl ?? null,
-  );
+  const [uploadedImage, setUploadedImage] = useState<UploadedMedia | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [removeExistingImage, setRemoveExistingImage] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -128,8 +127,7 @@ export function BlogPostDrawer({
         setDrafts(draftsFromTranslations(post.translations));
         setStatus(post.status);
         setPublishedAt(post.publishedAt ?? "");
-        setImageFile(null);
-        setImagePreview(post.coverUrl ?? null);
+        setUploadedImage(null);
         setRemoveExistingImage(false);
         setError(null);
       } else {
@@ -141,8 +139,7 @@ export function BlogPostDrawer({
         });
         setStatus("DRAFT");
         setPublishedAt("");
-        setImageFile(null);
-        setImagePreview(null);
+        setUploadedImage(null);
         setRemoveExistingImage(false);
         setError(null);
       }
@@ -195,8 +192,8 @@ export function BlogPostDrawer({
                 tags: post?.tags.join(", ") ?? "",
               };
               const mediaForm = new FormData();
-              if (imageFile) {
-                mediaForm.set("image", imageFile);
+              if (uploadedImage) {
+                mediaForm.set("mediaAssetId", uploadedImage.mediaAssetId);
               }
               if (removeExistingImage) {
                 mediaForm.set("removeImage", "1");
@@ -334,65 +331,21 @@ export function BlogPostDrawer({
             </div>
 
             <div>
-              <span className={ADMIN_LABEL}>Cover image</span>
-              <div className="mt-1 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  disabled={isPending}
-                  onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex items-center rounded-xl border border-dashed border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50"
-                >
-                  {imagePreview ? "Change image" : "+ Upload image"}
-                </button>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/gif"
-                  className="hidden"
-                  disabled={isPending}
-                  onChange={(event) => {
-                    const file = event.target.files?.[0] ?? null;
-                    event.target.value = "";
-                    setImagePreview((current) => {
-                      if (current?.startsWith("blob:")) {
-                        URL.revokeObjectURL(current);
-                      }
-                      return file ? URL.createObjectURL(file) : null;
-                    });
-                    setImageFile(file);
-                    setRemoveExistingImage(false);
-                  }}
-                />
-                {imagePreview ? (
-                  <button
-                    type="button"
-                    disabled={isPending}
-                    onClick={() => {
-                      setImageFile(null);
-                      setImagePreview((current) => {
-                        if (current?.startsWith("blob:")) {
-                          URL.revokeObjectURL(current);
-                        }
-                        return null;
-                      });
-                      if (isEdit && post?.coverUrl) {
-                        setRemoveExistingImage(true);
-                      }
-                    }}
-                    className="text-sm font-medium text-gray-600 hover:text-red-600"
-                  >
-                    Remove
-                  </button>
-                ) : null}
-              </div>
-              {imagePreview ? (
-                // eslint-disable-next-line @next/next/no-img-element -- local blob/admin preview
-                <img
-                  src={imagePreview}
-                  alt=""
-                  className="mt-3 h-28 w-28 rounded-xl border border-gray-200 object-cover"
-                />
-              ) : null}
+              <CloudinaryImagePicker
+                key={`${open}-${post?.id ?? "create"}`}
+                open={open}
+                purpose="blog"
+                initialUrl={post?.coverUrl ?? null}
+                disabled={isPending}
+                label="Cover image"
+                onChange={(media) => {
+                  setUploadedImage(media);
+                  setRemoveExistingImage(
+                    !media && Boolean(isEdit && post?.coverUrl),
+                  );
+                }}
+                onUploadingChange={setIsUploadingImage}
+              />
               <p className="mt-1 text-xs text-gray-500">
                 JPEG, PNG, WebP, or GIF. Max 5MB.
               </p>
@@ -402,8 +355,12 @@ export function BlogPostDrawer({
           </div>
 
           <div className="border-t border-gray-200 px-5 py-4">
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Saving…" : "Save"}
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={isPending || isUploadingImage}
+            >
+              {isPending ? "Saving…" : isUploadingImage ? "Uploading…" : "Save"}
             </Button>
           </div>
         </form>

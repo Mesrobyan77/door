@@ -27,6 +27,7 @@ import { requireAdmin } from "@/lib/auth/policies";
 import { CACHE_TAGS } from "@/lib/cache/tags";
 import { createId } from "@/lib/id";
 import { isLocale, type Locale } from "@/lib/i18n/config";
+import { parseMediaAssetId } from "@/lib/media/types";
 import { err, ok, type Result } from "@/lib/result";
 
 function buildTranslations(
@@ -85,6 +86,11 @@ export async function createHeroSlideAction(
     return err(ruleError, heroRuleErrorMessage(ruleError));
   }
 
+  const mediaAssetId = parseMediaAssetId(formData.get("mediaAssetId"));
+  if (mediaAssetId === undefined) {
+    return err("VALIDATION_ERROR", "Invalid uploaded image.");
+  }
+
   const actor = await requireAdmin(locale as Locale);
   const id = createId();
 
@@ -112,9 +118,8 @@ export async function createHeroSlideAction(
       });
     });
 
-    const image = formData.get("image");
-    if (image instanceof File && image.size > 0) {
-      const mediaResult = await persistHeroImage(id, image);
+    if (mediaAssetId) {
+      const mediaResult = await persistHeroImage(id, mediaAssetId);
       if (mediaResult.error) {
         return err("VALIDATION_ERROR", mediaResult.error);
       }
@@ -140,6 +145,11 @@ export async function updateHeroSlideAction(
   const data = parseModalFormData(formData);
   if (!data) {
     return err("VALIDATION_ERROR", "Invalid hero slide payload.");
+  }
+
+  const mediaAssetId = parseMediaAssetId(formData.get("mediaAssetId"));
+  if (mediaAssetId === undefined) {
+    return err("VALIDATION_ERROR", "Invalid uploaded image.");
   }
 
   const actor = await requireAdmin(locale as Locale);
@@ -192,13 +202,12 @@ export async function updateHeroSlideAction(
       return row;
     });
 
-    if (formData.get("removeImage") === "1") {
+    if (formData.get("removeImage") === "1" && !mediaAssetId) {
       await removeHeroImage(slideId);
     }
 
-    const image = formData.get("image");
-    if (image instanceof File && image.size > 0) {
-      const mediaResult = await persistHeroImage(slideId, image);
+    if (mediaAssetId) {
+      const mediaResult = await persistHeroImage(slideId, mediaAssetId);
       if (mediaResult.error) {
         return err("VALIDATION_ERROR", mediaResult.error);
       }

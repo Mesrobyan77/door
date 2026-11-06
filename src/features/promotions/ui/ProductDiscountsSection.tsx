@@ -131,7 +131,7 @@ export function ProductDiscountsSection({
               >
                 <div className="flex min-w-0 items-center gap-3">
                   {product.imageUrl ? (
-                    // Admin/R2 hosts vary — native img avoids brittle next/image allowlists.
+                    // This compact admin image is intentionally unoptimized.
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
                       src={product.imageUrl}

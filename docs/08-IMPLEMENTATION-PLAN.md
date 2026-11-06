@@ -36,7 +36,7 @@
 - ESLint/Prettier/Vitest/RTL/Playwright և CI baseline։
 - Environment validation և `.env.example` contract։
 - Drizzle/Neon setup, migration workflow, base ID/timestamp/money conventions։
-- Redis/R2/email/payment/exchange-rate interfaces և server-only config boundaries։
+- Redis/Cloudinary/email/payment/exchange-rate interfaces և server-only config boundaries։
 - Structured logging/correlation/error result primitives։
 
 ### Exit criteria
@@ -82,7 +82,7 @@
 
 ### Deliverables
 
-- R2 upload intent/finalize/media lifecycle։
+- Cloudinary admin upload endpoint, pending media finalization և cleanup lifecycle։
 - Admin categories hierarchy և product CRUD/publish/archive։
 - Multilingual translations/slugs/SEO/media sorting/primary image։
 - Inventory adjustment + movements, featured/upcoming/badge fields։

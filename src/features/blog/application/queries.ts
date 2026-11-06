@@ -17,7 +17,6 @@ import {
   PUBLIC_CACHE_REVALIDATE_SECONDS,
 } from "@/lib/cache/tags";
 import { locales, type Locale } from "@/lib/i18n/config";
-import { mediaPublicUrl } from "@/lib/media/public-url";
 
 export type AdminBlogPost = typeof blogPosts.$inferSelect;
 
@@ -67,7 +66,7 @@ async function loadBlogCoverUrls(
   const mediaRows = await getDb()
     .select({
       blogPostId: mediaAssets.blogPostId,
-      objectKey: mediaAssets.objectKey,
+      secureUrl: mediaAssets.secureUrl,
     })
     .from(mediaAssets)
     .where(
@@ -83,8 +82,10 @@ async function loadBlogCoverUrls(
     );
 
   for (const media of mediaRows) {
-    if (!media.blogPostId || images.has(media.blogPostId)) continue;
-    images.set(media.blogPostId, mediaPublicUrl(media.objectKey));
+    if (!media.blogPostId || !media.secureUrl || images.has(media.blogPostId)) {
+      continue;
+    }
+    images.set(media.blogPostId, media.secureUrl);
   }
 
   return images;

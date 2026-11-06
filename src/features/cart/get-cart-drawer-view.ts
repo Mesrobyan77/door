@@ -8,7 +8,6 @@ import { mediaAssets } from "@/db/schema";
 import { resolveProductPrices } from "@/features/promotions/application/resolve-product-prices";
 import type { Locale } from "@/lib/i18n/config";
 import { getCheckoutRateSnapshot } from "@/lib/fx/service";
-import { mediaPublicUrl } from "@/lib/media/public-url";
 import { convertAmount } from "@/lib/money/convert";
 import type { Currency } from "@/lib/money/currency";
 import { defaultCurrency } from "@/lib/money/currency";
@@ -42,7 +41,7 @@ async function loadPrimaryProductImages(
   const rows = await getDb()
     .select({
       productId: mediaAssets.productId,
-      objectKey: mediaAssets.objectKey,
+      secureUrl: mediaAssets.secureUrl,
     })
     .from(mediaAssets)
     .where(
@@ -55,10 +54,10 @@ async function loadPrimaryProductImages(
     .orderBy(asc(mediaAssets.sortOrder));
 
   for (const row of rows) {
-    if (!row.productId || map.has(row.productId)) {
+    if (!row.productId || !row.secureUrl || map.has(row.productId)) {
       continue;
     }
-    map.set(row.productId, mediaPublicUrl(row.objectKey));
+    map.set(row.productId, row.secureUrl);
   }
 
   return map;

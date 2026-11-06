@@ -4,7 +4,7 @@ import { z } from "zod";
 
 /**
  * Foundation env contract. Provider secrets become required when the
- * corresponding feature is wired (auth, DB, Redis, R2, email).
+ * corresponding feature is wired (auth, DB, Redis, Cloudinary, email).
  */
 const envSchema = z.object({
   NODE_ENV: z
@@ -15,15 +15,25 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1).optional(),
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().min(1).optional(),
-  R2_ACCOUNT_ID: z.string().min(1).optional(),
-  R2_ACCESS_KEY_ID: z.string().min(1).optional(),
-  R2_SECRET_ACCESS_KEY: z.string().min(1).optional(),
-  R2_BUCKET_NAME: z.string().min(1).optional(),
-  R2_PUBLIC_BASE_URL: z.string().url().optional(),
-  /** Optional custom S3 API endpoint; defaults to account R2 endpoint. */
-  R2_ENDPOINT: z.string().url().optional(),
+  CLOUDINARY_CLOUD_NAME: z.string().min(1).optional(),
+  CLOUDINARY_API_KEY: z.string().min(1).optional(),
+  CLOUDINARY_API_SECRET: z.string().min(1).optional(),
   EMAIL_FROM: z.string().email().optional(),
   RESEND_API_KEY: z.string().min(1).optional(),
+}).superRefine((env, context) => {
+  const cloudinaryValues = [
+    env.CLOUDINARY_CLOUD_NAME,
+    env.CLOUDINARY_API_KEY,
+    env.CLOUDINARY_API_SECRET,
+  ];
+  const configuredValues = cloudinaryValues.filter(Boolean).length;
+  if (configuredValues > 0 && configuredValues < cloudinaryValues.length) {
+    context.addIssue({
+      code: "custom",
+      message: "Cloudinary credentials must be configured together.",
+      path: ["CLOUDINARY_CLOUD_NAME"],
+    });
+  }
 });
 
 export type AppEnv = z.infer<typeof envSchema>;
@@ -34,12 +44,6 @@ let cachedEnv: AppEnv | undefined;
 function optionalEnv(value: string | undefined): string | undefined {
   const trimmed = value?.trim();
   return trimmed ? trimmed : undefined;
-}
-
-function resolvePublicBaseUrl(): string | undefined {
-  return optionalEnv(
-    process.env.R2_PUBLIC_BASE_URL || process.env.R2_PUBLIC_URL,
-  );
 }
 
 export function getEnv(): AppEnv {
@@ -54,12 +58,9 @@ export function getEnv(): AppEnv {
     DATABASE_URL: optionalEnv(process.env.DATABASE_URL),
     UPSTASH_REDIS_REST_URL: optionalEnv(process.env.UPSTASH_REDIS_REST_URL),
     UPSTASH_REDIS_REST_TOKEN: optionalEnv(process.env.UPSTASH_REDIS_REST_TOKEN),
-    R2_ACCOUNT_ID: optionalEnv(process.env.R2_ACCOUNT_ID),
-    R2_ACCESS_KEY_ID: optionalEnv(process.env.R2_ACCESS_KEY_ID),
-    R2_SECRET_ACCESS_KEY: optionalEnv(process.env.R2_SECRET_ACCESS_KEY),
-    R2_BUCKET_NAME: optionalEnv(process.env.R2_BUCKET_NAME),
-    R2_PUBLIC_BASE_URL: resolvePublicBaseUrl(),
-    R2_ENDPOINT: optionalEnv(process.env.R2_ENDPOINT),
+    CLOUDINARY_CLOUD_NAME: optionalEnv(process.env.CLOUDINARY_CLOUD_NAME),
+    CLOUDINARY_API_KEY: optionalEnv(process.env.CLOUDINARY_API_KEY),
+    CLOUDINARY_API_SECRET: optionalEnv(process.env.CLOUDINARY_API_SECRET),
     EMAIL_FROM: optionalEnv(process.env.EMAIL_FROM),
     RESEND_API_KEY: optionalEnv(process.env.RESEND_API_KEY),
   });

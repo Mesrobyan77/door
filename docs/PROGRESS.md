@@ -1,7 +1,7 @@
 # White Shop — progress
 
 **Overall status.** Phases 0–11 delivered as working product slices (launch hardening docs ready; production deploy not executed)
-**Last update.** 2026-07-18
+**Last update.** 2026-11-06
 
 ## Milestones
 
@@ -11,7 +11,7 @@
 | 1 | Foundation | Done | Next.js, i18n, providers |
 | 2 | Database foundation | Done | 25 tables + seed |
 | 3 | Identity and authorization | Done | DB sessions, login/register/logout |
-| 4 | Catalog admin and media | Done (minimal) | Admin products/categories; R2 adapter when credentials set |
+| 4 | Catalog admin and media | Done (minimal) | Admin products/categories; Cloudinary upload endpoint with pending media finalization |
 | 5 | Storefront catalog | Done (minimal) | List/detail/featured from DB |
 | 6 | Cart and checkout | Done | Durable cart + COD + coupon apply |
 | 7 | Customer self-service | Done (minimal) | Profile, orders, personal info |
@@ -44,6 +44,12 @@
 - `docs/ops/RELEASE-CHECKLIST.md` + product README
 - Production deploy **not** performed (requires explicit authorization)
 
+### Cloudinary media pipeline — 2026-11-06
+
+- Admin product/category/hero/blog image pickers upload directly to the authenticated Cloudinary route and preview the returned secure URL.
+- Media rows persist the secure URL, Cloudinary public ID and dimensions; the additive migration preserves historical object keys.
+- Historical media rows are not migrated from R2 and must be re-uploaded; production migration has not been run.
+
 ### Verification
 - `pnpm typecheck` — pass
 - `pnpm test` — 76 passed
@@ -55,4 +61,4 @@
 - Approved legal copy (OPEN-014)
 - Online payment provider selection (OPEN-002)
 - Real Upstash/Resend adapters when credentials provided
-- Re-upload existing media after enabling R2 (local `public/uploads` keys are not in the bucket)
+- Re-upload historical media rows that have no Cloudinary secure URL

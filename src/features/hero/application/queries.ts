@@ -14,7 +14,6 @@ import {
   PUBLIC_CACHE_REVALIDATE_SECONDS,
 } from "@/lib/cache/tags";
 import type { Locale } from "@/lib/i18n/config";
-import { mediaPublicUrl } from "@/lib/media/public-url";
 
 export type AdminHeroSlide = typeof heroSlides.$inferSelect;
 
@@ -51,7 +50,7 @@ async function loadHeroMediaBySlideIds(
     .select({
       heroSlideId: mediaAssets.heroSlideId,
       role: mediaAssets.role,
-      objectKey: mediaAssets.objectKey,
+      secureUrl: mediaAssets.secureUrl,
     })
     .from(mediaAssets)
     .where(
@@ -66,14 +65,14 @@ async function loadHeroMediaBySlideIds(
     );
 
   for (const row of rows) {
-    if (!row.heroSlideId) {
+    if (!row.heroSlideId || !row.secureUrl) {
       continue;
     }
     const current = map.get(row.heroSlideId) ?? {
       desktop: null,
       mobile: null,
     };
-    const url = mediaPublicUrl(row.objectKey);
+    const url = row.secureUrl;
     if (row.role === "HERO_DESKTOP") {
       current.desktop = url;
     }
@@ -176,4 +175,3 @@ export async function listActiveHeroSlides(
     },
   )();
 }
-

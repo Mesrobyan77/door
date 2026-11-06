@@ -32,38 +32,17 @@ const securityHeaders = [
 function buildImageRemotePatterns(): NonNullable<
   NextConfig["images"]
 >["remotePatterns"] {
-  // `remotePatterns` is evaluated at build time. Always allow R2 public hosts so
-  // Vercel builds work even when R2_PUBLIC_BASE_URL is only set at runtime.
-  const patterns: NonNullable<NextConfig["images"]>["remotePatterns"] = [
+  return [
     {
       protocol: "https",
       hostname: "images.pexels.com",
     },
     {
       protocol: "https",
-      hostname: "**.r2.dev",
+      hostname: "res.cloudinary.com",
       pathname: "/**",
     },
   ];
-
-  const r2Base =
-    process.env.R2_PUBLIC_BASE_URL || process.env.R2_PUBLIC_URL;
-  if (r2Base) {
-    try {
-      const url = new URL(r2Base);
-      if (url.protocol === "https:" || url.protocol === "http:") {
-        patterns.push({
-          protocol: url.protocol.replace(":", "") as "http" | "https",
-          hostname: url.hostname,
-          pathname: "/**",
-        });
-      }
-    } catch {
-      // Invalid R2 public base — wildcard *.r2.dev still covers default public URLs.
-    }
-  }
-
-  return patterns;
 }
 
 const nextConfig: NextConfig = {

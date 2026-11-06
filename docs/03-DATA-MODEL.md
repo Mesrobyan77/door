@@ -36,7 +36,7 @@
 | 1 | `users` | Identity | Account, credentials, profile, role, status |
 | 2 | `sessions` | Identity | Revocable database sessions |
 | 3 | `addresses` | Customer | Saved shipping/billing addresses |
-| 4 | `media_assets` | Media | R2 object metadata, owner, role, ordering |
+| 4 | `media_assets` | Media | Cloudinary secure URL/public ID, owner, role, ordering |
 | 5 | `store_settings` | System | Typed public store configuration |
 | 6 | `products` | Catalog | Product, translations, price, current stock |
 | 7 | `categories` | Catalog | Hierarchy և translations |
@@ -107,7 +107,7 @@ Fields՝ owner user, label, recipient names, phone, country code, region, city, 
 
 ### 5.1 `media_assets`
 
-Պահում է R2 `object_key` UNIQUE, MIME, byte size, dimensions, checksum/etag, upload status, role, sort order, primary flag, locale alt texts JSONB և timestamps։
+Պահում է Cloudinary `secure_url`, unique `cloudinary_public_id`, MIME, byte size, dimensions, upload status, role, sort order, primary flag, locale alt texts JSONB և timestamps։ Նախկին `object_key` սյունակը nullable է և պահպանվում է միայն migration/re-upload transition-ի համար. նոր code-ը այն չի կարդում կամ գրում։
 
 Entity ownership-ը պահվում է typed nullable FKs-ով՝
 
@@ -306,7 +306,7 @@ Redis loss-ը չի կորցնում order/cart/product/user durable source of tr
 | Category → children/product relations | Reassign/archive, default `RESTRICT` |
 | Order → items/events/payments | `RESTRICT`; order hard delete արգելված է |
 | Promotion → orders | Retain reference/snapshot; archive promotion |
-| Media owner → asset | Replace/archive workflow; R2 delete միայն DB commit-ից հետո |
+| Media owner → asset | Replace/archive workflow; Cloudinary delete միայն DB replacement-ից հետո |
 
 ## 15. Minimum indexes/constraints
 

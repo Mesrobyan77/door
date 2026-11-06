@@ -145,7 +145,7 @@ interface ExchangeRateProvider {
 - Mobile/desktop hero assets-ը art-directed են, ոչ միաժամանակ անիմաստ download։
 - Product grid image `sizes`-ը համապատասխանում է 2/3/4 column layout-ին։
 - Transparent assets-ը preserve են անում alpha-ն և theme-aware background ունեն։
-- R2 delivery domain-ը Next image allowlist-ում է; cache headers/versioned keys policy կա։
+- Cloudinary secure image host-ը Next image allowlist-ում է; responsive delivery-ն օգտագործում է `next/image`։
 - Fonts-ը Next.js font optimization/self-host strategy-ով են, նվազագույն weights/subsets-ով։ Armenian glyph coverage-ը launch-ից առաջ ստուգվում է։
 
 ## 8. Rendering, streaming և caching performance

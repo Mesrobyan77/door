@@ -1,72 +1,76 @@
 import "server-only";
 
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
-import { getProviders } from "@/config/providers";
 import { getDb } from "@/db/client";
 import { mediaAssets } from "@/db/schema";
-import { createId } from "@/lib/id";
-import {
-  extensionForImageMime,
-  validateImageFile,
-} from "@/lib/media/image-file";
+import { deleteCloudinaryImage } from "@/lib/media/cloudinary";
+import { attachPendingCloudinaryUpload } from "@/lib/media/persist-upload";
 
-/** Saves a single primary image for a category via object storage. */
+/** Attaches a pending Cloudinary image as a category's primary image. */
 export async function persistCategoryImage(
   categoryId: string,
-  file: File,
+  mediaAssetId: string,
 ): Promise<{ error: string | null }> {
-  const validationError = validateImageFile(file);
-  if (validationError) {
-    return { error: validationError };
-  }
-
   const db = getDb();
-  const storage = getProviders().storage;
-  const existing = await db
-    .select({ id: mediaAssets.id, objectKey: mediaAssets.objectKey })
+  const [pending] = await db
+    .select({ id: mediaAssets.id })
     .from(mediaAssets)
-    .where(eq(mediaAssets.categoryId, categoryId));
-
-  if (existing.length > 0) {
-    await db.delete(mediaAssets).where(eq(mediaAssets.categoryId, categoryId));
-    await Promise.all(
-      existing.map((row) => storage.deleteObject(row.objectKey)),
-    );
+    .where(
+      and(
+        eq(mediaAssets.id, mediaAssetId),
+        eq(mediaAssets.uploadStatus, "PENDING"),
+        eq(mediaAssets.purpose, "category"),
+      ),
+    )
+    .limit(1);
+  if (!pending) {
+    return { error: "Upload an image before saving." };
   }
 
-  const id = createId();
-  const objectKey = `uploads/categories/${categoryId}/${id}.${extensionForImageMime(file.type)}`;
-  await storage.putObject({
-    objectKey,
-    body: Buffer.from(await file.arrayBuffer()),
-    contentType: file.type,
-  });
-
-  await db.insert(mediaAssets).values({
-    id,
-    objectKey,
-    mimeType: file.type,
-    byteSize: file.size,
-    uploadStatus: "READY",
-    role: "PRIMARY",
-    sortOrder: 0,
-    isPrimary: true,
-    categoryId,
-  });
-
-  return { error: null };
-}
-
-/** Removes all media rows for a category and deletes stored objects. */
-export async function removeCategoryImage(categoryId: string): Promise<void> {
-  const db = getDb();
-  const storage = getProviders().storage;
   const existing = await db
-    .select({ objectKey: mediaAssets.objectKey })
+    .select({ cloudinaryPublicId: mediaAssets.cloudinaryPublicId })
     .from(mediaAssets)
     .where(eq(mediaAssets.categoryId, categoryId));
 
   await db.delete(mediaAssets).where(eq(mediaAssets.categoryId, categoryId));
-  await Promise.all(existing.map((row) => storage.deleteObject(row.objectKey)));
+
+  const attached = await attachPendingCloudinaryUpload({
+    mediaAssetId,
+    purpose: "category",
+    owner: { categoryId },
+    role: "PRIMARY",
+    sortOrder: 0,
+    isPrimary: true,
+  });
+  if (!attached) {
+    return { error: "The uploaded image is no longer available. Upload it again." };
+  }
+
+  await Promise.all(
+    existing.flatMap((asset) =>
+      asset.cloudinaryPublicId
+        ? [deleteCloudinaryImage(asset.cloudinaryPublicId)]
+        : [],
+    ),
+  );
+  return { error: null };
+}
+
+/** Removes all media rows for a category and its Cloudinary images. */
+export async function removeCategoryImage(categoryId: string): Promise<void> {
+  const db = getDb();
+  const existing = await db
+    .select({ cloudinaryPublicId: mediaAssets.cloudinaryPublicId })
+    .from(mediaAssets)
+    .where(eq(mediaAssets.categoryId, categoryId));
+
+  await db.delete(mediaAssets).where(eq(mediaAssets.categoryId, categoryId));
+  await Promise.all(
+    existing.flatMap((asset) =>
+      asset.cloudinaryPublicId
+        ? [deleteCloudinaryImage(asset.cloudinaryPublicId)]
+        : [],
+    ),
+  );
 }

@@ -1,6 +1,5 @@
 import "server-only";
 
-import { mediaPublicUrl } from "@/lib/media/public-url";
 import { getStoreIdentity } from "@/features/settings/application/queries";
 import {
   getAdminOrderByNumber,
@@ -111,9 +110,7 @@ export function toAdminOrderDetailView(
       id: item.id,
       title: item.productTitleSnapshot,
       sku: item.productSkuSnapshot,
-      imageUrl: item.productImageKeySnapshot
-        ? mediaPublicUrl(item.productImageKeySnapshot)
-        : null,
+      imageUrl: item.productImageKeySnapshot,
       quantity: item.quantity,
       unitPriceAmount: item.unitBaseAmount,
       lineTotalAmount: item.lineTotalAmount,

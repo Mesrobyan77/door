@@ -48,7 +48,7 @@
 | API style | Internal typed commands/queries; REST-ish HTTP endpoints where needed | ✅ | Public API չի ենթադրվում v1-ում |
 | Idempotency | DB-backed order keys + short-lived Redis guard | ✅ | DB unique constraint-ը վերջնական պաշտպանությունն է |
 | Background work | Provider-neutral job/outbox extension point | ✅ | Durable queue deferred (DEF-003); outbox-ready sync flows |
-| File upload | Presigned R2 flow | ✅ | MIME/size/dimensions validation և metadata persistence |
+| File upload | Server-side Cloudinary upload route | ✅ | Admin-only, same-origin, image signature/size validation; pending media record finalized by feature action |
 
 ## 4. Տվյալների շերտ
 
@@ -88,8 +88,8 @@ Connection pool size, `statement_timeout`, `lock_timeout`, `idle_in_transaction_
 |---|---|---|---|
 | Redis | Upstash Redis | ✅ | Cache/rate limit + ephemeral verification/reset tokens; ոչ durable commerce authority |
 | Rate limiting | Upstash Ratelimit | ✅ | Auth, contact, review, coupon, upload, order endpoints |
-| Object storage | Cloudflare R2 | ✅ | Store object key, not full CDN URL |
-| Image delivery | `next/image` + configured public base URL | ✅ | Responsive sizes, alt text, format/size policy |
+| Media storage | Cloudinary | ✅ | Store `secure_url` and Cloudinary public ID; credentials remain server-only |
+| Image delivery | `next/image` + Cloudinary secure URLs | ✅ | Responsive sizes, alt text, Cloudinary host allowlisted |
 | Email | Provider interface, Resend adapter first | ✅ | Verification/reset/order events |
 | Exchange rates | Provider interface + Redis cache | ✅ | Concrete source/rounding policy բաց է |
 | Payments | Provider interface + COD adapter | ✅ | Online adapter(s) բաց են |
@@ -101,7 +101,7 @@ Connection pool size, `statement_timeout`, `lock_timeout`, `idle_in_transaction_
 | Պարամետր | Որոշում | Ստատուս | Նշում |
 |---|---|---|---|
 | Hosting | Vercel-compatible (deploy deferred) | ✅ | Local-first; production deploy միայն explicit approval-ով |
-| Environments | Local + preview/staging + production | ✅ | Առանձին DB/Redis/R2 resources կամ safe namespaces |
+| Environments | Local + preview/staging + production | ✅ | Առանձին DB/Redis/Cloudinary credentials կամ safe folders |
 | CI | GitHub Actions | ✅ | format, lint, typecheck, unit/integration, build, selected E2E |
 | CDN/WAF | Hosting edge + optional Cloudflare WAF | ✅ | Domain/DNS decision-ից հետո |
 | Logs | Structured server logs | ✅ | Secret/PII redaction պարտադիր |
@@ -143,11 +143,9 @@ AUTH_SECRET=
 NEXT_PUBLIC_APP_URL=
 UPSTASH_REDIS_REST_URL=
 UPSTASH_REDIS_REST_TOKEN=
-R2_ACCOUNT_ID=
-R2_ACCESS_KEY_ID=
-R2_SECRET_ACCESS_KEY=
-R2_BUCKET_NAME=
-R2_PUBLIC_BASE_URL=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
 EMAIL_FROM=
 RESEND_API_KEY=
 ```
@@ -158,7 +156,7 @@ RESEND_API_KEY=
 
 ### Prompt-ով արդեն սահմանված
 
-Next.js, TypeScript, Neon/PostgreSQL, Drizzle, Auth.js, Upstash, R2, Tailwind, shadcn/ui, forms/tables/query/carousel/icon stack, Resend abstraction, Argon2id, tests, pnpm, locale/currency և security/data-integrity սկզբունքներ։
+Next.js, TypeScript, Neon/PostgreSQL, Drizzle, Auth.js, Upstash, Cloudinary, Tailwind, shadcn/ui, forms/tables/query/carousel/icon stack, Resend abstraction, Argon2id, tests, pnpm, locale/currency և security/data-integrity սկզբունքներ։
 
 ### Kickoff-ում հաստատված (2026-07-18)
 

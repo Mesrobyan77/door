@@ -17,7 +17,7 @@
 
 - Unit tests-ը external network/database չեն պահանջում։
 - Integration tests-ը օգտագործում են isolated PostgreSQL database/schema և իրական migrations։ SQLite substitute չի թույլատրվում PostgreSQL-specific constraints/transactions-ի համար։
-- Redis/R2/email/payment-ի համար contract-testable adapters են կիրառվում; auth token TTL/atomic consume-ը Redis integration tests ունի, իսկ critical provider normalization-ը fixture/official sandbox tests ունի։
+- Redis/Cloudinary/email/payment integration-ները contract-testable են; upload validation tests-ը cover են անում MIME signature և size boundaries, իսկ live Cloudinary check-ը պահանջում է test credentials։
 - E2E-ն աշխատում է dedicated test environment/database/bucket namespace-ում և deterministic seed/factories-ով։
 - Tests-ը production credentials/data չեն օգտագործում։
 - Time, random IDs, exchange rates և provider events-ը injectable/fixed են deterministic tests-ի համար։
