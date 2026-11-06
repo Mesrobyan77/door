@@ -2,7 +2,7 @@
 
 **Կարգավիճակ.** Draft baseline
 **Tooling.** Vitest, React Testing Library, Playwright, ESLint, Prettier
-**Վերջին թարմացում.** 2026-07-17
+**Վերջին թարմացում.** 2026-11-06
 
 ## 1. Quality strategy
 
@@ -24,20 +24,20 @@
 
 ## 3. Unit test matrix
 
-| Domain | Minimum cases |
-|---|---|
-| Money | Integer arithmetic, currency scale, conversion direction, rounding, safe bounds, formatting input |
-| Discounts | Product vs category priority, fixed/percent, dates, ties, cap at price, inactive rules |
-| Coupons | Eligibility, normalized code, min order, max discount, user/total limit, expiry, stacking |
-| Delivery | City > Region > Country, priority ties, free threshold, no-match, inactive rules |
-| Slugs | Unicode/transliteration policy, normalization, empty/reserved values, uniqueness retry mapping |
-| Permissions | Guest/customer/admin, suspended user, ownership, last-admin behavior |
-| Stock | Add/update clamp policy, decrement, insufficient stock, movement reason/result |
-| Door variants | Canonical configuration identity, required measurements by item type, handing/swing purchase readiness, inquiry/no-price and archived-state handling |
-| Order totals | Item lines, subtotal, discount, tax, delivery, total snapshots, invariant checks |
-| Exchange rates | Fresh/stale/fallback snapshots, unsupported currency, deterministic rate snapshot |
-| State machines | Allowed/forbidden order/payment/review transitions |
-| Sanitization | Allowed/removed rich-text constructs, script/URL payloads |
+| Domain         | Minimum cases                                                                                                                                        |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Money          | Integer arithmetic, currency scale, conversion direction, rounding, safe bounds, formatting input                                                    |
+| Discounts      | Product vs category priority, fixed/percent, dates, ties, cap at price, inactive rules                                                               |
+| Coupons        | Eligibility, normalized code, min order, max discount, user/total limit, expiry, stacking                                                            |
+| Delivery       | City > Region > Country, priority ties, free threshold, no-match, inactive rules                                                                     |
+| Slugs          | Unicode/transliteration policy, normalization, empty/reserved values, uniqueness retry mapping                                                       |
+| Permissions    | Guest/customer/admin, suspended user, ownership, last-admin behavior                                                                                 |
+| Stock          | Add/update clamp policy, decrement, insufficient stock, movement reason/result                                                                       |
+| Door variants  | Canonical configuration identity, required measurements by item type, handing/swing purchase readiness, inquiry/no-price and archived-state handling |
+| Order totals   | Item lines, subtotal, discount, tax, delivery, total snapshots, invariant checks                                                                     |
+| Exchange rates | Fresh/stale/fallback snapshots, unsupported currency, deterministic rate snapshot                                                                    |
+| State machines | Allowed/forbidden order/payment/review transitions                                                                                                   |
+| Sanitization   | Allowed/removed rich-text constructs, script/URL payloads                                                                                            |
 
 Boundary values և invalid inputs յուրաքանչյուր pure function-ի test suite-ի մաս են։
 
@@ -101,22 +101,46 @@ Boundary values և invalid inputs յուրաքանչյուր pure function-ի te
 
 ## 6. Playwright critical journeys
 
-| ID | Journey | Required assertions |
-|---|---|---|
-| E2E-001 | Customer register → verify → login | Real persistence/session, generic negative auth |
-| E2E-002 | Browse/search/filter/sort/page products | URL persistence, server results, mobile filters |
-| E2E-003 | Product detail → quantity → cart | Gallery, stock bound, card/action navigation |
-| E2E-004 | Guest cart → login merge | Quantities/ownership merged once |
-| E2E-005 | Checkout COD | Address/delivery/coupon, order snapshots, cart cleared |
-| E2E-006 | Duplicate Place Order | One order only, same confirmation |
-| E2E-007 | Customer profile/orders/addresses | Ownership, defaults, detail drawer keyboard |
-| E2E-008 | Verified purchase review | Eligibility, pending moderation, admin approval/public display |
-| E2E-009 | Admin product creation | Three locales, images, inventory, public appearance |
-| E2E-010 | Admin order status update | History/audit/customer view updated |
-| E2E-011 | Locale switching | Equivalent route/slug/query params and `<html lang>` |
-| E2E-012 | Responsive/keyboard smoke | Header, filters, checkout, admin drawer at mobile/desktop |
+| ID      | Journey                                 | Required assertions                                            |
+| ------- | --------------------------------------- | -------------------------------------------------------------- |
+| E2E-001 | Customer register → verify → login      | Real persistence/session, generic negative auth                |
+| E2E-002 | Browse/search/filter/sort/page products | URL persistence, server results, mobile filters                |
+| E2E-003 | Product detail → quantity → cart        | Gallery, stock bound, card/action navigation                   |
+| E2E-004 | Guest cart → login merge                | Quantities/ownership merged once                               |
+| E2E-005 | Checkout COD                            | Address/delivery/coupon, order snapshots, cart cleared         |
+| E2E-006 | Duplicate Place Order                   | One order only, same confirmation                              |
+| E2E-007 | Customer profile/orders/addresses       | Ownership, defaults, detail drawer keyboard                    |
+| E2E-008 | Verified purchase review                | Eligibility, pending moderation, admin approval/public display |
+| E2E-009 | Admin product creation                  | Three locales, images, inventory, public appearance            |
+| E2E-010 | Admin order status update               | History/audit/customer view updated                            |
+| E2E-011 | Locale switching                        | Equivalent route/slug/query params and `<html lang>`           |
+| E2E-012 | Responsive/keyboard smoke               | Header, filters, checkout, admin drawer at mobile/desktop      |
 
 Online payment provider-ի ավելացման դեպքում առանձին sandbox callback/webhook E2E կամ integration suite պարտադիր է։
+
+### Executed door-variant coverage — 2026-11-06
+
+The approved slice was exercised manually in the browser against the migrated Neon test/development database. This is additional evidence, not a substitute for an automated Playwright suite or isolated concurrency tests.
+
+- Admin created two distinct sellable configurations, uploaded two variant-owned Cloudinary images, and verified previews/ownership. A separate synthetic `LEGACY` product with a product-level image verified the storefront image fallback and authenticated-cart persistence after reload.
+- Storefront selection updated the selected SKU, dimensions/configuration, availability, image and price. `minPrice=130000`, `maxPrice=140000`, `inStock=true` returned the product whose eligible variant was the discounted `E2E-LUMEN-900`.
+- Authenticated COD `p100` contained two distinct variant lines; guest COD `p101` had no user owner. Both orders retained SKU/configuration/price snapshots; admin/customer views rendered configuration data.
+- The database showed only purchased-variant stock deltas. `p100` cancel/reopen/cancel and `p101` cancellation restored the corresponding balances with `CANCEL` movements. An over-stock cart add (quantity 6 against stock 5) was rejected and left the persisted cart quantity at 5.
+- A 10% variant-targeted promotion changed only `E2E-LUMEN-900` to 135000 AMD in the product selector/cart; the undiscounted variant stayed at its own price.
+- Not exercised: direct server-side add of an unavailable/archived variant, COD order creation using the discounted price, duplicate/concurrent checkout idempotency, and migration backfill from real legacy rows (none existed on the target before migration). No real email or external notification was sent.
+
+### Verification continuation — 2026-11-06
+
+`tests/integration/door-store-verification.test.ts` exercises the confirmed Neon test/development database through the actual cart and checkout server actions. It creates timestamped `VERIFY-DOOR-*` fixtures and keeps existing records intact.
+
+- Passed: archived and zero-stock variants are rejected by `addToCart` and `createOrderAction`; rejected checkout creates no order, preserves cart/stock, and returns the unavailable error.
+- Passed: a variant-targeted 10% automatic discount is authoritative at checkout. The COD order/item snapshots retain the discounted unit price, per-line automatic discount, total, SKU/configuration, and the selected variant's stock movement.
+- Passed: same-key concurrent checkout yields one order/one decrement; two different checkout keys competing for one remaining unit yield one order, one rejection, and no negative stock.
+- Passed at the persistence boundary: variant media reorder, primary selection, detach, reloadable DB state, and retention of a separate product-level fallback asset.
+
+The targeted server/media run reported **3 passed, 3 skipped** tests, and the targeted checkout/concurrency run reported **3 passed, 3 skipped** tests; skips were caused by the explicit Vitest `-t` filter and are not passes. `pnpm test` separately reported **35 passed files / 118 passed tests**. The complete `pnpm test:integration` command did not return an aggregate result within the execution host's 30-second response limit, so it is not marked as passed.
+
+No browser/E2E runner is currently configured, so authenticated browser interactions for the admin reorder/primary/detach controls were not re-executed in this continuation. The earlier manual browser evidence covers upload/preview, storefront selection, and product-image fallback, but does not substitute for that missing interaction run. Synthetic `LEGACY` records still do not establish correctness of a backfill over real pre-migration records.
 
 ## 7. Accessibility և visual QA
 

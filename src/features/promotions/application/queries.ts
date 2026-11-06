@@ -1,24 +1,10 @@
-import "server-only";
+import 'server-only';
 
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  ilike,
-  inArray,
-  type SQL,
-} from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, inArray, type SQL } from 'drizzle-orm';
 
-import { getDb } from "@/db/client";
-import {
-  categories,
-  productVariants,
-  products,
-  promotions,
-} from "@/db/schema";
-import type { AdminPromotionsFilter } from "@/features/promotions/schemas/admin-promotions";
+import { getDb } from '@/db/client';
+import { categories, productVariants, products, promotions } from '@/db/schema';
+import type { AdminPromotionsFilter } from '@/features/promotions/schemas/admin-promotions';
 
 const PAGE_SIZE = 20;
 
@@ -35,13 +21,12 @@ export type AdminPromotionListItem = {
   startsAt: Date | null;
   endsAt: Date | null;
   productId: string | null;
+  productVariantId: string | null;
   categoryId: string | null;
 };
 
 /** Lists promotions for the admin coupons/discounts surface. */
-export async function listAdminPromotions(
-  filters: AdminPromotionsFilter,
-): Promise<{
+export async function listAdminPromotions(filters: AdminPromotionsFilter): Promise<{
   rows: AdminPromotionListItem[];
   total: number;
   pageSize: number;
@@ -52,9 +37,9 @@ export async function listAdminPromotions(
     conditions.push(eq(promotions.kind, filters.kind));
   }
 
-  if (filters.active === "true") {
+  if (filters.active === 'true') {
     conditions.push(eq(promotions.isActive, true));
-  } else if (filters.active === "false") {
+  } else if (filters.active === 'false') {
     conditions.push(eq(promotions.isActive, false));
   }
 
@@ -80,6 +65,7 @@ export async function listAdminPromotions(
         startsAt: promotions.startsAt,
         endsAt: promotions.endsAt,
         productId: promotions.productId,
+        productVariantId: promotions.productVariantId,
         categoryId: promotions.categoryId,
       })
       .from(promotions)
@@ -99,11 +85,7 @@ export async function listAdminPromotions(
 
 /** Loads one promotion by id for the admin editor. */
 export async function getAdminPromotionById(id: string) {
-  const [row] = await getDb()
-    .select()
-    .from(promotions)
-    .where(eq(promotions.id, id))
-    .limit(1);
+  const [row] = await getDb().select().from(promotions).where(eq(promotions.id, id)).limit(1);
 
   return row ?? null;
 }
@@ -111,6 +93,7 @@ export async function getAdminPromotionById(id: string) {
 /** Product/category options for automatic discount targeting. */
 export async function listPromotionTargetOptions(): Promise<{
   products: Array<{ id: string; sku: string | null; title: string }>;
+  variants: Array<{ id: string; sku: string; productTitle: string }>;
   categories: Array<{ id: string; title: string }>;
 }> {
   const [productRows, categoryRows] = await Promise.all([
@@ -138,13 +121,14 @@ export async function listPromotionTargetOptions(): Promise<{
       ? []
       : await getDb()
           .select({
+            id: productVariants.id,
             productId: productVariants.productId,
             sku: productVariants.sku,
           })
           .from(productVariants)
           .where(
             and(
-              eq(productVariants.status, "ACTIVE"),
+              eq(productVariants.status, 'ACTIVE'),
               inArray(
                 productVariants.productId,
                 productRows.map((product) => product.id),
@@ -153,6 +137,12 @@ export async function listPromotionTargetOptions(): Promise<{
           )
           .orderBy(asc(productVariants.sku));
   const skuByProduct = new Map<string, string>();
+  const productTitleById = new Map(
+    productRows.map((product) => [
+      product.id,
+      product.translations.en?.title ?? product.translations.hy?.title ?? product.sku ?? product.id,
+    ]),
+  );
   for (const variant of variantRows) {
     if (!skuByProduct.has(variant.productId)) {
       skuByProduct.set(variant.productId, variant.sku);
@@ -170,12 +160,14 @@ export async function listPromotionTargetOptions(): Promise<{
         product.sku ??
         product.id,
     })),
+    variants: variantRows.map((variant) => ({
+      id: variant.id,
+      sku: variant.sku,
+      productTitle: productTitleById.get(variant.productId) ?? variant.productId,
+    })),
     categories: categoryRows.map((category) => ({
       id: category.id,
-      title:
-        category.translations.en?.title ??
-        category.translations.hy?.title ??
-        category.id,
+      title: category.translations.en?.title ?? category.translations.hy?.title ?? category.id,
     })),
   };
 }

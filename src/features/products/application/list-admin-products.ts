@@ -1,19 +1,8 @@
-import "server-only";
+import 'server-only';
 
-import {
-  and,
-  asc,
-  count,
-  desc,
-  eq,
-  inArray,
-  isNull,
-  or,
-  sql,
-  type SQL,
-} from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, isNull, or, sql, type SQL } from 'drizzle-orm';
 
-import { getDb } from "@/db/client";
+import { getDb } from '@/db/client';
 import {
   categories,
   mediaAssets,
@@ -22,10 +11,13 @@ import {
   products,
   type PerformanceSpecifications,
   type LocaleTranslation,
-} from "@/db/schema";
-import { loadProductImagesForAdmin } from "@/features/products/application/persist-product-media";
-import type { AdminProductsFilter } from "@/features/products/schemas/admin-list";
-import type { Locale } from "@/lib/i18n/config";
+} from '@/db/schema';
+import {
+  loadProductImagesForAdmin,
+  loadVariantImagesForAdmin,
+} from '@/features/products/application/persist-product-media';
+import type { AdminProductsFilter } from '@/features/products/schemas/admin-list';
+import type { Locale } from '@/lib/i18n/config';
 
 const PAGE_SIZE = 20;
 
@@ -51,8 +43,8 @@ export type AdminProductListItem = {
   categoryIds: string[];
   categoryLabels: string[];
   images: AdminProductImage[];
-  doorClassification: "INTERIOR" | "ENTRANCE" | null;
-  entranceEnvironments: ("APARTMENT" | "OUTDOOR_HOUSE")[] | null;
+  doorClassification: 'INTERIOR' | 'ENTRANCE' | null;
+  entranceEnvironments: ('APARTMENT' | 'OUTDOOR_HOUSE')[] | null;
   brandName: string | null;
   modelName: string | null;
   collectionName: string | null;
@@ -63,11 +55,15 @@ export type AdminProductListItem = {
   glazingType: string | null;
   manufacturer: string | null;
   countryOfManufacture: string | null;
-  openingMechanism: "HINGED" | "SLIDING" | "FOLDING" | null;
-  frameSystem: "STANDARD" | "CONCEALED" | null;
-  leafConfiguration: "SINGLE" | "DOUBLE" | "UNEQUAL_DOUBLE" | null;
+  openingMechanism: 'HINGED' | 'SLIDING' | 'FOLDING' | null;
+  frameSystem: 'STANDARD' | 'CONCEALED' | null;
+  leafConfiguration: 'SINGLE' | 'DOUBLE' | 'UNEQUAL_DOUBLE' | null;
   performanceSpecifications: PerformanceSpecifications | null;
-  variants: Array<typeof productVariants.$inferSelect>;
+  variants: Array<
+    typeof productVariants.$inferSelect & {
+      images: AdminProductImage[];
+    }
+  >;
 };
 
 export type AdminCategoryOption = {
@@ -76,7 +72,7 @@ export type AdminCategoryOption = {
 };
 
 function translationFor(
-  translations: (typeof products.$inferSelect)["translations"],
+  translations: (typeof products.$inferSelect)['translations'],
   locale: Locale,
 ): LocaleTranslation | null {
   return translations[locale] ?? translations.hy ?? translations.en ?? null;
@@ -105,21 +101,21 @@ function buildWhere(filters: AdminProductsFilter, locale: Locale): SQL | undefin
     )`);
   }
 
-  if (filters.stock === "in_stock") {
+  if (filters.stock === 'in_stock') {
     conditions.push(sql`exists (
       select 1 from ${productVariants}
       where ${productVariants.productId} = ${products.id}
         and ${productVariants.status} = 'ACTIVE'
         and ${productVariants.stockOnHand} > 0
     )`);
-  } else if (filters.stock === "out_of_stock") {
+  } else if (filters.stock === 'out_of_stock') {
     conditions.push(sql`not exists (
       select 1 from ${productVariants}
       where ${productVariants.productId} = ${products.id}
         and ${productVariants.status} = 'ACTIVE'
         and ${productVariants.stockOnHand} > 0
     )`);
-  } else if (filters.stock === "low_stock") {
+  } else if (filters.stock === 'low_stock') {
     conditions.push(sql`exists (
       select 1 from ${productVariants}
       where ${productVariants.productId} = ${products.id}
@@ -143,16 +139,16 @@ function buildWhere(filters: AdminProductsFilter, locale: Locale): SQL | undefin
 }
 
 function orderByClause(filters: AdminProductsFilter, locale: Locale) {
-  const direction = filters.dir === "asc" ? asc : desc;
+  const direction = filters.dir === 'asc' ? asc : desc;
   switch (filters.sort) {
-    case "stock":
+    case 'stock':
       return direction(sql`(
         select coalesce(sum(${productVariants.stockOnHand}), 0)
         from ${productVariants}
         where ${productVariants.productId} = ${products.id}
           and ${productVariants.status} = 'ACTIVE'
       )`);
-    case "price":
+    case 'price':
       return direction(sql`(
         select min(${productVariants.priceAmount})
         from ${productVariants}
@@ -160,19 +156,15 @@ function orderByClause(filters: AdminProductsFilter, locale: Locale) {
           and ${productVariants.status} = 'ACTIVE'
           and ${productVariants.priceAmount} is not null
       )`);
-    case "title":
-      return direction(
-        sql`${products.translations}->${locale}->>'title'`,
-      );
-    case "created":
+    case 'title':
+      return direction(sql`${products.translations}->${locale}->>'title'`);
+    case 'created':
     default:
       return direction(products.createdAt);
   }
 }
 
-async function loadPrimaryImages(
-  productIds: string[],
-): Promise<Map<string, string>> {
+async function loadPrimaryImages(productIds: string[]): Promise<Map<string, string>> {
   const map = new Map<string, string>();
   if (productIds.length === 0) return map;
 
@@ -185,8 +177,8 @@ async function loadPrimaryImages(
     .where(
       and(
         inArray(mediaAssets.productId, productIds),
-        eq(mediaAssets.uploadStatus, "READY"),
-        or(eq(mediaAssets.isPrimary, true), eq(mediaAssets.role, "PRIMARY")),
+        eq(mediaAssets.uploadStatus, 'READY'),
+        or(eq(mediaAssets.isPrimary, true), eq(mediaAssets.role, 'PRIMARY')),
       ),
     )
     .orderBy(asc(mediaAssets.sortOrder));
@@ -219,9 +211,7 @@ async function loadCategoryMeta(
 
   for (const row of rows) {
     const title =
-      translationFor(row.translations, locale)?.title ??
-      row.translations.hy?.title ??
-      "Category";
+      translationFor(row.translations, locale)?.title ?? row.translations.hy?.title ?? 'Category';
     const entry = map.get(row.productId) ?? { ids: [], labels: [] };
     entry.ids.push(row.categoryId);
     entry.labels.push(title);
@@ -238,10 +228,7 @@ export async function listAdminProducts(
   const where = buildWhere(filters, locale);
   const db = getDb();
 
-  const [totalRow] = await db
-    .select({ value: count() })
-    .from(products)
-    .where(where);
+  const [totalRow] = await db.select({ value: count() }).from(products).where(where);
 
   const total = totalRow?.value ?? 0;
   const offset = (filters.page - 1) * PAGE_SIZE;
@@ -267,6 +254,7 @@ export async function listAdminProducts(
           .where(inArray(productVariants.productId, ids))
           .orderBy(asc(productVariants.createdAt)),
   ]);
+  const variantImages = await loadVariantImagesForAdmin(variants.map((variant) => variant.id));
   const variantsByProduct = new Map<string, typeof variants>();
   for (const variant of variants) {
     const list = variantsByProduct.get(variant.productId) ?? [];
@@ -282,10 +270,7 @@ export async function listAdminProducts(
       const categoryMeta = categoryMap.get(product.id);
       const productVariantRows = variantsByProduct.get(product.id) ?? [];
       const pricedVariants = productVariantRows
-        .filter(
-          (variant) =>
-            variant.status === "ACTIVE" && variant.priceAmount != null,
-        )
+        .filter((variant) => variant.status === 'ACTIVE' && variant.priceAmount != null)
         .sort(
           (first, second) =>
             (first.priceAmount ?? Number.MAX_SAFE_INTEGER) -
@@ -299,16 +284,14 @@ export async function listAdminProducts(
         priceAmount: priceVariant?.priceAmount ?? null,
         compareAtAmount: priceVariant?.compareAtAmount ?? null,
         stockOnHand: productVariantRows.reduce(
-          (total, variant) =>
-            total +
-            (variant.status === "ACTIVE" ? variant.stockOnHand : 0),
+          (total, variant) => total + (variant.status === 'ACTIVE' ? variant.stockOnHand : 0),
           0,
         ),
         isFeatured: product.isFeatured,
         createdAt: product.createdAt,
         title: translation?.title ?? product.sku,
-        slug: translation?.slug ?? "",
-        description: translation?.description ?? "",
+        slug: translation?.slug ?? '',
+        description: translation?.description ?? '',
         imageUrl: primaryImages.get(product.id) ?? null,
         categoryIds: categoryMeta?.ids ?? [],
         categoryLabels: categoryMeta?.labels ?? [],
@@ -329,24 +312,25 @@ export async function listAdminProducts(
         frameSystem: product.frameSystem,
         leafConfiguration: product.leafConfiguration,
         performanceSpecifications: product.performanceSpecifications,
-        variants: productVariantRows,
+        variants: productVariantRows.map((variant) => ({
+          ...variant,
+          images: variantImages.get(variant.id) ?? [],
+        })),
       };
     }),
   };
 }
 
 /** Active categories for the admin products filter dropdown. */
-export async function listAdminCategoryOptions(
-  locale: Locale,
-): Promise<AdminCategoryOption[]> {
+export async function listAdminCategoryOptions(locale: Locale): Promise<AdminCategoryOption[]> {
   const rows = await getDb()
     .select()
     .from(categories)
-    .where(and(eq(categories.status, "ACTIVE"), isNull(categories.deletedAt)))
+    .where(and(eq(categories.status, 'ACTIVE'), isNull(categories.deletedAt)))
     .orderBy(asc(categories.sortOrder));
 
   return rows.map((row) => ({
     id: row.id,
-    title: translationFor(row.translations, locale)?.title ?? "Category",
+    title: translationFor(row.translations, locale)?.title ?? 'Category',
   }));
 }

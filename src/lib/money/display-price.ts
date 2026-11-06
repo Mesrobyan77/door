@@ -1,17 +1,15 @@
-import "server-only";
+import 'server-only';
 
-import { cookies } from "next/headers";
-import { cache } from "react";
+import { cookies } from 'next/headers';
+import { cache } from 'react';
 
-import { getCheckoutRateSnapshot } from "@/lib/fx/service";
-import { convertAmount } from "@/lib/money/convert";
-import type { Currency } from "@/lib/money/currency";
-import { defaultCurrency } from "@/lib/money/currency";
-import {
-  CURRENCY_COOKIE_NAME,
-  parseCurrencyCookie,
-} from "@/lib/money/currency-cookie";
-import { formatMoneyAmount } from "@/lib/money/format";
+import { getCheckoutRateSnapshot } from '@/lib/fx/service';
+import type { ExchangeRateQuote } from '@/lib/fx/types';
+import { convertAmount } from '@/lib/money/convert';
+import type { Currency } from '@/lib/money/currency';
+import { defaultCurrency } from '@/lib/money/currency';
+import { CURRENCY_COOKIE_NAME, parseCurrencyCookie } from '@/lib/money/currency-cookie';
+import { formatMoneyAmount } from '@/lib/money/format';
 
 export type DisplayPrice = {
   baseAmount: number;
@@ -40,12 +38,7 @@ function toDisplayPrice(
   rate: string,
   rateSource: string,
 ): DisplayPrice {
-  const converted = convertAmount(
-    baseAmountAmd,
-    rate,
-    defaultCurrency,
-    currency,
-  );
+  const converted = convertAmount(baseAmountAmd, rate, defaultCurrency, currency);
 
   return {
     baseAmount: baseAmountAmd,
@@ -69,13 +62,7 @@ export async function resolveDisplayPrice(
 ): Promise<DisplayPrice> {
   const currency = displayCurrency ?? (await getSelectedCurrency());
   const quote = await getCachedRateSnapshot(currency);
-  return toDisplayPrice(
-    baseAmountAmd,
-    currency,
-    locale,
-    quote.rate,
-    quote.source,
-  );
+  return toDisplayPrice(baseAmountAmd, currency, locale, quote.rate, quote.source);
 }
 
 /**
@@ -85,16 +72,11 @@ export async function resolveDisplayPrice(
 export async function createDisplayPriceFormatter(
   locale: string,
   displayCurrency?: Currency,
+  rateSnapshot?: Pick<ExchangeRateQuote, 'rate' | 'source'>,
 ): Promise<(baseAmountAmd: number) => DisplayPrice> {
   const currency = displayCurrency ?? (await getSelectedCurrency());
-  const quote = await getCachedRateSnapshot(currency);
+  const quote = rateSnapshot ?? (await getCachedRateSnapshot(currency));
 
   return (baseAmountAmd: number) =>
-    toDisplayPrice(
-      baseAmountAmd,
-      currency,
-      locale,
-      quote.rate,
-      quote.source,
-    );
+    toDisplayPrice(baseAmountAmd, currency, locale, quote.rate, quote.source);
 }

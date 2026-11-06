@@ -1,39 +1,36 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from "react";
-import Image from "next/image";
-import { X } from "lucide-react";
+import { useEffect, useRef } from 'react';
+import Image from 'next/image';
+import { ChevronDown, ChevronUp, X } from 'lucide-react';
 
-import { ADMIN_LABEL } from "@/features/admin/ui/admin-form-classes";
-import {
-  discardPendingAdminImage,
-  uploadAdminImage,
-} from "@/lib/media/client-upload";
+import { ADMIN_LABEL } from '@/features/admin/ui/admin-form-classes';
+import type { ProductDraftImage } from '@/features/products/types';
+import type { Dictionary } from '@/lib/i18n/get-dictionary';
+import { discardPendingAdminImage, uploadAdminImage } from '@/lib/media/client-upload';
+import type { MediaPurpose } from '@/lib/media/types';
 
-export type ProductDraftImage = {
-  key: string;
-  previewUrl: string;
-  isPrimary: boolean;
-  /** Existing DB media id when editing. */
-  existingId?: string;
-  /** Pending Cloudinary media row created by the upload endpoint. */
-  mediaAssetId?: string;
-  isUploading?: boolean;
-};
+export type { ProductDraftImage } from '@/features/products/types';
 
 type ProductDrawerImagesProps = {
+  heading: string;
   images: ProductDraftImage[];
   disabled: boolean;
   open: boolean;
+  purpose?: MediaPurpose;
+  labels: Dictionary['product']['media'];
   onChange: (images: ProductDraftImage[]) => void;
   onUploadingChange: (uploading: boolean) => void;
   onError: (message: string) => void;
 };
 
 export function ProductDrawerImages({
+  heading,
   images,
   disabled,
   open,
+  purpose = 'product',
+  labels,
   onChange,
   onUploadingChange,
   onError,
@@ -51,7 +48,7 @@ export function ProductDrawerImages({
   useEffect(() => {
     if (open) return;
     for (const image of imagesRef.current) {
-      if (image.previewUrl.startsWith("blob:")) {
+      if (image.previewUrl.startsWith('blob:')) {
         URL.revokeObjectURL(image.previewUrl);
       }
     }
@@ -60,7 +57,7 @@ export function ProductDrawerImages({
     );
     for (const mediaAssetId of pendingIds) {
       void discardPendingAdminImage(mediaAssetId).catch((error: unknown) => {
-        console.error("Unable to discard pending Cloudinary image.", error);
+        console.error('Unable to discard pending Cloudinary image.', error);
       });
     }
     onUploadingChange(false);
@@ -75,17 +72,25 @@ export function ProductDrawerImages({
     );
   }
 
+  function moveImage(key: string, direction: -1 | 1): void {
+    const index = images.findIndex((image) => image.key === key);
+    const nextIndex = index + direction;
+    if (index < 0 || nextIndex < 0 || nextIndex >= images.length) return;
+
+    const next = [...images];
+    const [image] = next.splice(index, 1);
+    if (!image) return;
+    next.splice(nextIndex, 0, image);
+    onChange(next);
+  }
+
   async function removeImage(key: string): Promise<void> {
     const removed = images.find((image) => image.key === key);
     if (removed?.mediaAssetId) {
       try {
         await discardPendingAdminImage(removed.mediaAssetId);
       } catch (error) {
-        onError(
-          error instanceof Error
-            ? error.message
-            : "Unable to remove the pending image.",
-        );
+        onError(error instanceof Error ? error.message : labels.pendingDeleteError);
         return;
       }
     }
@@ -95,32 +100,26 @@ export function ProductDrawerImages({
     if (first && !next.some((image) => image.isPrimary)) {
       next[0] = { ...first, isPrimary: true };
     }
-    if (removed?.previewUrl.startsWith("blob:")) {
+    if (removed?.previewUrl.startsWith('blob:')) {
       URL.revokeObjectURL(removed.previewUrl);
     }
     onChange(next);
   }
 
-  async function handleFiles(fileList: FileList | null): Promise<void> {
-    if (!fileList || fileList.length === 0) return;
+  async function handleFiles(files: File[]): Promise<void> {
+    if (files.length === 0) return;
 
-    const files = Array.from(fileList);
     if (images.length + files.length > 12) {
-      onError("At most 12 images are allowed.");
+      onError(labels.maxImagesError);
       return;
     }
-    const allowedTypes = new Set([
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/gif",
-    ]);
+    const allowedTypes = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif']);
     if (files.some((file) => !allowedTypes.has(file.type))) {
-      onError("Only JPEG, PNG, WebP, or GIF images are allowed.");
+      onError(labels.typeError);
       return;
     }
     if (files.some((file) => file.size > 5 * 1024 * 1024)) {
-      onError("Each image must be 5MB or smaller.");
+      onError(labels.sizeError);
       return;
     }
 
@@ -141,14 +140,14 @@ export function ProductDrawerImages({
     }
     onChange(next);
     onUploadingChange(true);
-    onError("");
+    onError('');
 
     for (const job of jobs) {
       if (!openRef.current) {
         break;
       }
       try {
-        const uploaded = await uploadAdminImage(job.file, "product");
+        const uploaded = await uploadAdminImage(job.file, purpose);
         if (!openRef.current) {
           await discardPendingAdminImage(uploaded.mediaAssetId);
           URL.revokeObjectURL(job.previewUrl);
@@ -179,9 +178,7 @@ export function ProductDrawerImages({
           next[0] = { ...first, isPrimary: true };
         }
         onChange(next);
-        onError(
-          error instanceof Error ? error.message : "Unable to upload image.",
-        );
+        onError(error instanceof Error ? error.message : labels.uploadError);
       }
     }
 
@@ -190,7 +187,7 @@ export function ProductDrawerImages({
 
   return (
     <div>
-      <span className={ADMIN_LABEL}>Main Product Image</span>
+      <span className={ADMIN_LABEL}>{heading}</span>
       <div className="mt-1 flex flex-wrap items-center gap-3">
         <button
           type="button"
@@ -198,7 +195,7 @@ export function ProductDrawerImages({
           onClick={() => inputRef.current?.click()}
           className="inline-flex items-center rounded-xl border border-dashed border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50"
         >
-          {isUploading ? "Uploading…" : "+ Upload Image"}
+          {isUploading ? labels.uploading : labels.upload}
         </button>
         <input
           ref={inputRef}
@@ -208,15 +205,13 @@ export function ProductDrawerImages({
           className="hidden"
           disabled={disabled || isUploading}
           onChange={(event) => {
-            const files = event.target.files;
-            event.target.value = "";
+            const files = Array.from(event.currentTarget.files ?? []);
+            event.currentTarget.value = '';
             void handleFiles(files);
           }}
         />
       </div>
-      <p className="mt-1 text-xs text-gray-500">
-        Upload one or more images, then mark the main image with the checkbox.
-      </p>
+      <p className="mt-1 text-xs text-gray-500">{labels.hint}</p>
 
       {images.length > 0 ? (
         <ul className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
@@ -232,13 +227,13 @@ export function ProductDrawerImages({
                   fill
                   sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                   className="object-cover"
-                  unoptimized={image.previewUrl.startsWith("blob:")}
+                  unoptimized={image.previewUrl.startsWith('blob:')}
                 />
               </div>
               <div className="flex items-center justify-between gap-2 px-2 py-2">
                 {image.isUploading ? (
                   <span className="text-xs text-gray-600" role="status">
-                    Uploading…
+                    {labels.uploadingStatus}
                   </span>
                 ) : (
                   <label className="flex items-center gap-1.5 text-xs text-gray-700">
@@ -249,15 +244,37 @@ export function ProductDrawerImages({
                       onChange={() => setPrimary(image.key)}
                       className="h-3.5 w-3.5 rounded border-gray-300"
                     />
-                    Main
+                    {labels.primary}
                   </label>
                 )}
+                <div className="flex items-center">
+                  <button
+                    type="button"
+                    disabled={disabled || isUploading || images[0]?.key === image.key}
+                    onClick={() => moveImage(image.key, -1)}
+                    className="rounded p-1 text-gray-500 hover:bg-white disabled:opacity-40"
+                    aria-label={labels.moveUp}
+                  >
+                    <ChevronUp className="h-3.5 w-3.5" aria-hidden />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={
+                      disabled || isUploading || images[images.length - 1]?.key === image.key
+                    }
+                    onClick={() => moveImage(image.key, 1)}
+                    className="rounded p-1 text-gray-500 hover:bg-white disabled:opacity-40"
+                    aria-label={labels.moveDown}
+                  >
+                    <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+                  </button>
+                </div>
                 <button
                   type="button"
                   disabled={disabled || isUploading}
                   onClick={() => void removeImage(image.key)}
                   className="rounded p-1 text-gray-500 hover:bg-white hover:text-red-600"
-                  aria-label="Remove image"
+                  aria-label={labels.remove}
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>

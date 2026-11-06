@@ -1,18 +1,15 @@
-"use server";
+'use server';
 
-import { and, eq, sql } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { and, eq, sql } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
 
-import { getDb } from "@/db/client";
-import { cartItems, carts, productVariants, products } from "@/db/schema";
-import {
-  getGuestCartToken,
-  hashGuestToken,
-  peekGuestCartToken,
-} from "@/features/cart/guest-token";
-import { getCurrentUser } from "@/lib/auth/session";
-import { createId } from "@/lib/id";
-import { isVariantPurchasable } from "@/features/products/domain/door-variant";
+import { getDb } from '@/db/client';
+import { withTransaction } from '@/db/transaction';
+import { cartItems, carts, productVariants, products } from '@/db/schema';
+import { getGuestCartToken, hashGuestToken, peekGuestCartToken } from '@/features/cart/guest-token';
+import { getCurrentUser } from '@/lib/auth/session';
+import { createId } from '@/lib/id';
+import { isVariantPurchasable } from '@/features/products/domain/door-variant';
 
 type CartRow = typeof carts.$inferSelect;
 type CartItemWithProduct = {
@@ -44,9 +41,10 @@ async function getCartOwnerForRead(): Promise<{
   return { guestTokenHash: hashGuestToken(token) };
 }
 
-async function findActiveCart(
-  owner: { userId?: string; guestTokenHash?: string },
-): Promise<CartRow | null> {
+async function findActiveCart(owner: {
+  userId?: string;
+  guestTokenHash?: string;
+}): Promise<CartRow | null> {
   const ownerCondition = owner.userId
     ? eq(carts.userId, owner.userId)
     : eq(carts.guestTokenHash, owner.guestTokenHash!);
@@ -54,7 +52,7 @@ async function findActiveCart(
   const [existing] = await getDb()
     .select()
     .from(carts)
-    .where(and(eq(carts.status, "ACTIVE"), ownerCondition))
+    .where(and(eq(carts.status, 'ACTIVE'), ownerCondition))
     .limit(1);
 
   return existing ?? null;
@@ -70,7 +68,7 @@ export async function getOrCreateCart(): Promise<CartRow> {
     .insert(carts)
     .values({ id: createId(), ...owner })
     .returning();
-  if (!created) throw new Error("Unable to create cart.");
+  if (!created) throw new Error('Unable to create cart.');
   return created;
 }
 
@@ -123,75 +121,90 @@ export async function getCartItemCount(): Promise<number> {
   return row?.total ?? 0;
 }
 
-export async function addToCart(
-  variantId: string,
-  quantity = 1,
-): Promise<void> {
+export async function addToCart(variantId: string, quantity = 1): Promise<void> {
   if (!Number.isInteger(quantity) || quantity < 1) {
-    throw new Error("Invalid quantity.");
+    throw new Error('Invalid quantity.');
   }
 
   const cart = await getOrCreateCart();
-  const [selection] = await getDb()
-    .select({ product: products, variant: productVariants })
-    .from(productVariants)
-    .innerJoin(products, eq(productVariants.productId, products.id))
-    .where(eq(productVariants.id, variantId))
-    .limit(1);
-  if (
-    !selection ||
-    selection.product.status !== "ACTIVE" ||
-    !isVariantPurchasable({
-      product: selection.product,
-      variant: selection.variant,
-    })
-  ) {
-    throw new Error("Product unavailable.");
-  }
+  await withTransaction(async (tx) => {
+    const [selection] = await tx
+      .select({ product: products, variant: productVariants })
+      .from(productVariants)
+      .innerJoin(products, eq(productVariants.productId, products.id))
+      .where(eq(productVariants.id, variantId))
+      .for('update')
+      .limit(1);
+    if (
+      !selection ||
+      selection.product.status !== 'ACTIVE' ||
+      !isVariantPurchasable({
+        product: selection.product,
+        variant: selection.variant,
+      })
+    ) {
+      throw new Error('Product unavailable.');
+    }
 
-  const addQty = Math.min(quantity, selection.variant.stockOnHand);
+    const [existing] = await tx
+      .select()
+      .from(cartItems)
+      .where(and(eq(cartItems.cartId, cart.id), eq(cartItems.variantId, selection.variant.id)))
+      .for('update')
+      .limit(1);
+    const nextQuantity = (existing?.quantity ?? 0) + quantity;
+    if (nextQuantity > selection.variant.stockOnHand) {
+      throw new Error('Requested quantity is unavailable.');
+    }
 
-  await getDb()
-    .insert(cartItems)
-    .values({
-      id: createId(),
-      cartId: cart.id,
-      productId: selection.product.id,
-      variantId: selection.variant.id,
-      quantity: addQty,
-    })
-    .onConflictDoUpdate({
-      target: [cartItems.cartId, cartItems.variantId],
-      set: {
-        quantity: sql`least(${cartItems.quantity} + ${addQty}, ${selection.variant.stockOnHand})`,
-        updatedAt: new Date(),
-      },
-    });
+    if (existing) {
+      await tx
+        .update(cartItems)
+        .set({ quantity: nextQuantity, updatedAt: new Date() })
+        .where(eq(cartItems.id, existing.id));
+    } else {
+      await tx.insert(cartItems).values({
+        id: createId(),
+        cartId: cart.id,
+        productId: selection.product.id,
+        variantId: selection.variant.id,
+        quantity,
+      });
+    }
+  });
   await revalidateCartPaths();
 }
 
-export async function updateQuantity(
-  itemId: string,
-  quantity: number,
-): Promise<void> {
+export async function updateQuantity(itemId: string, quantity: number): Promise<void> {
   const cart = await getOrCreateCart();
   if (!Number.isInteger(quantity) || quantity < 1) {
-    await removeItem(itemId);
-    return;
+    throw new Error('Invalid quantity.');
   }
-  const [line] = await getDb()
-    .select({ variant: productVariants })
-    .from(cartItems)
-    .innerJoin(productVariants, eq(cartItems.variantId, productVariants.id))
-    .where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id)))
-    .limit(1);
-  if (!line || line.variant.stockOnHand < quantity) {
-    throw new Error("Requested quantity is unavailable.");
-  }
-  await getDb()
-    .update(cartItems)
-    .set({ quantity, updatedAt: new Date() })
-    .where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id)));
+  await withTransaction(async (tx) => {
+    const [line] = await tx
+      .select({
+        item: cartItems,
+        product: products,
+        variant: productVariants,
+      })
+      .from(cartItems)
+      .innerJoin(products, eq(cartItems.productId, products.id))
+      .innerJoin(productVariants, eq(cartItems.variantId, productVariants.id))
+      .where(and(eq(cartItems.id, itemId), eq(cartItems.cartId, cart.id)))
+      .for('update')
+      .limit(1);
+    if (
+      !line ||
+      line.variant.stockOnHand < quantity ||
+      !isVariantPurchasable({ product: line.product, variant: line.variant })
+    ) {
+      throw new Error('Requested quantity is unavailable.');
+    }
+    await tx
+      .update(cartItems)
+      .set({ quantity, updatedAt: new Date() })
+      .where(eq(cartItems.id, line.item.id));
+  });
   await revalidateCartPaths();
 }
 
@@ -205,8 +218,8 @@ export async function removeItem(itemId: string): Promise<void> {
 
 /** Invalidates storefront cart views after durable cart mutations. */
 export async function revalidateCartPaths(): Promise<void> {
-  revalidatePath("/[locale]/cart", "page");
-  revalidatePath("/[locale]/checkout", "page");
+  revalidatePath('/[locale]/cart', 'page');
+  revalidatePath('/[locale]/checkout', 'page');
   // Header cart badge lives in the locale storefront layout Suspense island.
-  revalidatePath("/[locale]", "layout");
+  revalidatePath('/[locale]', 'layout');
 }

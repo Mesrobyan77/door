@@ -1,40 +1,45 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useRouter } from 'next/navigation';
+import { useMemo, useState, useTransition } from 'react';
 
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import {
   ADMIN_INPUT,
   ADMIN_LABEL,
   ADMIN_SECTION_TITLE,
   ADMIN_SELECT,
-} from "@/features/admin/ui/admin-form-classes";
+} from '@/features/admin/ui/admin-form-classes';
 import {
   createPromotionAction,
   updatePromotionAction,
-} from "@/features/promotions/application/upsert-promotion";
-import type {
-  DiscountType,
-  PromotionKind,
-} from "@/features/promotions/domain/promotion-rules";
-import type { UpsertPromotionInput } from "@/features/promotions/schemas/admin-promotions";
+} from '@/features/promotions/application/upsert-promotion';
+import type { DiscountType, PromotionKind } from '@/features/promotions/domain/promotion-rules';
+import type { UpsertPromotionInput } from '@/features/promotions/schemas/admin-promotions';
+import type { Dictionary } from '@/lib/i18n/get-dictionary';
 
 type TargetOptions = {
   products: Array<{ id: string; sku: string | null; title: string }>;
+  variants: Array<{ id: string; sku: string; productTitle: string }>;
   categories: Array<{ id: string; title: string }>;
 };
 
+type PromotionTargetCopy = Pick<
+  Dictionary['product']['variant'],
+  'promotionVariantTarget' | 'promotionTargetHint'
+>;
+
 type PromotionFormProps = {
   locale: string;
-  mode: "create" | "edit";
+  mode: 'create' | 'edit';
   promotionId?: string;
   initialKind: PromotionKind;
   lockKind?: boolean;
   defaults?: Partial<{
     code: string | null;
     productId: string | null;
+    productVariantId: string | null;
     categoryId: string | null;
     discountType: DiscountType;
     discountValue: number;
@@ -49,12 +54,13 @@ type PromotionFormProps = {
     endsAt: Date | null;
   }>;
   targets: TargetOptions;
+  targetCopy: PromotionTargetCopy;
   redirectTo: string;
 };
 
 function toDateInput(value: Date | null | undefined): string {
   if (!value) {
-    return "";
+    return '';
   }
   return value.toISOString().slice(0, 16);
 }
@@ -67,6 +73,7 @@ export function PromotionForm({
   lockKind = false,
   defaults,
   targets,
+  targetCopy,
   redirectTo,
 }: PromotionFormProps) {
   const router = useRouter();
@@ -75,10 +82,10 @@ export function PromotionForm({
   const [isPending, startTransition] = useTransition();
 
   const title = useMemo(() => {
-    if (mode === "edit") {
-      return "Edit promotion";
+    if (mode === 'edit') {
+      return 'Edit promotion';
     }
-    return kind === "COUPON" ? "Create coupon" : "Create automatic discount";
+    return kind === 'COUPON' ? 'Create coupon' : 'Create automatic discount';
   }, [kind, mode]);
 
   return (
@@ -89,39 +96,40 @@ export function PromotionForm({
           event.preventDefault();
           const formData = new FormData(event.currentTarget);
           const payload: UpsertPromotionInput = {
-            kind: String(formData.get("kind") ?? kind) as PromotionKind,
-            code: String(formData.get("code") ?? "") || null,
-            productId: String(formData.get("productId") ?? "") || null,
-            categoryId: String(formData.get("categoryId") ?? "") || null,
-            discountType: String(formData.get("discountType")) as DiscountType,
-            discountValue: Number(formData.get("discountValue")),
-            maxDiscountAmount: String(formData.get("maxDiscountAmount") ?? "")
-              ? Number(formData.get("maxDiscountAmount"))
+            kind: String(formData.get('kind') ?? kind) as PromotionKind,
+            code: String(formData.get('code') ?? '') || null,
+            productId: String(formData.get('productId') ?? '') || null,
+            productVariantId: String(formData.get('productVariantId') ?? '') || null,
+            categoryId: String(formData.get('categoryId') ?? '') || null,
+            discountType: String(formData.get('discountType')) as DiscountType,
+            discountValue: Number(formData.get('discountValue')),
+            maxDiscountAmount: String(formData.get('maxDiscountAmount') ?? '')
+              ? Number(formData.get('maxDiscountAmount'))
               : null,
-            minimumOrderAmount: String(formData.get("minimumOrderAmount") ?? "")
-              ? Number(formData.get("minimumOrderAmount"))
+            minimumOrderAmount: String(formData.get('minimumOrderAmount') ?? '')
+              ? Number(formData.get('minimumOrderAmount'))
               : null,
-            totalUsageLimit: String(formData.get("totalUsageLimit") ?? "")
-              ? Number(formData.get("totalUsageLimit"))
+            totalUsageLimit: String(formData.get('totalUsageLimit') ?? '')
+              ? Number(formData.get('totalUsageLimit'))
               : null,
-            perUserUsageLimit: String(formData.get("perUserUsageLimit") ?? "")
-              ? Number(formData.get("perUserUsageLimit"))
+            perUserUsageLimit: String(formData.get('perUserUsageLimit') ?? '')
+              ? Number(formData.get('perUserUsageLimit'))
               : null,
-            priority: Number(formData.get("priority") ?? 0),
-            allowStacking: formData.get("allowStacking") === "on",
-            isActive: formData.get("isActive") === "on",
-            startsAt: String(formData.get("startsAt") ?? "")
-              ? new Date(String(formData.get("startsAt")))
+            priority: Number(formData.get('priority') ?? 0),
+            allowStacking: formData.get('allowStacking') === 'on',
+            isActive: formData.get('isActive') === 'on',
+            startsAt: String(formData.get('startsAt') ?? '')
+              ? new Date(String(formData.get('startsAt')))
               : null,
-            endsAt: String(formData.get("endsAt") ?? "")
-              ? new Date(String(formData.get("endsAt")))
+            endsAt: String(formData.get('endsAt') ?? '')
+              ? new Date(String(formData.get('endsAt')))
               : null,
           };
 
           startTransition(async () => {
             setError(null);
             const result =
-              mode === "edit" && promotionId
+              mode === 'edit' && promotionId
                 ? await updatePromotionAction(locale, promotionId, payload)
                 : await createPromotionAction(locale, payload);
 
@@ -151,13 +159,13 @@ export function PromotionForm({
           </select>
         </label>
 
-        {kind === "COUPON" ? (
+        {kind === 'COUPON' ? (
           <label>
             <span className={ADMIN_LABEL}>Code</span>
             <input
               name="code"
               required
-              defaultValue={defaults?.code ?? ""}
+              defaultValue={defaults?.code ?? ''}
               className={`${ADMIN_INPUT} uppercase`}
               placeholder="WELCOME10"
               disabled={isPending}
@@ -170,15 +178,29 @@ export function PromotionForm({
               <select
                 name="productId"
                 className={ADMIN_SELECT}
-                defaultValue={defaults?.productId ?? ""}
+                defaultValue={defaults?.productId ?? ''}
                 disabled={isPending}
               >
                 <option value="">— none —</option>
                 {targets.products.map((product) => (
                   <option key={product.id} value={product.id}>
-                    {product.sku
-                      ? `${product.sku} · ${product.title}`
-                      : product.title}
+                    {product.sku ? `${product.sku} · ${product.title}` : product.title}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span className={ADMIN_LABEL}>{targetCopy.promotionVariantTarget}</span>
+              <select
+                name="productVariantId"
+                className={ADMIN_SELECT}
+                defaultValue={defaults?.productVariantId ?? ''}
+                disabled={isPending}
+              >
+                <option value="">— none —</option>
+                {targets.variants.map((variant) => (
+                  <option key={variant.id} value={variant.id}>
+                    {variant.productTitle} · {variant.sku}
                   </option>
                 ))}
               </select>
@@ -188,7 +210,7 @@ export function PromotionForm({
               <select
                 name="categoryId"
                 className={ADMIN_SELECT}
-                defaultValue={defaults?.categoryId ?? ""}
+                defaultValue={defaults?.categoryId ?? ''}
                 disabled={isPending}
               >
                 <option value="">— none —</option>
@@ -199,9 +221,7 @@ export function PromotionForm({
                 ))}
               </select>
             </label>
-            <p className="text-xs text-gray-500">
-              Choose exactly one target: product or category.
-            </p>
+            <p className="text-xs text-gray-500">{targetCopy.promotionTargetHint}</p>
           </>
         )}
 
@@ -211,7 +231,7 @@ export function PromotionForm({
             <select
               name="discountType"
               className={ADMIN_SELECT}
-              defaultValue={defaults?.discountType ?? "PERCENTAGE"}
+              defaultValue={defaults?.discountType ?? 'PERCENTAGE'}
               disabled={isPending}
             >
               <option value="PERCENTAGE">PERCENTAGE</option>
@@ -239,7 +259,7 @@ export function PromotionForm({
               name="maxDiscountAmount"
               type="number"
               min={1}
-              defaultValue={defaults?.maxDiscountAmount ?? ""}
+              defaultValue={defaults?.maxDiscountAmount ?? ''}
               className={ADMIN_INPUT}
               disabled={isPending}
             />
@@ -250,7 +270,7 @@ export function PromotionForm({
               name="minimumOrderAmount"
               type="number"
               min={0}
-              defaultValue={defaults?.minimumOrderAmount ?? ""}
+              defaultValue={defaults?.minimumOrderAmount ?? ''}
               className={ADMIN_INPUT}
               disabled={isPending}
             />
@@ -264,7 +284,7 @@ export function PromotionForm({
               name="totalUsageLimit"
               type="number"
               min={1}
-              defaultValue={defaults?.totalUsageLimit ?? ""}
+              defaultValue={defaults?.totalUsageLimit ?? ''}
               className={ADMIN_INPUT}
               disabled={isPending}
             />
@@ -275,7 +295,7 @@ export function PromotionForm({
               name="perUserUsageLimit"
               type="number"
               min={1}
-              defaultValue={defaults?.perUserUsageLimit ?? ""}
+              defaultValue={defaults?.perUserUsageLimit ?? ''}
               className={ADMIN_INPUT}
               disabled={isPending}
             />
@@ -340,7 +360,7 @@ export function PromotionForm({
 
         {error ? <p className="text-sm text-red-700">{error}</p> : null}
         <Button type="submit" disabled={isPending}>
-          {isPending ? "Saving…" : mode === "edit" ? "Save changes" : "Create"}
+          {isPending ? 'Saving…' : mode === 'edit' ? 'Save changes' : 'Create'}
         </Button>
       </form>
     </Card>

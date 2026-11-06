@@ -1,24 +1,20 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import {
-  ADMIN_PAGE_SUBTITLE,
-  ADMIN_PAGE_TITLE,
-} from "@/features/admin/ui/admin-form-classes";
+import { ADMIN_PAGE_SUBTITLE, ADMIN_PAGE_TITLE } from '@/features/admin/ui/admin-form-classes';
 import {
   getAdminPromotionById,
   listPromotionTargetOptions,
-} from "@/features/promotions/application/queries";
-import { PromotionForm } from "@/features/promotions/ui/PromotionForm";
-import { isLocale } from "@/lib/i18n/config";
+} from '@/features/promotions/application/queries';
+import { PromotionForm } from '@/features/promotions/ui/PromotionForm';
+import { isLocale } from '@/lib/i18n/config';
+import { getDictionary } from '@/lib/i18n/get-dictionary';
 
 type AdminCouponDetailPageProps = {
   params: Promise<{ locale: string; id: string }>;
 };
 
-export default async function AdminCouponDetailPage({
-  params,
-}: AdminCouponDetailPageProps) {
+export default async function AdminCouponDetailPage({ params }: AdminCouponDetailPageProps) {
   const { locale, id } = await params;
   if (!isLocale(locale)) {
     notFound();
@@ -29,7 +25,7 @@ export default async function AdminCouponDetailPage({
     listPromotionTargetOptions(),
   ]);
 
-  if (!promo || promo.kind !== "COUPON") {
+  if (!promo || promo.kind !== 'COUPON') {
     notFound();
   }
 
@@ -45,9 +41,7 @@ export default async function AdminCouponDetailPage({
           </Link>
         </p>
         <h1 className={ADMIN_PAGE_TITLE}>{promo.code}</h1>
-        <p className={`mt-1 ${ADMIN_PAGE_SUBTITLE}`}>
-          Used {promo.usedCount} times
-        </p>
+        <p className={`mt-1 ${ADMIN_PAGE_SUBTITLE}`}>Used {promo.usedCount} times</p>
       </div>
 
       <PromotionForm
@@ -57,10 +51,12 @@ export default async function AdminCouponDetailPage({
         initialKind="COUPON"
         lockKind
         targets={targets}
+        targetCopy={getDictionary(locale).product.variant}
         redirectTo={`/${locale}/admin/coupons`}
         defaults={{
           code: promo.code,
           productId: promo.productId,
+          productVariantId: promo.productVariantId,
           categoryId: promo.categoryId,
           discountType: promo.discountType,
           discountValue: promo.discountValue,

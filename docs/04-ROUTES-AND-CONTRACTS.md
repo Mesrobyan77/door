@@ -2,7 +2,7 @@
 
 **Կարգավիճակ.** Draft
 **Տարբերակ.** 1.0
-**Վերջին թարմացում.** 2026-07-17
+**Վերջին թարմացում.** 2026-11-06
 
 ## 1. Contract principles
 
@@ -14,34 +14,34 @@
 
 ## 2. Public route inventory
 
-| Route | Access | Rendering/behavior |
-|---|---|---|
-| `/` | Public | Redirect to detected/saved locale կամ `/hy` |
-| `/[locale]` | Public | Home, cached/tagged RSC |
-| `/[locale]/products` | Public | URL-filtered catalog, server pagination |
-| `/[locale]/products/[slug]` | Public | Product detail; locale slug lookup; 404 unpublished/missing |
-| `/[locale]/about` | Public | Locale content |
-| `/[locale]/contact` | Public | Contact form + rate limit |
-| `/[locale]/blog` | Public | Published posts, pagination |
-| `/[locale]/blog/[slug]` | Public | Published locale post |
-| `/[locale]/policies/terms` | Public | Versioned approved content |
-| `/[locale]/policies/privacy` | Public | Versioned approved content |
-| `/[locale]/policies/shipping` | Public | Approved content |
-| `/[locale]/policies/returns` | Public | Return/refund content |
-| `/[locale]/policies/cookies` | Public | Cookie content |
-| `/[locale]/cart` | Public | Guest/customer scoped dynamic page |
-| `/[locale]/checkout` | Public | Guest/customer dynamic checkout |
-| `/[locale]/checkout/success/[orderNumber]` | Owner only | Retry-safe confirmation |
+| Route                                      | Access     | Rendering/behavior                                          |
+| ------------------------------------------ | ---------- | ----------------------------------------------------------- |
+| `/`                                        | Public     | Redirect to detected/saved locale կամ `/hy`                 |
+| `/[locale]`                                | Public     | Home, cached/tagged RSC                                     |
+| `/[locale]/products`                       | Public     | URL-filtered catalog, server pagination                     |
+| `/[locale]/products/[slug]`                | Public     | Product detail; locale slug lookup; 404 unpublished/missing |
+| `/[locale]/about`                          | Public     | Locale content                                              |
+| `/[locale]/contact`                        | Public     | Contact form + rate limit                                   |
+| `/[locale]/blog`                           | Public     | Published posts, pagination                                 |
+| `/[locale]/blog/[slug]`                    | Public     | Published locale post                                       |
+| `/[locale]/policies/terms`                 | Public     | Versioned approved content                                  |
+| `/[locale]/policies/privacy`               | Public     | Versioned approved content                                  |
+| `/[locale]/policies/shipping`              | Public     | Approved content                                            |
+| `/[locale]/policies/returns`               | Public     | Return/refund content                                       |
+| `/[locale]/policies/cookies`               | Public     | Cookie content                                              |
+| `/[locale]/cart`                           | Public     | Guest/customer scoped dynamic page                          |
+| `/[locale]/checkout`                       | Public     | Guest/customer dynamic checkout                             |
+| `/[locale]/checkout/success/[orderNumber]` | Owner only | Retry-safe confirmation                                     |
 
 ## 3. Authentication routes
 
-| Route | Access | Notes |
-|---|---|---|
-| `/[locale]/login` | Guest | Authenticated user redirects safely |
-| `/[locale]/register` | Guest | Terms version captured |
-| `/[locale]/forgot-password` | Guest | Generic response |
-| `/[locale]/reset-password` | Token holder | Token query is never logged/rendered into analytics |
-| `/[locale]/verify-email` | Token holder | Single-use result state |
+| Route                       | Access       | Notes                                               |
+| --------------------------- | ------------ | --------------------------------------------------- |
+| `/[locale]/login`           | Guest        | Authenticated user redirects safely                 |
+| `/[locale]/register`        | Guest        | Terms version captured                              |
+| `/[locale]/forgot-password` | Guest        | Generic response                                    |
+| `/[locale]/reset-password`  | Token holder | Token query is never logged/rendered into analytics |
+| `/[locale]/verify-email`    | Token holder | Single-use result state                             |
 
 `callbackUrl`/return-to value-ը միայն same-origin allowlisted path է. open redirect չի թույլատրվում։
 
@@ -49,49 +49,49 @@
 
 Բոլոր routes-ը պահանջում են active authenticated Customer/Admin և ownership-scoped data։
 
-| Route | Content |
-|---|---|
-| `/[locale]/profile` | Dashboard metrics/recent orders |
-| `/[locale]/profile/orders` | Paginated orders |
+| Route                                    | Content                                                              |
+| ---------------------------------------- | -------------------------------------------------------------------- |
+| `/[locale]/profile`                      | Dashboard metrics/recent orders                                      |
+| `/[locale]/profile/orders`               | Paginated orders                                                     |
 | `/[locale]/profile/orders/[orderNumber]` | Optional deep-link detail; drawer կարող է intercept route օգտագործել |
-| `/[locale]/profile/personal-information` | Profile edit |
-| `/[locale]/profile/addresses` | Address CRUD |
-| `/[locale]/profile/change-password` | Re-authenticated password change |
-| `/[locale]/profile/delete-account` | Re-authenticated anonymization request |
+| `/[locale]/profile/personal-information` | Profile edit                                                         |
+| `/[locale]/profile/addresses`            | Address CRUD                                                         |
+| `/[locale]/profile/change-password`      | Re-authenticated password change                                     |
+| `/[locale]/profile/delete-account`       | Re-authenticated anonymization request                               |
 
 ## 5. Admin routes
 
 Բոլոր admin routes-ը server-side պահանջում են `role=ADMIN` և `status=ACTIVE`։
 
-| Route | Capability |
-|---|---|
-| `/[locale]/admin` | Dashboard |
-| `/[locale]/admin/hero` | Hero slide management |
-| `/[locale]/admin/orders` | Order list/bulk actions |
-| `/[locale]/admin/orders/[orderNumber]` | Detail/deep-link drawer |
-| `/[locale]/admin/products` | Product list/create/edit drawer routes |
-| `/[locale]/admin/products/[id]` | Product editor/deep link |
-| `/[locale]/admin/categories` | Category hierarchy CRUD |
-| `/[locale]/admin/coupons` | Coupon CRUD |
-| `/[locale]/admin/discounts` | Category/product discount management |
-| `/[locale]/admin/users` | User/role/status management |
-| `/[locale]/admin/messages` | Contact inbox |
-| `/[locale]/admin/analytics` | Metrics + CSV export |
-| `/[locale]/admin/delivery` | Delivery rules |
-| `/[locale]/admin/blog` | Blog CMS |
-| `/[locale]/admin/settings` | Typed store settings |
+| Route                                  | Capability                                                                                                              |
+| -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `/[locale]/admin`                      | Dashboard                                                                                                               |
+| `/[locale]/admin/hero`                 | Hero slide management                                                                                                   |
+| `/[locale]/admin/orders`               | Order list/bulk actions                                                                                                 |
+| `/[locale]/admin/orders/[orderNumber]` | Detail/deep-link drawer                                                                                                 |
+| `/[locale]/admin/products`             | Product list/create/edit; variant-specific media is assigned through the existing authenticated upload/persist workflow |
+| `/[locale]/admin/products/[id]`        | Product editor/deep link                                                                                                |
+| `/[locale]/admin/categories`           | Category hierarchy CRUD                                                                                                 |
+| `/[locale]/admin/coupons`              | Coupon CRUD                                                                                                             |
+| `/[locale]/admin/discounts`            | Category/product discount management                                                                                    |
+| `/[locale]/admin/users`                | User/role/status management                                                                                             |
+| `/[locale]/admin/messages`             | Contact inbox                                                                                                           |
+| `/[locale]/admin/analytics`            | Metrics + CSV export                                                                                                    |
+| `/[locale]/admin/delivery`             | Delivery rules                                                                                                          |
+| `/[locale]/admin/blog`                 | Blog CMS                                                                                                                |
+| `/[locale]/admin/settings`             | Typed store settings                                                                                                    |
 
 ## 6. Non-page HTTP endpoints
 
-| Endpoint family | Method | Purpose/security |
-|---|---|---|
-| `/api/auth/[...nextauth]` | Auth.js-defined | Auth callbacks/session; Auth.js contract |
-| `/api/admin/media/upload` | POST | Admin-only same-origin image upload; returns secure URL, public ID, dimensions and pending media ID |
-| `/api/admin/media/upload` | DELETE | Removes an unclaimed pending upload from Cloudinary and the media table |
-| `/api/webhooks/payments/[provider]` | POST | Signature verification, raw body requirements, provider-event idempotency |
-| `/api/exports/admin/analytics` | GET/POST | Admin-only, bounded date range, CSV injection protection |
-| `/sitemap.xml` | GET | Locale-aware generated sitemap |
-| `/robots.txt` | GET | Environment-aware crawler policy |
+| Endpoint family                     | Method          | Purpose/security                                                                                    |
+| ----------------------------------- | --------------- | --------------------------------------------------------------------------------------------------- |
+| `/api/auth/[...nextauth]`           | Auth.js-defined | Auth callbacks/session; Auth.js contract                                                            |
+| `/api/admin/media/upload`           | POST            | Admin-only same-origin image upload; returns secure URL, public ID, dimensions and pending media ID |
+| `/api/admin/media/upload`           | DELETE          | Removes an unclaimed pending upload from Cloudinary and the media table                             |
+| `/api/webhooks/payments/[provider]` | POST            | Signature verification, raw body requirements, provider-event idempotency                           |
+| `/api/exports/admin/analytics`      | GET/POST        | Admin-only, bounded date range, CSV injection protection                                            |
+| `/sitemap.xml`                      | GET             | Locale-aware generated sitemap                                                                      |
+| `/robots.txt`                       | GET             | Environment-aware crawler policy                                                                    |
 
 Նոր public HTTP endpoint ավելացնելիս պետք է փաստաթղթավորել auth, validation schema, rate limit, idempotency, cache policy և audit behavior։
 
@@ -99,20 +99,22 @@
 
 ### Product catalog
 
-| Param | Type/default | Validation |
-|---|---|---|
-| `q` | trimmed string | max length, normalized whitespace |
-| `minPrice` | integer display/base policy | non-negative; conversion filtering policy must be deterministic |
-| `maxPrice` | integer | `>= minPrice` |
-| `category` | locale slug or repeated slugs | active category only |
-| `inStock` | boolean | `true`/`false` allowlist |
-| `sort` | enum | `newest`, `price_asc`, `price_desc`, `popular` |
-| `page` | positive integer, default 1 | bounded |
-| `pageSize` | allowlist, proposed 12/24/48 | max protected |
+| Param      | Type/default                  | Validation                                                      |
+| ---------- | ----------------------------- | --------------------------------------------------------------- |
+| `q`        | trimmed string                | max length, normalized whitespace                               |
+| `minPrice` | integer display/base policy   | non-negative; conversion filtering policy must be deterministic |
+| `maxPrice` | integer                       | `>= minPrice`                                                   |
+| `category` | locale slug or repeated slugs | active category only                                            |
+| `inStock`  | boolean                       | `true`/`false` allowlist                                        |
+| `sort`     | enum                          | `newest`, `price_asc`, `price_desc`, `popular`                  |
+| `page`     | positive integer, default 1   | bounded                                                         |
+| `pageSize` | allowlist, proposed 12/24/48  | max protected                                                   |
 
 Price filter-ի canonical semantics-ը պետք է product owner-ը հաստատի multi-currency UI-ի համար։ Առաջարկ՝ URL amounts-ը selected display currency-ով ընդունել, server-side deterministic կերպով base AMD range-ի փոխարկել նույն effective rate-ով և UI-ում նշել currency-ն։ Alternative՝ միշտ AMD params։
 
 Door configuration-ի ընտրությունը կատարվում է product detail route-ում՝ variant ID-ով։ Cart mutation-ը ընդունում է variant ID, ոչ parent product ID; card quick-add-ը variant ընտրություն չի գուշակում։ Checkout-ը locked variant-ից վերահաշվում է price/stock-ը և պահում է product/model + variant snapshots-ը order item-ում։
+
+Variant gallery uploads-ը նոր endpoint չեն ավելացնում․ Admin-ը օգտագործում է նույն `POST /api/admin/media/upload` հոսքը, ապա product mutation-ի ժամանակ կցում է PENDING asset-ը ճիշտ variant-ին՝ server-side ownership ստուգմամբ։ Variant gallery-ի բացակայության դեպքում storefront-ը product gallery-ից է fallback անում։
 
 ### Admin lists
 
@@ -120,26 +122,26 @@ Shared params՝ `q`, feature-specific filters, `sort`, `page`, `pageSize`, optio
 
 ## 8. Mutation command matrix
 
-| Command | Actor | Transaction/idempotency | Side effects |
-|---|---|---|---|
-| `registerCustomer` | Guest | Email unique; retry-safe response | Verification email/outbox |
-| `login` | Guest | Rate limited | Session, guest cart merge |
-| `updateProfile` | Owner | Optimistic concurrency optional | Email re-verification when changed |
-| `upsertAddress` | Owner | Default flags transaction | Checkout reads refresh |
-| `deleteAccount` | Owner re-auth | Anonymization transaction | Sessions revoke, audit |
-| `addCartItem` | Guest/Customer | Variant ID + unique `(cart_id, variant_id)` upsert; server checks product/configuration/price/stock | Cart summary refresh |
-| `mergeGuestCart` | Customer | Idempotent transaction | Guest token revoke |
-| `applyCouponPreview` | Guest/Customer | Read-only preview | No redemption reservation by default |
-| `placeOrder` | Guest/Customer | Required idempotency + DB transaction | Stock, order, payment init/outbox |
-| `submitReview` | Customer | Eligibility + unique invariant | Moderation queue/admin refresh |
-| `submitContactMessage` | Public | Rate/honeypot; duplicate guard optional | Admin notification |
-| `create/updateProduct` | Admin | Product + sellable variants transaction; validates SKU/configuration uniqueness | Media links, cache invalidation |
-| `adjustStock` | Admin | Variant movement + inventory atomic | Audit, low-stock/cache effects |
-| `changeOrderStatus` | Admin | State transition transaction | History, audit, email/event |
-| `changePaymentStatus` | Admin/provider | Transition + event idempotency | Audit/order refresh |
-| `upsertPromotion` | Admin | Validated transaction | Pricing cache invalidation |
-| `updateUserRole/status` | Admin | Last-admin/suspension invariant | Sessions revoke, audit |
-| `updateStoreSettings` | Admin | Typed setting transaction | Cache/config refresh, audit |
+| Command                 | Actor          | Transaction/idempotency                                                                             | Side effects                         |
+| ----------------------- | -------------- | --------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `registerCustomer`      | Guest          | Email unique; retry-safe response                                                                   | Verification email/outbox            |
+| `login`                 | Guest          | Rate limited                                                                                        | Session, guest cart merge            |
+| `updateProfile`         | Owner          | Optimistic concurrency optional                                                                     | Email re-verification when changed   |
+| `upsertAddress`         | Owner          | Default flags transaction                                                                           | Checkout reads refresh               |
+| `deleteAccount`         | Owner re-auth  | Anonymization transaction                                                                           | Sessions revoke, audit               |
+| `addCartItem`           | Guest/Customer | Variant ID + unique `(cart_id, variant_id)` upsert; server checks product/configuration/price/stock | Cart summary refresh                 |
+| `mergeGuestCart`        | Customer       | Idempotent transaction                                                                              | Guest token revoke                   |
+| `applyCouponPreview`    | Guest/Customer | Read-only preview                                                                                   | No redemption reservation by default |
+| `placeOrder`            | Guest/Customer | Required idempotency + DB transaction                                                               | Stock, order, payment init/outbox    |
+| `submitReview`          | Customer       | Eligibility + unique invariant                                                                      | Moderation queue/admin refresh       |
+| `submitContactMessage`  | Public         | Rate/honeypot; duplicate guard optional                                                             | Admin notification                   |
+| `create/updateProduct`  | Admin          | Product + sellable variants transaction; validates SKU/configuration uniqueness                     | Media links, cache invalidation      |
+| `adjustStock`           | Admin          | Variant movement + inventory atomic                                                                 | Audit, low-stock/cache effects       |
+| `changeOrderStatus`     | Admin          | State transition transaction                                                                        | History, audit, email/event          |
+| `changePaymentStatus`   | Admin/provider | Transition + event idempotency                                                                      | Audit/order refresh                  |
+| `upsertPromotion`       | Admin          | Validated transaction                                                                               | Pricing cache invalidation           |
+| `updateUserRole/status` | Admin          | Last-admin/suspension invariant                                                                     | Sessions revoke, audit               |
+| `updateStoreSettings`   | Admin          | Typed setting transaction                                                                           | Cache/config refresh, audit          |
 
 ## 9. Standard command result
 
@@ -161,51 +163,51 @@ Sensitive auth endpoint-ը կարող է intentionally նույն code/message-�
 
 ## 10. Error code catalog
 
-| Code | HTTP analogue | UI behavior |
-|---|---:|---|
-| `VALIDATION_FAILED` | 400 | Field/global errors |
-| `AUTH_REQUIRED` | 401 | Safe login redirect/reauth |
-| `FORBIDDEN` | 403 | Generic access denied |
-| `NOT_FOUND` | 404 | Locale not-found or inline missing state |
-| `CONFLICT` | 409 | Refresh entity/resolve stale change |
-| `OUT_OF_STOCK` | 409 | Item-level availability recovery |
-| `COUPON_INVALID` | 422 | Generic eligible explanation ըստ policy |
-| `RATE_LIMITED` | 429 | Retry-after, no internal threshold leak |
-| `IDEMPOTENCY_CONFLICT` | 409 | Do not resubmit with changed payload/key |
-| `PROVIDER_UNAVAILABLE` | 503 | Retry/fallback if safe |
-| `INTERNAL_ERROR` | 500 | Correlation ID + safe retry |
+| Code                   | HTTP analogue | UI behavior                              |
+| ---------------------- | ------------: | ---------------------------------------- |
+| `VALIDATION_FAILED`    |           400 | Field/global errors                      |
+| `AUTH_REQUIRED`        |           401 | Safe login redirect/reauth               |
+| `FORBIDDEN`            |           403 | Generic access denied                    |
+| `NOT_FOUND`            |           404 | Locale not-found or inline missing state |
+| `CONFLICT`             |           409 | Refresh entity/resolve stale change      |
+| `OUT_OF_STOCK`         |           409 | Item-level availability recovery         |
+| `COUPON_INVALID`       |           422 | Generic eligible explanation ըստ policy  |
+| `RATE_LIMITED`         |           429 | Retry-after, no internal threshold leak  |
+| `IDEMPOTENCY_CONFLICT` |           409 | Do not resubmit with changed payload/key |
+| `PROVIDER_UNAVAILABLE` |           503 | Retry/fallback if safe                   |
+| `INTERNAL_ERROR`       |           500 | Correlation ID + safe retry              |
 
 Raw database constraint/provider error-ը client չի հասնում։ Expected constraints-ը map են արվում stable codes-ի։
 
 ## 11. Authorization matrix
 
-| Resource/action | Guest | Customer | Admin |
-|---|---:|---:|---:|
-| Public catalog/blog | Read | Read | Read |
-| Guest cart | Own token | Merge/own | Own as shopper only |
-| Wishlist | Optional guest policy | Own | Own as shopper only |
-| Checkout/order create | Own cart | Own cart | Own as shopper only |
-| Customer order read | Confirmation-safe own | Own | Any via admin route |
-| Review create | No | Own verified purchase | As customer only unless separate moderation action |
-| Product/category/hero CRUD | No | No | Yes |
-| Order status/payment admin update | No | No | Yes |
-| User role/status | No | No | Yes, last-admin guard |
-| Settings/analytics/export/audit | No | No | Yes |
+| Resource/action                   |                 Guest |              Customer |                                              Admin |
+| --------------------------------- | --------------------: | --------------------: | -------------------------------------------------: |
+| Public catalog/blog               |                  Read |                  Read |                                               Read |
+| Guest cart                        |             Own token |             Merge/own |                                Own as shopper only |
+| Wishlist                          | Optional guest policy |                   Own |                                Own as shopper only |
+| Checkout/order create             |              Own cart |              Own cart |                                Own as shopper only |
+| Customer order read               | Confirmation-safe own |                   Own |                                Any via admin route |
+| Review create                     |                    No | Own verified purchase | As customer only unless separate moderation action |
+| Product/category/hero CRUD        |                    No |                    No |                                                Yes |
+| Order status/payment admin update |                    No |                    No |                                                Yes |
+| User role/status                  |                    No |                    No |                              Yes, last-admin guard |
+| Settings/analytics/export/audit   |                    No |                    No |                                                Yes |
 
 Permission-ը ստուգվում է resource query-ի հետ միասին կամ command-ի ներսում՝ TOCTOU window-ը նվազեցնելու համար։
 
 ## 12. Cache/revalidation matrix
 
-| Mutation | Next.js tags | Redis keys |
-|---|---|---|
+| Mutation                       | Next.js tags                                            | Redis keys                                    |
+| ------------------------------ | ------------------------------------------------------- | --------------------------------------------- |
 | Product publish/update/archive | product ID/slugs, catalog, featured, category relations | product/catalog/analytics relevant namespaces |
-| Category update | category ID/slugs, catalog, breadcrumbs | category/catalog namespaces |
-| Hero update/reorder | home/hero per locale | hero cache if used |
-| Review moderation | product detail/rating | rating aggregates |
-| Blog publish/update | blog list/post/sitemap | blog cache if used |
-| Promotion/settings update | catalog/product/checkout pricing contexts | promotion/settings namespaces |
-| Order/status update | owner order/profile dashboard/admin orders/analytics | analytics/order summary |
-| Exchange rate refresh | currency display contexts as designed | exchange-rate namespace |
+| Category update                | category ID/slugs, catalog, breadcrumbs                 | category/catalog namespaces                   |
+| Hero update/reorder            | home/hero per locale                                    | hero cache if used                            |
+| Review moderation              | product detail/rating                                   | rating aggregates                             |
+| Blog publish/update            | blog list/post/sitemap                                  | blog cache if used                            |
+| Promotion/settings update      | catalog/product/checkout pricing contexts               | promotion/settings namespaces                 |
+| Order/status update            | owner order/profile dashboard/admin orders/analytics    | analytics/order summary                       |
+| Exchange rate refresh          | currency display contexts as designed                   | exchange-rate namespace                       |
 
 Invalidation-ը հնարավորինս targeted է; broad global revalidation-ը fallback է, ոչ default։
 

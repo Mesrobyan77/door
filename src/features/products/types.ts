@@ -23,8 +23,8 @@ export type CatalogProduct = {
     brandName: string | null;
     modelName: string | null;
     collectionName: string | null;
-    classification: "INTERIOR" | "ENTRANCE" | null;
-    entranceEnvironments: ("APARTMENT" | "OUTDOOR_HOUSE")[] | null;
+    classification: 'INTERIOR' | 'ENTRANCE' | null;
+    entranceEnvironments: ('APARTMENT' | 'OUTDOOR_HOUSE')[] | null;
     structuralMaterial: string | null;
     coreMaterial: string | null;
     surfaceCoating: string | null;
@@ -35,23 +35,21 @@ export type CatalogProduct = {
     openingMechanism: string | null;
     frameSystem: string | null;
     leafConfiguration: string | null;
-    performanceSpecifications:
-      | {
-          thermalBreak?: boolean | null;
-          thermalTransmittance?: { value: number; unit: string } | null;
-          soundReduction?: { value: number; unit: string } | null;
-          fireClassification?: { value: string; standard?: string } | null;
-          securityClassification?: { value: string; standard?: string } | null;
-        }
-      | null;
+    performanceSpecifications: {
+      thermalBreak?: boolean | null;
+      thermalTransmittance?: { value: number; unit: string } | null;
+      soundReduction?: { value: number; unit: string } | null;
+      fireClassification?: { value: string; standard?: string } | null;
+      securityClassification?: { value: string; standard?: string } | null;
+    } | null;
   };
 };
 
 export type ProductVariantOption = {
   id: string;
   sku: string;
-  itemType: "LEGACY" | "LEAF_ONLY" | "FRAMED_UNIT" | "FIXED_PACKAGE";
-  status: "ACTIVE" | "INQUIRY";
+  itemType: 'LEGACY' | 'LEAF_ONLY' | 'FRAMED_UNIT' | 'FIXED_PACKAGE';
+  status: 'ACTIVE' | 'INQUIRY';
   priceAmount: number | null;
   compareAtAmount: number | null;
   discountPercent?: number | null;
@@ -69,20 +67,32 @@ export type ProductVariantOption = {
   finishName: string | null;
   exteriorColorName: string | null;
   exteriorFinishName: string | null;
-  handing: "LEFT" | "RIGHT" | "REVERSIBLE" | "NOT_APPLICABLE" | null;
-  swing: "INWARD" | "OUTWARD" | "NOT_APPLICABLE" | null;
-  includedComponents: import("@/db/schema/variants").IncludedComponent[] | null;
+  handing: 'LEFT' | 'RIGHT' | 'REVERSIBLE' | 'NOT_APPLICABLE' | null;
+  swing: 'INWARD' | 'OUTWARD' | 'NOT_APPLICABLE' | null;
+  includedComponents: import('@/db/schema/variants').IncludedComponent[] | null;
   imageUrl: string | null;
+  images: ProductGalleryImage[];
   purchasable: boolean;
 };
 
 export type ProductVariantDraft = Omit<
   ProductVariantOption,
-  "purchasable" | "imageUrl" | "id" | "status"
+  'purchasable' | 'imageUrl' | 'images' | 'id' | 'status'
 > & {
   id?: string;
-  status: "ACTIVE" | "INQUIRY" | "ARCHIVED";
+  status: 'ACTIVE' | 'INQUIRY' | 'ARCHIVED';
   lowStockThreshold: number;
+  images: ProductDraftImage[];
+  removeImageIds: string[];
+};
+
+export type ProductDraftImage = {
+  key: string;
+  previewUrl: string;
+  isPrimary: boolean;
+  existingId?: string;
+  mediaAssetId?: string;
+  isUploading?: boolean;
 };
 
 export type ProductGalleryImage = {

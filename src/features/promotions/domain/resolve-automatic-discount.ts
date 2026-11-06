@@ -3,7 +3,7 @@
  * Precedence: product rule > best category rule > store global %.
  */
 
-export type AutomaticDiscountSource = "product" | "category" | "global" | null;
+export type AutomaticDiscountSource = 'variant' | 'product' | 'category' | 'global' | null;
 
 export type AutomaticDiscountPick = {
   percent: number | null;
@@ -26,30 +26,33 @@ function normalizePercent(value: number | null | undefined): number | null {
 
 /** Picks the winning automatic percentage for one product. */
 export function pickAutomaticDiscountPercent(input: {
+  variantPercent?: number | null;
   productPercent?: number | null;
   categoryPercents?: ReadonlyArray<number | null | undefined>;
   globalPercent?: number | null;
 }): AutomaticDiscountPick {
+  const variantPercent = normalizePercent(input.variantPercent ?? null);
+  if (variantPercent != null) {
+    return { percent: variantPercent, source: 'variant' };
+  }
+
   const productPercent = normalizePercent(input.productPercent ?? null);
   if (productPercent != null) {
-    return { percent: productPercent, source: "product" };
+    return { percent: productPercent, source: 'product' };
   }
 
   const categoryBest = (input.categoryPercents ?? [])
     .map((value) => normalizePercent(value ?? null))
     .filter((value): value is number => value != null)
-    .reduce<number | null>(
-      (best, value) => (best == null || value > best ? value : best),
-      null,
-    );
+    .reduce<number | null>((best, value) => (best == null || value > best ? value : best), null);
 
   if (categoryBest != null) {
-    return { percent: categoryBest, source: "category" };
+    return { percent: categoryBest, source: 'category' };
   }
 
   const globalPercent = normalizePercent(input.globalPercent ?? null);
   if (globalPercent != null) {
-    return { percent: globalPercent, source: "global" };
+    return { percent: globalPercent, source: 'global' };
   }
 
   return { percent: null, source: null };
@@ -92,6 +95,7 @@ export function applyPercentageToListPrice(
 /** Resolves final catalog unit price from list + automatic discount inputs. */
 export function resolveCatalogPrice(input: {
   listAmount: number;
+  variantPercent?: number | null;
   productPercent?: number | null;
   categoryPercents?: ReadonlyArray<number | null | undefined>;
   globalPercent?: number | null;
@@ -99,22 +103,14 @@ export function resolveCatalogPrice(input: {
   manualCompareAtAmount?: number | null;
 }): ResolvedCatalogPrice {
   const picked = pickAutomaticDiscountPercent(input);
-  const resolved = applyPercentageToListPrice(
-    input.listAmount,
-    picked.percent,
-    picked.source,
-  );
+  const resolved = applyPercentageToListPrice(input.listAmount, picked.percent, picked.source);
 
   if (resolved.discountPercent != null) {
     return resolved;
   }
 
   const manual = input.manualCompareAtAmount;
-  if (
-    manual != null &&
-    Number.isInteger(manual) &&
-    manual > resolved.unitAmount
-  ) {
+  if (manual != null && Number.isInteger(manual) && manual > resolved.unitAmount) {
     return {
       ...resolved,
       compareAtAmount: manual,

@@ -1,13 +1,15 @@
-import "server-only";
+import 'server-only';
 
-import { and, eq } from "drizzle-orm";
+import { and, eq } from 'drizzle-orm';
 
-import { getDb } from "@/db/client";
-import { mediaAssets } from "@/db/schema";
-import type { MediaPurpose } from "@/lib/media/types";
+import { getDb } from '@/db/client';
+import type { DbTransaction } from '@/db/transaction';
+import { mediaAssets } from '@/db/schema';
+import type { MediaPurpose } from '@/lib/media/types';
 
 type MediaOwner = {
   productId?: string;
+  variantId?: string;
   categoryId?: string;
   heroSlideId?: string;
   blogPostId?: string;
@@ -17,11 +19,13 @@ export async function attachPendingCloudinaryUpload(input: {
   mediaAssetId: string;
   purpose: MediaPurpose;
   owner: MediaOwner;
-  role: (typeof mediaAssets.$inferInsert)["role"];
+  role: (typeof mediaAssets.$inferInsert)['role'];
   sortOrder: number;
   isPrimary: boolean;
+  tx?: DbTransaction;
 }): Promise<{ id: string } | null> {
-  const [asset] = await getDb()
+  const db = input.tx ?? getDb();
+  const [asset] = await db
     .update(mediaAssets)
     .set({
       ...input.owner,
@@ -29,17 +33,17 @@ export async function attachPendingCloudinaryUpload(input: {
       sortOrder: input.sortOrder,
       isPrimary: input.isPrimary,
       purpose: null,
-      uploadStatus: "READY",
+      uploadStatus: 'READY',
       updatedAt: new Date(),
     })
     .where(
       and(
         eq(mediaAssets.id, input.mediaAssetId),
-        eq(mediaAssets.uploadStatus, "PENDING"),
+        eq(mediaAssets.uploadStatus, 'PENDING'),
         eq(mediaAssets.purpose, input.purpose),
       ),
     )
-    .returning({ id: mediaAssets.id });
+    .returning();
 
-  return asset ?? null;
+  return asset ? { id: asset.id } : null;
 }

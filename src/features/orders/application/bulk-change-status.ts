@@ -1,31 +1,29 @@
-"use server";
+'use server';
 
-import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { eq } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
 
+import { auditLogs, orderEvents, orderItems, orders } from '@/db/schema';
+import { withTransaction } from '@/db/transaction';
 import {
-  auditLogs,
-  orderEvents,
-  orderItems,
-  orders,
-  productVariants,
-  stockMovements,
-} from "@/db/schema";
-import { withTransaction } from "@/db/transaction";
+  reserveReopenedOrderStock,
+  restoreOrderStock,
+} from '@/features/orders/application/order-stock';
 import {
   canTransitionOrderStatus,
   isOrderStatus,
   shouldRestoreStockOnCancel,
   type OrderStatus,
-} from "@/features/orders/domain/order-status";
+} from '@/features/orders/domain/order-status';
 import {
   bulkChangeOrderStatusSchema,
   type BulkChangeOrderStatusInput,
-} from "@/features/orders/schemas/change-status";
-import { requireAdmin } from "@/lib/auth/policies";
-import { createId } from "@/lib/id";
-import { isLocale, type Locale } from "@/lib/i18n/config";
-import { err, ok, type Result } from "@/lib/result";
+} from '@/features/orders/schemas/change-status';
+import { requireAdmin } from '@/lib/auth/policies';
+import { createId } from '@/lib/id';
+import { isLocale, type Locale } from '@/lib/i18n/config';
+import { logger } from '@/lib/observability/logger';
+import { err, ok, type Result } from '@/lib/result';
 
 /** Bulk-applies an eligible status transition to selected orders. */
 export async function bulkChangeOrderStatusAction(
@@ -33,12 +31,12 @@ export async function bulkChangeOrderStatusAction(
   raw: BulkChangeOrderStatusInput,
 ): Promise<Result<{ updated: number; skipped: number }>> {
   if (!isLocale(locale)) {
-    return err("INVALID_LOCALE", "Invalid locale.");
+    return err('INVALID_LOCALE', 'Invalid locale.');
   }
 
   const parsed = bulkChangeOrderStatusSchema.safeParse(raw);
   if (!parsed.success) {
-    return err("VALIDATION_ERROR", "Invalid bulk payload.");
+    return err('VALIDATION_ERROR', 'Invalid bulk payload.');
   }
 
   const actor = await requireAdmin(locale as Locale);
@@ -52,7 +50,7 @@ export async function bulkChangeOrderStatusAction(
           .select()
           .from(orders)
           .where(eq(orders.orderNumber, orderNumber))
-          .for("update")
+          .for('update')
           .limit(1);
 
         if (!existing || existing.isArchived) {
@@ -74,62 +72,45 @@ export async function bulkChangeOrderStatusAction(
           .set({ status: toStatus, updatedAt: now })
           .where(eq(orders.id, existing.id));
 
-        if (
-          toStatus === "CANCELLED" &&
-          shouldRestoreStockOnCancel(existing.status)
-        ) {
+        const restoresStock =
+          toStatus === 'CANCELLED' && shouldRestoreStockOnCancel(existing.status);
+        const reopensOrder = existing.status === 'CANCELLED' && toStatus !== 'CANCELLED';
+        if (restoresStock || reopensOrder) {
           const items = await tx
             .select()
             .from(orderItems)
             .where(eq(orderItems.orderId, existing.id));
 
-          for (const item of items) {
-            const variantId = item.variantId ?? item.productId;
-            if (!variantId) continue;
-            const [locked] = await tx
-              .select()
-              .from(productVariants)
-              .where(eq(productVariants.id, variantId))
-              .for("update")
-              .limit(1);
-            if (!locked) continue;
-            const nextStock = locked.stockOnHand + item.quantity;
-            await tx
-              .update(productVariants)
-              .set({
-                stockOnHand: nextStock,
-                updatedAt: now,
-              })
-              .where(eq(productVariants.id, locked.id));
-            await tx.insert(stockMovements).values({
-              id: createId(),
-              productId: locked.productId,
-              variantId: locked.id,
-              delta: item.quantity,
-              reason: "CANCEL",
-              orderId: existing.id,
-              resultingBalance: nextStock,
-              correlationId: existing.orderNumber,
-            });
+          if (restoresStock) {
+            await restoreOrderStock(tx, items, existing.id, actor.id, existing.orderNumber, now);
+          } else {
+            await reserveReopenedOrderStock(
+              tx,
+              items,
+              existing.id,
+              actor.id,
+              existing.orderNumber,
+              now,
+            );
           }
         }
 
         await tx.insert(orderEvents).values({
           id: createId(),
           orderId: existing.id,
-          eventType: "STATUS_CHANGE",
+          eventType: 'STATUS_CHANGE',
           fromState: existing.status,
           toState: toStatus,
           actorUserId: actor.id,
           isCustomerVisible: true,
-          payload: { source: "bulk" },
+          payload: { source: 'bulk' },
         });
 
         await tx.insert(auditLogs).values({
           id: createId(),
           actorUserId: actor.id,
-          action: "order.bulk_change_status",
-          targetType: "order",
+          action: 'order.bulk_change_status',
+          targetType: 'order',
           targetId: existing.id,
           beforeDiff: { status: existing.status },
           afterDiff: { status: toStatus },
@@ -144,8 +125,17 @@ export async function bulkChangeOrderStatusAction(
       } else {
         skipped += 1;
       }
-    } catch {
-      skipped += 1;
+    } catch (error) {
+      if (error instanceof Error && error.message === 'INSUFFICIENT_STOCK_TO_REOPEN') {
+        skipped += 1;
+        continue;
+      }
+
+      logger.error('orders.bulk_status_failed', {
+        orderNumber,
+        error: error instanceof Error ? error.message : 'unknown',
+      });
+      return err('ORDER_BULK_STATUS_FAILED', 'Unable to update the selected orders.');
     }
   }
 

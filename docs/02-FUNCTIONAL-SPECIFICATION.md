@@ -2,33 +2,33 @@
 
 **Կարգավիճակ.** Draft baseline
 **Տարբերակ.** 1.0
-**Վերջին թարմացում.** 2026-07-17
+**Վերջին թարմացում.** 2026-11-06
 
 ## 1. Ընդհանուր behavior
 
-| ID | Պահանջ |
-|---|---|
-| GEN-001 | Համակարգը MUST աջակցի Guest, Customer և Admin դերերին՝ server-side authorization-ով։ |
+| ID      | Պահանջ                                                                                                                                                  |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GEN-001 | Համակարգը MUST աջակցի Guest, Customer և Admin դերերին՝ server-side authorization-ով։                                                                    |
 | GEN-002 | Բոլոր create/update/delete գործողությունները MUST ունենալ validation, permission check, pending/disabled state, success feedback և safe error feedback։ |
-| GEN-003 | Բոլոր data surfaces-ը MUST ունենալ loading, empty, error և retry state՝ ըստ context-ի։ |
-| GEN-004 | Internal navigation-ը MUST օգտագործի Next.js `Link`; full page reload չի թույլատրվում սովորական ներքին navigation-ում։ |
-| GEN-005 | UI visible text-ը MUST գալ translation dictionaries-ից կամ locale-specific database content-ից։ |
-| GEN-006 | Production flow-ում MUST չլինեն TODO action-ներ, mock API-ներ, fake counters, hardcoded products կամ չաշխատող forms։ |
-| GEN-007 | Double submit-ը MUST չստեղծի կրկնվող record; critical command-ներն ունեն idempotency/unique guard։ |
-| GEN-008 | Delete գործողությունը MUST պահանջի confirmation; financial/audit data-ն archive/anonymize է արվում։ |
+| GEN-003 | Բոլոր data surfaces-ը MUST ունենալ loading, empty, error և retry state՝ ըստ context-ի։                                                                  |
+| GEN-004 | Internal navigation-ը MUST օգտագործի Next.js `Link`; full page reload չի թույլատրվում սովորական ներքին navigation-ում։                                  |
+| GEN-005 | UI visible text-ը MUST գալ translation dictionaries-ից կամ locale-specific database content-ից։                                                         |
+| GEN-006 | Production flow-ում MUST չլինեն TODO action-ներ, mock API-ներ, fake counters, hardcoded products կամ չաշխատող forms։                                    |
+| GEN-007 | Double submit-ը MUST չստեղծի կրկնվող record; critical command-ներն ունեն idempotency/unique guard։                                                      |
+| GEN-008 | Delete գործողությունը MUST պահանջի confirmation; financial/audit data-ն archive/anonymize է արվում։                                                     |
 
 ## 2. Global storefront layout
 
 ### 2.1 Header
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
+| ID      | Պահանջ / acceptance criteria                                                                                           |
+| ------- | ---------------------------------------------------------------------------------------------------------------------- |
 | NAV-001 | Header-ը ցույց է տալիս Home, Products, About, Contact, Blog, locale, currency, wishlist, cart count և account control։ |
-| NAV-002 | Guest account click-ը տանում է login; Customer menu-ն ունի Profile/Logout; Admin menu-ն՝ Admin/Profile/Logout։ |
-| NAV-003 | Locale switch-ը պահպանում է համարժեք route-ը և թույլատրելի query params-ը; fallback-ը locale home-ն է։ |
-| NAV-004 | Currency switch-ը փոխում է display preference-ը, ոչ base price-ը։ |
-| NAV-005 | Mobile navigation-ը drawer է՝ focus trap, Escape close, focus restore և accessible labels-ով։ |
-| NAV-006 | Cart count-ը authoritative cart item quantity summary է, ոչ client-only fake state։ |
+| NAV-002 | Guest account click-ը տանում է login; Customer menu-ն ունի Profile/Logout; Admin menu-ն՝ Admin/Profile/Logout։         |
+| NAV-003 | Locale switch-ը պահպանում է համարժեք route-ը և թույլատրելի query params-ը; fallback-ը locale home-ն է։                 |
+| NAV-004 | Currency switch-ը փոխում է display preference-ը, ոչ base price-ը։                                                      |
+| NAV-005 | Mobile navigation-ը drawer է՝ focus trap, Escape close, focus restore և accessible labels-ով։                          |
+| NAV-006 | Cart count-ը authoritative cart item quantity summary է, ոչ client-only fake state։                                    |
 
 ### 2.2 Footer և static pages
 
@@ -38,68 +38,69 @@
 
 ## 3. Home page
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
-| HOME-001 | `/{locale}` page-ը պարունակում է Header, Hero, Featured Products, short About, CTA և Footer։ |
-| HOME-002 | Hero query-ն վերադարձնում է միայն active slide-երը sort order-ով և locale translation-ով։ |
+| ID       | Պահանջ / acceptance criteria                                                                       |
+| -------- | -------------------------------------------------------------------------------------------------- |
+| HOME-001 | `/{locale}` page-ը պարունակում է Header, Hero, Featured Products, short About, CTA և Footer։       |
+| HOME-002 | Hero query-ն վերադարձնում է միայն active slide-երը sort order-ով և locale translation-ով։          |
 | HOME-003 | Slide-ը ունի desktop/mobile media; responsive `<picture>`/image behavior-ը ճիշտ asset-ն է ընտրում։ |
-| HOME-004 | Hero action URL-ը validation է անցնում; internal URL-ը render է լինում `Link`-ով։ |
-| HOME-005 | Featured list-ը միայն active/published, sellable products է և չի արտահոսում draft data։ |
+| HOME-004 | Hero action URL-ը validation է անցնում; internal URL-ը render է լինում `Link`-ով։                  |
+| HOME-005 | Featured list-ը միայն active/published, sellable products է և չի արտահոսում draft data։            |
 
 ## 4. Product catalog
 
 ### 4.1 Product list `/{locale}/products`
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
-| CAT-001 | Search, min/max price, category, in-stock, sort (`newest`, `price_asc`, `price_desc`, `popular`) և page size-ը URL params-ում են։ |
-| CAT-002 | Params-ը server-side parse/normalize են արվում; invalid values-ը safe default կամ validation response են տալիս։ |
-| CAT-003 | Filters-ը share/refresh-ից հետո պահպանվում են; Clear Filters-ը հեռացնում է միայն catalog filter params-ը։ |
-| CAT-004 | Active filter chips-ը յուրաքանչյուր filter-ի removal control ունեն։ |
-| CAT-005 | Pagination-ը server-side է, stable sort/tie-breaker-ով; page size-ը allowlist-ից է։ |
-| CAT-006 | Grid-ը wide desktop-ում 4, laptop-ում 3, mobile-ում 2 readable card է, առանց horizontal overflow-ի։ |
-| CAT-007 | Product card-ը ցույց է տալիս media, badge, title, category, price, compare-at, computed discount %, wishlist և stock state։ |
-| CAT-008 | Transparent PNG/WebP asset-ի container-ը theme-aware/transparent է և պարտադիր սպիտակ background չի ավելացնում։ |
-| CAT-009 | Card click-ը տանում է `/{locale}/products/{slug}`; wishlist interaction-ը չի trigger անում card navigation-ը։ |
-| CAT-010 | Unpublished/archived product-ը public catalog-ում չի ցուցադրվում։ |
+| ID      | Պահանջ / acceptance criteria                                                                                                                                                             |
+| ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| CAT-001 | Search, min/max price, category, in-stock, sort (`newest`, `price_asc`, `price_desc`, `popular`) և page size-ը URL params-ում են։                                                        |
+| CAT-002 | Params-ը server-side parse/normalize են արվում; invalid values-ը safe default կամ validation response են տալիս։                                                                          |
+| CAT-003 | Filters-ը share/refresh-ից հետո պահպանվում են; Clear Filters-ը հեռացնում է միայն catalog filter params-ը։                                                                                |
+| CAT-004 | Active filter chips-ը յուրաքանչյուր filter-ի removal control ունեն։                                                                                                                      |
+| CAT-005 | Pagination-ը server-side է, stable sort/tie-breaker-ով; page size-ը allowlist-ից է։                                                                                                      |
+| CAT-006 | Grid-ը wide desktop-ում 4, laptop-ում 3, mobile-ում 2 readable card է, առանց horizontal overflow-ի։                                                                                      |
+| CAT-007 | Product card-ը ցույց է տալիս media, badge, title, category, price, compare-at, computed discount %, wishlist և stock state։                                                              |
+| CAT-008 | Transparent PNG/WebP asset-ի container-ը theme-aware/transparent է և պարտադիր սպիտակ background չի ավելացնում։                                                                           |
+| CAT-009 | Card click-ը տանում է `/{locale}/products/{slug}`; wishlist interaction-ը չի trigger անում card navigation-ը։                                                                            |
+| CAT-010 | Unpublished/archived product-ը public catalog-ում չի ցուցադրվում։                                                                                                                        |
 | CAT-011 | Catalog price/availability-ը derive է արվում sellable variants-ից; card quick-add-ը variant ընտրություն չի գուշակում և հասանելի է միայն մեկ purchasable variant ունեցող product-ի համար։ |
+| CAT-012 | Price և availability filter-ները պետք է բավարարի նույն sellable variant-ը, ոչ թե տարբեր SKU-ների արժեքները համադրելով ցուցադրի product-ը։                                                |
 
 ### 4.2 Product detail
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
-| PDP-001 | Gallery-ն ունի primary image, sorted thumbnails, responsive sizing և accessible selection; optional lightbox progressive enhancement է։ |
-| PDP-002 | Detail-ը ցույց է տալիս translated title/description, categories, price, compare-at, discount badge, SKU և stock status։ |
-| PDP-003 | Quantity control-ը min 1 է և չի անցնում server-confirmed purchasable stock-ը։ |
-| PDP-004 | Add to Cart-ը server-side վերահաստատում է product status/stock/price և վերադարձնում է actionable conflict error։ |
-| PDP-005 | Related products-ը նույն category-ից active products են, current product-ը բացառված է։ |
-| PDP-006 | Metadata/JSON-LD-ը համապատասխանում է locale-specific canonical product data-ին։ |
+| ID      | Պահանջ / acceptance criteria                                                                                                                                                                                                                       |
+| ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| PDP-001 | Gallery-ն ունի primary image, sorted thumbnails, responsive sizing և accessible selection; optional lightbox progressive enhancement է։                                                                                                            |
+| PDP-002 | Detail-ը ցույց է տալիս translated title/description, categories, price, compare-at, discount badge, SKU և stock status։                                                                                                                            |
+| PDP-003 | Quantity control-ը min 1 է և չի անցնում server-confirmed purchasable stock-ը։                                                                                                                                                                      |
+| PDP-004 | Add to Cart-ը server-side վերահաստատում է product status/stock/price և վերադարձնում է actionable conflict error։                                                                                                                                   |
+| PDP-005 | Related products-ը նույն category-ից active products են, current product-ը բացառված է։                                                                                                                                                             |
+| PDP-006 | Metadata/JSON-LD-ը համապատասխանում է locale-specific canonical product data-ին։                                                                                                                                                                    |
 | PDP-007 | Multiple configurations ունեցող product-ը պահանջում է explicit variant selection; selected SKU, AMD/display price, availability, measurements (mm), appearance, handing/swing and included components-ը համապատասխանում են հենց ընտրած variant-ին։ |
-| PDP-008 | Inquiry/no-confirmed-price configurations-ը գին չեն հորինում և checkout/cart purchase-ը չեն թույլատրում։ |
+| PDP-008 | Inquiry/no-confirmed-price configurations-ը գին չեն հորինում և checkout/cart purchase-ը չեն թույլատրում։                                                                                                                                           |
 
 ### 4.3 Reviews
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
-| REV-001 | Review section-ը ցույց է տալիս approved reviews, average և 1–5 distribution։ |
+| ID      | Պահանջ / acceptance criteria                                                                                             |
+| ------- | ------------------------------------------------------------------------------------------------------------------------ |
+| REV-001 | Review section-ը ցույց է տալիս approved reviews, average և 1–5 distribution։                                             |
 | REV-002 | Review submit կարող է անել login եղած Customer-ը, ով ունի eligible delivered/completed order item տվյալ product-ի համար։ |
-| REV-003 | Rating-ը integer 1–5 է, comment-ը length/sanitization rules ունի։ |
-| REV-004 | User/product զույգի համար կա առավելագույնը մեկ review (կամ approved alternate key policy ADR-ով)։ |
-| REV-005 | Նոր review-ը pending moderation է; Admin-ը approve/reject է անում audit trail-ով։ |
+| REV-003 | Rating-ը integer 1–5 է, comment-ը length/sanitization rules ունի։                                                        |
+| REV-004 | User/product զույգի համար կա առավելագույնը մեկ review (կամ approved alternate key policy ADR-ով)։                        |
+| REV-005 | Նոր review-ը pending moderation է; Admin-ը approve/reject է անում audit trail-ով։                                        |
 
 ## 5. Authentication
 
 ### 5.1 Registration/login
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
-| AUTH-001 | Login-ն ունի email, password, visibility toggle, forgot password, submit և register link։ |
-| AUTH-002 | Register-ն ունի first/last name, email, phone, password/confirm և required terms acceptance։ |
+| ID       | Պահանջ / acceptance criteria                                                                                       |
+| -------- | ------------------------------------------------------------------------------------------------------------------ |
+| AUTH-001 | Login-ն ունի email, password, visibility toggle, forgot password, submit և register link։                          |
+| AUTH-002 | Register-ն ունի first/last name, email, phone, password/confirm և required terms acceptance։                       |
 | AUTH-003 | Password-ը min 8 նիշ է և ունի uppercase, lowercase, digit, special character; server validation-ը authoritative է։ |
-| AUTH-004 | Email-ը normalized և case-insensitive unique է; duplicate/login errors-ը account enumeration չի բացահայտում։ |
-| AUTH-005 | Successful registration-ը ստեղծում է Customer account և single-use expiring email verification token։ |
-| AUTH-006 | Suspended/unverified account behavior-ը policy-ով սահմանված և generic/safe է։ |
-| AUTH-007 | Login/registration/reset/verification endpoints-ը rate limited են։ |
+| AUTH-004 | Email-ը normalized և case-insensitive unique է; duplicate/login errors-ը account enumeration չի բացահայտում։       |
+| AUTH-005 | Successful registration-ը ստեղծում է Customer account և single-use expiring email verification token։              |
+| AUTH-006 | Suspended/unverified account behavior-ը policy-ով սահմանված և generic/safe է։                                      |
+| AUTH-007 | Login/registration/reset/verification endpoints-ը rate limited են։                                                 |
 
 ### 5.2 Password recovery/session/logout
 
@@ -111,14 +112,14 @@
 
 ## 6. Cart
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
-| CART-001 | Guest cart-ը կապված է opaque cookie/session token-ի հետ և durable է PostgreSQL-ում։ |
-| CART-002 | Authenticated Customer cart-ը PostgreSQL-ում է; Redis-ը optional accelerator է։ |
-| CART-003 | Login-ի պահին guest և customer carts-ը idempotent transaction-ով merge են լինում։ |
+| ID       | Պահանջ / acceptance criteria                                                                                  |
+| -------- | ------------------------------------------------------------------------------------------------------------- |
+| CART-001 | Guest cart-ը կապված է opaque cookie/session token-ի հետ և durable է PostgreSQL-ում։                           |
+| CART-002 | Authenticated Customer cart-ը PostgreSQL-ում է; Redis-ը optional accelerator է։                               |
+| CART-003 | Login-ի պահին guest և customer carts-ը idempotent transaction-ով merge են լինում։                             |
 | CART-004 | Add/update/remove operations-ը validate են անում product sellability/quantity և վերադարձնում updated summary։ |
-| CART-005 | Cart display price-ը informative է; checkout-ը բոլոր գումարները նորից հաշվում է։ |
-| CART-006 | Quantity conflict/removed product/out-of-stock item-ը պարզ ցուցադրվում է և ունի recovery action։ |
+| CART-005 | Cart display price-ը informative է; checkout-ը բոլոր գումարները նորից հաշվում է։                              |
+| CART-006 | Quantity conflict/removed product/out-of-stock item-ը պարզ ցուցադրվում է և ունի recovery action։              |
 
 ## 7. Checkout և order placement
 
@@ -134,18 +135,18 @@
 
 ### 7.2 Acceptance criteria
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
-| CHK-001 | Profile contact/address defaults-ը prefill են լինում, բայց order-ը պահում է անկախ snapshot։ |
-| CHK-002 | Delivery-ը հաշվարկվում է ամենասպեցիֆիկ active rule-ով՝ City > Region > Country, ապա priority/tie-break policy-ով։ |
-| CHK-003 | Coupon eligibility/value/limits/dates/user scope-ը միայն server-side authoritative հաշվարկով է։ |
-| CHK-004 | Place Order-ը պահանջում է idempotency key և նույն key-ի retry-ն նույն արդյունքն է վերադարձնում։ |
-| CHK-005 | Transaction-ը re-check է անում stock, prices, discounts, coupon, delivery և tax; client totals-ը անտեսվում են։ |
+| ID      | Պահանջ / acceptance criteria                                                                                                   |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| CHK-001 | Profile contact/address defaults-ը prefill են լինում, բայց order-ը պահում է անկախ snapshot։                                    |
+| CHK-002 | Delivery-ը հաշվարկվում է ամենասպեցիֆիկ active rule-ով՝ City > Region > Country, ապա priority/tie-break policy-ով։              |
+| CHK-003 | Coupon eligibility/value/limits/dates/user scope-ը միայն server-side authoritative հաշվարկով է։                                |
+| CHK-004 | Place Order-ը պահանջում է idempotency key և նույն key-ի retry-ն նույն արդյունքն է վերադարձնում։                                |
+| CHK-005 | Transaction-ը re-check է անում stock, prices, discounts, coupon, delivery և tax; client totals-ը անտեսվում են։                 |
 | CHK-006 | Transaction-ը ստեղծում է order, item/address/money snapshots, initial status history, stock movements, decrement և cart clear։ |
-| CHK-007 | Անբավարար stock-ի դեպքում transaction-ը atomic rollback է լինում և user-ը ստանում է item-level conflict։ |
-| CHK-008 | Order-ը պահում է base/display currency code, exchange-rate snapshot, subtotal, discount, tax, delivery և total։ |
-| CHK-009 | COD adapter-ը P0 է; online provider-ը միայն approved adapter/webhook contract-ից հետո է ակտիվանում։ |
-| CHK-010 | Success page-ը refresh/retry-safe է և order ownership check ունի։ |
+| CHK-007 | Անբավարար stock-ի դեպքում transaction-ը atomic rollback է լինում և user-ը ստանում է item-level conflict։                       |
+| CHK-008 | Order-ը պահում է base/display currency code, exchange-rate snapshot, subtotal, discount, tax, delivery և total։                |
+| CHK-009 | COD adapter-ը P0 է; online provider-ը միայն approved adapter/webhook contract-ից հետո է ակտիվանում։                            |
+| CHK-010 | Success page-ը refresh/retry-safe է և order ownership check ունի։                                                              |
 
 ## 8. Customer profile
 
@@ -169,11 +170,11 @@
 
 ### 8.4 Addresses
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
+| ID       | Պահանջ / acceptance criteria                                                                                                 |
+| -------- | ---------------------------------------------------------------------------------------------------------------------------- |
 | PROF-001 | CRUD drawer/modal-ը կառավարում է label, recipient names, phone, country, region, city, line1/2, postal code և default flags։ |
-| PROF-002 | Մի customer-ի համար առավելագույնը մեկ default shipping և մեկ default billing հասցե կա։ |
-| PROF-003 | Default փոխելը transaction-safe է; deleted address-ը չի փոխում հին order snapshot-ը։ |
+| PROF-002 | Մի customer-ի համար առավելագույնը մեկ default shipping և մեկ default billing հասցե կա։                                       |
+| PROF-003 | Default փոխելը transaction-safe է; deleted address-ը չի փոխում հին order snapshot-ը։                                         |
 
 ### 8.5 Delete account
 
@@ -192,12 +193,12 @@
 
 ### 9.2 Admin tables/forms
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
-| ADM-001 | Search/filter/sort/page state-ը server contract-ով է; large datasets-ը client-only filter չեն անում։ |
-| ADM-002 | Bulk action-ը validate է անում ամբողջ selection-ի permissions և transition eligibility-ն։ |
-| ADM-003 | Drawer/full-page sheet-ը mobile-ում full-screen է, focus-managed և unsaved-change warning ունի։ |
-| ADM-004 | Long create/edit form-ի sticky footer-ը պահում է Save/Cancel actions-ը տեսանելի։ |
+| ID      | Պահանջ / acceptance criteria                                                                          |
+| ------- | ----------------------------------------------------------------------------------------------------- |
+| ADM-001 | Search/filter/sort/page state-ը server contract-ով է; large datasets-ը client-only filter չեն անում։  |
+| ADM-002 | Bulk action-ը validate է անում ամբողջ selection-ի permissions և transition eligibility-ն։             |
+| ADM-003 | Drawer/full-page sheet-ը mobile-ում full-screen է, focus-managed և unsaved-change warning ունի։       |
+| ADM-004 | Long create/edit form-ի sticky footer-ը պահում է Save/Cancel actions-ը տեսանելի։                      |
 | ADM-005 | Admin mutation-ը audit log է գրում actor, action, target, before/after safe diff և correlation ID-ով։ |
 
 ## 10. Admin dashboard և analytics
@@ -224,14 +225,14 @@
 
 ## 12. Admin orders
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
-| AORD-001 | Table-ը ունի selection, number, customer, total, order/payment statuses, date, details և actions։ |
-| AORD-002 | Search, status/payment/date filters, pagination, bulk selection և eligible bulk status update կան։ |
-| AORD-003 | Default delete-ը archive է; financial/audit records hard delete չեն արվում։ |
+| ID       | Պահանջ / acceptance criteria                                                                                                                |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| AORD-001 | Table-ը ունի selection, number, customer, total, order/payment statuses, date, details և actions։                                           |
+| AORD-002 | Search, status/payment/date filters, pagination, bulk selection և eligible bulk status update կան։                                          |
+| AORD-003 | Default delete-ը archive է; financial/audit records hard delete չեն արվում։                                                                 |
 | AORD-004 | Full-height detail drawer-ը ցույց է տալիս customer, dates, items/media/title/SKU/qty/prices, totals, address, status history և admin notes։ |
-| AORD-005 | Status transition-ը server-side state machine-ով է և history row է ստեղծում նույն transaction-ում։ |
-| AORD-006 | Payment status-ը միայն authorized admin կամ verified provider event կարող է փոխել։ |
+| AORD-005 | Status transition-ը server-side state machine-ով է և history row է ստեղծում նույն transaction-ում։                                          |
+| AORD-006 | Payment status-ը միայն authorized admin կամ verified provider event կարող է փոխել։                                                          |
 
 ## 13. Admin products և inventory
 
@@ -243,16 +244,17 @@
 
 ### Create/edit
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
-| APROD-001 | Door model-ը պահում է translated identity/shared specs; յուրաքանչյուր sellable configuration-ը ունի առանձին SKU, item type, measurements, appearance, handing/swing, included-component declarations, price, stock and status։ |
-| APROD-002 | Variant SKU-ն globally unique է; product-ի ներսում effective configuration-ը unique է; `(locale, slug)` unique է ու server/DB-ով enforced։ |
-| APROD-003 | Variant price/compare-at/stock/threshold and item-type measurement constraints-ը server + DB checks ունեն։ |
-| APROD-004 | Multiple images-ի primary uniqueness և sort order-ը պահպանվում են transaction-safe։ |
-| APROD-005 | Product delete-ը archive/soft delete է; պատմական order item-ը չի փոխվում։ |
-| APROD-006 | Variant stock manual adjustment-ը նույն transaction-ում ստեղծում է variant-linked stock movement։ |
-| APROD-007 | Removed variants-ը archive են արվում, referenced variant/order history-ն hard delete չի արվում; product + variants edit-ը transaction-ով է։ |
-| APROD-008 | Publish-ին պարտադիր է առնվազն մեկ լրիվ locale translation; բացակա locale-ում product-ը public catalog-ում չի երևում։ |
+| ID        | Պահանջ / acceptance criteria                                                                                                                                                                                                                                     |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| APROD-001 | Door model-ը պահում է translated identity/shared specs; յուրաքանչյուր sellable configuration-ը ունի առանձին SKU, item type, measurements, appearance, handing/swing, included-component declarations, price, stock and status։                                   |
+| APROD-002 | Variant SKU-ն globally unique է; product-ի ներսում effective configuration-ը unique է; `(locale, slug)` unique է ու server/DB-ով enforced։                                                                                                                       |
+| APROD-003 | Variant price/compare-at/stock/threshold and item-type measurement constraints-ը server + DB checks ունեն։                                                                                                                                                       |
+| APROD-004 | Product- և variant-owned images-ի primary uniqueness և sort order-ը պահպանվում են transaction-safe; variant images-ը վերբեռնվում են գործող authenticated Cloudinary pipeline-ով, իսկ variant-ի gallery-ի բացակայության դեպքում օգտագործվում է product gallery-ն։ |
+| APROD-005 | Product delete-ը archive/soft delete է; պատմական order item-ը չի փոխվում։                                                                                                                                                                                        |
+| APROD-006 | Variant stock manual adjustment-ը նույն transaction-ում ստեղծում է variant-linked stock movement։                                                                                                                                                                |
+| APROD-007 | Removed variants-ը archive են արվում, referenced variant/order history-ն hard delete չի արվում; product + variants edit-ը transaction-ով է։                                                                                                                      |
+| APROD-008 | Publish-ին պարտադիր է առնվազն մեկ լրիվ locale translation; բացակա locale-ում product-ը public catalog-ում չի երևում։                                                                                                                                             |
+| APROD-009 | Variant image attach/reorder/primary/detach գործողությունը ստուգում է product-variant ownership-ը, PENDING→READY lifecycle-ը և չի ջնջում այլ asset reference-ներ։                                                                                                |
 
 ## 14. Admin categories
 
@@ -290,12 +292,12 @@
 
 ## 17. Contact և messages
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
-| MSG-001 | Contact form՝ name, email, optional phone, subject, message։ |
+| ID      | Պահանջ / acceptance criteria                                                                            |
+| ------- | ------------------------------------------------------------------------------------------------------- |
+| MSG-001 | Contact form՝ name, email, optional phone, subject, message։                                            |
 | MSG-002 | Server validation, honeypot, rate limit և spam control կա; response-ը չի բացահայտում detection details։ |
-| MSG-003 | Accepted message-ը պահվում է DB-ում status `unread`-ով և կարող է email notification trigger անել։ |
-| MSG-004 | Admin list/detail-ը ցույց է տալիս sender, subject, email, date և unread/read/replied/archived status։ |
+| MSG-003 | Accepted message-ը պահվում է DB-ում status `unread`-ով և կարող է email notification trigger անել։       |
+| MSG-004 | Admin list/detail-ը ցույց է տալիս sender, subject, email, date և unread/read/replied/archived status։   |
 
 ## 18. Delivery
 
@@ -323,14 +325,14 @@ Store settings-ը ներառում են store name/email/phone/address, default/
 
 ## 21. Media/Cloudinary
 
-| ID | Պահանջ / acceptance criteria |
-|---|---|
-| MED-001 | Product/category/hero/blog media-ն Cloudinary-ում է, DB-ում՝ `secure_url`, public ID և upload metadata։ |
-| MED-002 | Upload-ը admin-only, same-origin route-ով է; image signature/MIME/5 MB size limits-ը server-side են։ |
-| MED-003 | Public ID-ն server-generated է և purpose-specific Cloudinary folder-ում է։ |
-| MED-004 | UI-ն պահում/ցուցադրում է Cloudinary secure URL-ը, API credentials-ը երբեք client-ում չեն հայտնվում։ |
+| ID      | Պահանջ / acceptance criteria                                                                                             |
+| ------- | ------------------------------------------------------------------------------------------------------------------------ |
+| MED-001 | Product/category/hero/blog media-ն Cloudinary-ում է, DB-ում՝ `secure_url`, public ID և upload metadata։                  |
+| MED-002 | Upload-ը admin-only, same-origin route-ով է; image signature/MIME/5 MB size limits-ը server-side են։                     |
+| MED-003 | Public ID-ն server-generated է և purpose-specific Cloudinary folder-ում է։                                               |
+| MED-004 | UI-ն պահում/ցուցադրում է Cloudinary secure URL-ը, API credentials-ը երբեք client-ում չեն հայտնվում։                      |
 | MED-005 | Feature action-ը միայն matching PENDING media record է կապում entity-ին; canceled upload-ը կարող է ջնջվել Cloudinary-ից։ |
-| MED-006 | Cloudinary image-ների removal-ը DB mutation-ից հետո է; legacy R2 media-ն պետք է re-upload արվի։ |
+| MED-006 | Cloudinary image-ների removal-ը DB mutation-ից հետո է; legacy R2 media-ն պետք է re-upload արվի։                          |
 
 ## 22. Responsive և accessibility common criteria
 

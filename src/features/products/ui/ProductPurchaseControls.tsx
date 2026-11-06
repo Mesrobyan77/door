@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import type { MouseEvent } from "react";
-import { Minus, Plus } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import type { MouseEvent } from 'react';
+import { Minus, Plus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 
-import { addToCart } from "@/features/cart/cart";
-import { playCartFlyAnimation } from "@/features/cart/play-cart-fly-animation";
-import { formatVariantConfiguration } from "@/features/products/domain/format-variant-configuration";
-import type { ProductVariantOption } from "@/features/products/types";
-import { WishlistButton } from "@/features/wishlist/ui/WishlistButton";
-import type { Locale } from "@/lib/i18n/config";
-import type { Dictionary } from "@/lib/i18n/get-dictionary";
+import { addToCart } from '@/features/cart/cart';
+import { playCartFlyAnimation } from '@/features/cart/play-cart-fly-animation';
+import { formatVariantConfiguration } from '@/features/products/domain/format-variant-configuration';
+import type { ProductVariantOption } from '@/features/products/types';
+import { WishlistButton } from '@/features/wishlist/ui/WishlistButton';
+import type { Locale } from '@/lib/i18n/config';
+import type { Dictionary } from '@/lib/i18n/get-dictionary';
 
 type VariantChoice = ProductVariantOption & {
   priceFormatted: string | null;
@@ -26,7 +26,8 @@ type ProductPurchaseControlsProps = {
   isSignedIn: boolean;
   wishlistLabel: string;
   imageUrl?: string | null;
-  variantCopy: Dictionary["product"]["variant"];
+  onVariantSelectionChange?: (variantId: string) => void;
+  variantCopy: Dictionary['product']['variant'];
   labels: {
     quantity: string;
     decreaseQuantity: string;
@@ -50,19 +51,16 @@ export function ProductPurchaseControls({
   isSignedIn,
   wishlistLabel,
   imageUrl = null,
+  onVariantSelectionChange,
   variantCopy,
   labels,
 }: ProductPurchaseControlsProps) {
   const router = useRouter();
   const [selectedVariantId, setSelectedVariantId] = useState(
-    variants.length === 1 ? (variants[0]?.id ?? "") : "",
+    variants.length === 1 ? (variants[0]?.id ?? '') : '',
   );
-  const selectedVariant = variants.find(
-    (variant) => variant.id === selectedVariantId,
-  );
-  const maxQty = selectedVariant?.purchasable
-    ? Math.max(selectedVariant.stockOnHand, 0)
-    : 0;
+  const selectedVariant = variants.find((variant) => variant.id === selectedVariantId);
+  const maxQty = selectedVariant?.purchasable ? Math.max(selectedVariant.stockOnHand, 0) : 0;
   const [quantity, setQuantity] = useState(maxQty > 0 ? 1 : 0);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -78,6 +76,7 @@ export function ProductPurchaseControls({
 
   function selectVariant(variantId: string): void {
     setSelectedVariantId(variantId);
+    onVariantSelectionChange?.(variantId);
     setQuantity(1);
     setMessage(null);
     setError(null);
@@ -89,7 +88,7 @@ export function ProductPurchaseControls({
     setError(null);
 
     const flySource =
-      document.querySelector<HTMLElement>("[data-product-detail-fly-source]") ??
+      document.querySelector<HTMLElement>('[data-product-detail-fly-source]') ??
       event.currentTarget;
 
     playCartFlyAnimation({
@@ -112,9 +111,7 @@ export function ProductPurchaseControls({
     <div className="mt-auto flex flex-col gap-3 pt-2">
       {variants.length > 1 ? (
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-gray-700">
-            {variantCopy.label}
-          </span>
+          <span className="mb-1 block text-sm font-medium text-gray-700">{variantCopy.label}</span>
           <select
             value={selectedVariantId}
             onChange={(event) => selectVariant(event.target.value)}
@@ -123,9 +120,8 @@ export function ProductPurchaseControls({
             <option value="">{labels.selectValue}</option>
             {variants.map((variant) => (
               <option key={variant.id} value={variant.id}>
-                {variant.sku} ·{" "}
-                {variant.priceFormatted ?? variantCopy.inquiry}
-                {!variant.purchasable ? ` · ${variantCopy.unavailable}` : ""}
+                {variant.sku} · {variant.priceFormatted ?? variantCopy.inquiry}
+                {!variant.purchasable ? ` · ${variantCopy.unavailable}` : ''}
               </option>
             ))}
           </select>
@@ -150,14 +146,10 @@ export function ProductPurchaseControls({
             ) : null}
           </div>
           <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-            <span
-              className={
-                selectedVariant.purchasable ? "text-green-700" : "text-red-700"
-              }
-            >
+            <span className={selectedVariant.purchasable ? 'text-green-700' : 'text-red-700'}>
               {selectedVariant.purchasable
                 ? labels.inStock
-                : selectedVariant.status === "INQUIRY"
+                : selectedVariant.status === 'INQUIRY'
                   ? variantCopy.inquiry
                   : variantCopy.unavailable}
             </span>
@@ -209,7 +201,7 @@ export function ProductPurchaseControls({
           {disabled
             ? !selectedVariant && variants.length > 1
               ? labels.selectValue
-              : selectedVariant?.status === "INQUIRY"
+              : selectedVariant?.status === 'INQUIRY'
                 ? variantCopy.inquiry
                 : labels.outOfStock
             : pending

@@ -1,17 +1,12 @@
-import "server-only";
+import 'server-only';
 
-import { and, asc, desc, eq, isNotNull, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, isNotNull, isNull } from 'drizzle-orm';
 
-import { getDb } from "@/db/client";
-import {
-  mediaAssets,
-  productVariants,
-  products,
-  promotions,
-} from "@/db/schema";
-import { listAdminCategories } from "@/features/categories/application/list-admin-categories";
-import { getStoreGlobalDiscount } from "@/features/settings/application/queries";
-import type { Locale } from "@/lib/i18n/config";
+import { getDb } from '@/db/client';
+import { mediaAssets, productVariants, products, promotions } from '@/db/schema';
+import { listAdminCategories } from '@/features/categories/application/list-admin-categories';
+import { getStoreGlobalDiscount } from '@/features/settings/application/queries';
+import type { Locale } from '@/lib/i18n/config';
 
 export type DiscountBoardCategory = {
   id: string;
@@ -32,23 +27,31 @@ export type DiscountBoardProduct = {
   promotionId: string | null;
 };
 
+export type DiscountBoardVariantPromotion = {
+  id: string;
+  variantId: string;
+  sku: string;
+  productTitle: string;
+  discountPercent: number;
+};
+
 export type AdminDiscountsBoard = {
   globalPercent: number | null;
   categories: DiscountBoardCategory[];
   products: DiscountBoardProduct[];
+  variantPromotions: DiscountBoardVariantPromotion[];
 };
 
 type AutomaticTargetPromo = {
   id: string;
   discountValue: number;
   productId: string | null;
+  productVariantId: string | null;
   categoryId: string | null;
 };
 
 /** Loads the admin discounts board: global %, categories, and products. */
-export async function getAdminDiscountsBoard(
-  locale: Locale,
-): Promise<AdminDiscountsBoard> {
+export async function getAdminDiscountsBoard(locale: Locale): Promise<AdminDiscountsBoard> {
   const [globalDiscount, categoryRows, productRows, promoRows, imageRows, variantRows] =
     await Promise.all([
       getStoreGlobalDiscount(),
@@ -67,13 +70,14 @@ export async function getAdminDiscountsBoard(
           id: promotions.id,
           discountValue: promotions.discountValue,
           productId: promotions.productId,
+          productVariantId: promotions.productVariantId,
           categoryId: promotions.categoryId,
         })
         .from(promotions)
         .where(
           and(
-            eq(promotions.kind, "AUTOMATIC"),
-            eq(promotions.discountType, "PERCENTAGE"),
+            eq(promotions.kind, 'AUTOMATIC'),
+            eq(promotions.discountType, 'PERCENTAGE'),
             eq(promotions.isActive, true),
           ),
         )
@@ -87,7 +91,7 @@ export async function getAdminDiscountsBoard(
         .where(
           and(
             isNotNull(mediaAssets.productId),
-            eq(mediaAssets.uploadStatus, "READY"),
+            eq(mediaAssets.uploadStatus, 'READY'),
             eq(mediaAssets.isPrimary, true),
           ),
         ),
@@ -99,11 +103,12 @@ export async function getAdminDiscountsBoard(
           priceAmount: productVariants.priceAmount,
         })
         .from(productVariants)
-        .where(eq(productVariants.status, "ACTIVE"))
+        .where(eq(productVariants.status, 'ACTIVE'))
         .orderBy(asc(productVariants.priceAmount)),
     ]);
 
   const byProduct = new Map<string, AutomaticTargetPromo>();
+  const byVariant = new Map<string, AutomaticTargetPromo>();
   const byCategory = new Map<string, AutomaticTargetPromo>();
   for (const promo of promoRows) {
     if (promo.productId && !byProduct.has(promo.productId)) {
@@ -111,6 +116,9 @@ export async function getAdminDiscountsBoard(
     }
     if (promo.categoryId && !byCategory.has(promo.categoryId)) {
       byCategory.set(promo.categoryId, promo);
+    }
+    if (promo.productVariantId && !byVariant.has(promo.productVariantId)) {
+      byVariant.set(promo.productVariantId, promo);
     }
   }
 
@@ -120,10 +128,14 @@ export async function getAdminDiscountsBoard(
     images.set(row.productId, row.secureUrl);
   }
 
-  const variantsByProduct = new Map<
-    string,
-    (typeof variantRows)[number]
-  >();
+  const variantsByProduct = new Map<string, (typeof variantRows)[number]>();
+  const titleByProductId = new Map(
+    productRows.map((product) => {
+      const translation =
+        product.translations[locale] ?? product.translations.hy ?? product.translations.en;
+      return [product.id, translation?.title ?? product.id] as const;
+    }),
+  );
   for (const variant of variantRows) {
     if (variant.priceAmount == null || variantsByProduct.has(variant.productId)) {
       continue;
@@ -138,28 +150,39 @@ export async function getAdminDiscountsBoard(
       return {
         id: category.id,
         title: category.title,
-        parentLabel: category.parentTitle ?? "Root Category",
+        parentLabel: category.parentTitle ?? 'Root Category',
         discountPercent: promo?.discountValue ?? null,
         promotionId: promo?.id ?? null,
       };
     }),
     products: productRows.map((product) => {
       const translation =
-        product.translations[locale] ??
-        product.translations.hy ??
-        product.translations.en;
+        product.translations[locale] ?? product.translations.hy ?? product.translations.en;
       const promo = byProduct.get(product.id);
       const variant = variantsByProduct.get(product.id);
       return {
         id: product.id,
         title: translation?.title ?? variant?.sku ?? product.id,
-        slug: translation?.slug ?? "",
+        slug: translation?.slug ?? '',
         sku: variant?.sku ?? null,
         priceAmount: variant?.priceAmount ?? null,
         imageUrl: images.get(product.id) ?? null,
         discountPercent: promo?.discountValue ?? null,
         promotionId: promo?.id ?? null,
       };
+    }),
+    variantPromotions: variantRows.flatMap((variant) => {
+      const promo = byVariant.get(variant.id);
+      if (!promo) return [];
+      return [
+        {
+          id: promo.id,
+          variantId: variant.id,
+          sku: variant.sku,
+          productTitle: titleByProductId.get(variant.productId) ?? variant.productId,
+          discountPercent: promo.discountValue,
+        },
+      ];
     }),
   };
 }

@@ -1,10 +1,9 @@
-import Link from "next/link";
+import Link from 'next/link';
 
-import { ProductGallery } from "@/features/products/ui/ProductGallery";
-import { ProductPurchaseControls } from "@/features/products/ui/ProductPurchaseControls";
-import type { ProductDetail, ProductVariantOption } from "@/features/products/types";
-import type { Dictionary } from "@/lib/i18n/get-dictionary";
-import type { Locale } from "@/lib/i18n/config";
+import { ProductVariantExperience } from '@/features/products/ui/ProductVariantExperience';
+import type { ProductDetail, ProductVariantOption } from '@/features/products/types';
+import type { Dictionary } from '@/lib/i18n/get-dictionary';
+import type { Locale } from '@/lib/i18n/config';
 
 type ProductDetailViewProps = {
   locale: Locale;
@@ -35,7 +34,6 @@ export function ProductDetailView({
   reviewsSlot,
 }: ProductDetailViewProps) {
   const labels = dictionary.product;
-  const inStock = variants.some((variant) => variant.purchasable);
   const specifications = product.doorSpecifications;
   const performance = specifications.performanceSpecifications;
   const specificationRows: Array<[string, string | null]> = [
@@ -44,9 +42,9 @@ export function ProductDetailView({
     [labels.variant.collection, specifications.collectionName],
     [
       labels.variant.classification,
-      specifications.classification === "INTERIOR"
+      specifications.classification === 'INTERIOR'
         ? labels.variant.interior
-        : specifications.classification === "ENTRANCE"
+        : specifications.classification === 'ENTRANCE'
           ? labels.variant.entrance
           : null,
     ],
@@ -54,37 +52,35 @@ export function ProductDetailView({
       labels.variant.installationEnvironment,
       specifications.entranceEnvironments
         ?.map((environment) =>
-          environment === "APARTMENT"
-            ? labels.variant.apartment
-            : labels.variant.outdoorHouse,
+          environment === 'APARTMENT' ? labels.variant.apartment : labels.variant.outdoorHouse,
         )
-        .join(", ") ?? null,
+        .join(', ') ?? null,
     ],
     [
       labels.variant.mechanism,
-      specifications.openingMechanism === "HINGED"
+      specifications.openingMechanism === 'HINGED'
         ? labels.variant.hinged
-        : specifications.openingMechanism === "SLIDING"
+        : specifications.openingMechanism === 'SLIDING'
           ? labels.variant.sliding
-          : specifications.openingMechanism === "FOLDING"
+          : specifications.openingMechanism === 'FOLDING'
             ? labels.variant.folding
             : null,
     ],
     [
       labels.variant.frameSystem,
-      specifications.frameSystem === "STANDARD"
+      specifications.frameSystem === 'STANDARD'
         ? labels.variant.standardFrame
-        : specifications.frameSystem === "CONCEALED"
+        : specifications.frameSystem === 'CONCEALED'
           ? labels.variant.concealedFrame
           : null,
     ],
     [
       labels.variant.leafConfiguration,
-      specifications.leafConfiguration === "SINGLE"
+      specifications.leafConfiguration === 'SINGLE'
         ? labels.variant.singleLeaf
-        : specifications.leafConfiguration === "DOUBLE"
+        : specifications.leafConfiguration === 'DOUBLE'
           ? labels.variant.doubleLeaf
-          : specifications.leafConfiguration === "UNEQUAL_DOUBLE"
+          : specifications.leafConfiguration === 'UNEQUAL_DOUBLE'
             ? labels.variant.unequalDoubleLeaf
             : null,
     ],
@@ -101,10 +97,7 @@ export function ProductDetailView({
     ],
     [labels.variant.glazingType, specifications.glazingType],
     [labels.variant.manufacturer, specifications.manufacturer],
-    [
-      labels.variant.countryOfManufacture,
-      specifications.countryOfManufacture,
-    ],
+    [labels.variant.countryOfManufacture, specifications.countryOfManufacture],
     [
       labels.variant.thermalBreak,
       performance?.thermalBreak == null
@@ -131,7 +124,7 @@ export function ProductDetailView({
         ? `${performance.fireClassification.value}${
             performance.fireClassification.standard
               ? ` (${performance.fireClassification.standard})`
-              : ""
+              : ''
           }`
         : null,
     ],
@@ -141,7 +134,7 @@ export function ProductDetailView({
         ? `${performance.securityClassification.value}${
             performance.securityClassification.standard
               ? ` (${performance.securityClassification.standard})`
-              : ""
+              : ''
           }`
         : null,
     ],
@@ -159,18 +152,31 @@ export function ProductDetailView({
       </p>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-12">
-        <ProductGallery
-          images={product.images}
-          title={product.translation.title}
-          discountPercent={null}
-          inStock={inStock}
-          outOfStockLabel={labels.outOfStock}
-        />
-
-        <div className="flex flex-col gap-6 lg:min-h-full">
+        <ProductVariantExperience
+          locale={locale}
+          product={product}
+          variants={variants}
+          inWishlist={inWishlist}
+          isSignedIn={isSignedIn}
+          wishlistLabel={dictionary.nav.wishlist}
+          variantCopy={labels.variant}
+          labels={{
+            quantity: labels.quantity,
+            decreaseQuantity: dictionary.cartDrawer.decreaseQuantity,
+            increaseQuantity: dictionary.cartDrawer.increaseQuantity,
+            addToCart: labels.addToCart,
+            adding: labels.adding,
+            outOfStock: labels.outOfStock,
+            added: labels.added,
+            error: labels.addError,
+            sku: labels.sku,
+            inStock: labels.inStock,
+            selectValue: labels.selectValue,
+          }}
+        >
           {product.categories.length > 0 ? (
             <p className="text-sm font-medium text-gray-500">
-              {product.categories.map((category) => category.title).join(" · ")}
+              {product.categories.map((category) => category.title).join(' · ')}
             </p>
           ) : null}
 
@@ -201,31 +207,7 @@ export function ProductDetailView({
               </dl>
             </section>
           ) : null}
-
-          <ProductPurchaseControls
-            locale={locale}
-            productId={product.id}
-            variants={variants}
-            inWishlist={inWishlist}
-            isSignedIn={isSignedIn}
-            wishlistLabel={dictionary.nav.wishlist}
-            imageUrl={product.images[0]?.url ?? null}
-            variantCopy={labels.variant}
-            labels={{
-              quantity: labels.quantity,
-              decreaseQuantity: dictionary.cartDrawer.decreaseQuantity,
-              increaseQuantity: dictionary.cartDrawer.increaseQuantity,
-              addToCart: labels.addToCart,
-              adding: labels.adding,
-              outOfStock: labels.outOfStock,
-              added: labels.added,
-              error: labels.addError,
-              sku: labels.sku,
-              inStock: labels.inStock,
-              selectValue: labels.selectValue,
-            }}
-          />
-        </div>
+        </ProductVariantExperience>
       </div>
 
       {relatedSlot}

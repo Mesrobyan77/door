@@ -1,47 +1,52 @@
-"use client";
+'use client';
 
-import type { ProductVariantDraft } from "@/features/products/types";
+import type { ProductVariantDraft } from '@/features/products/types';
 import {
-  ADMIN_INPUT,
-  ADMIN_LABEL,
-} from "@/features/admin/ui/admin-form-classes";
-import type { Dictionary } from "@/lib/i18n/get-dictionary";
+  ProductDrawerImages,
+  type ProductDraftImage,
+} from '@/features/products/ui/ProductDrawerImages';
+import { ADMIN_INPUT, ADMIN_LABEL } from '@/features/admin/ui/admin-form-classes';
+import { discardPendingAdminImage } from '@/lib/media/client-upload';
+import type { Dictionary } from '@/lib/i18n/get-dictionary';
 
 type Props = {
   variants: ProductVariantDraft[];
   disabled: boolean;
-  labels: Dictionary["product"];
+  open: boolean;
+  labels: Dictionary['product'];
+  onImageUploadingChange: (variantKey: string, uploading: boolean) => void;
+  onError: (message: string) => void;
   onChange: (variants: ProductVariantDraft[]) => void;
 };
 
 const dimensionFields = [
-  ["leafWidthMm", "leafWidth"],
-  ["leafHeightMm", "leafHeight"],
-  ["leafThicknessMm", "leafThickness"],
-  ["secondaryLeafWidthMm", "secondaryLeafWidth"],
-  ["unitWidthMm", "unitWidth"],
-  ["unitHeightMm", "unitHeight"],
-  ["frameDepthMm", "frameDepth"],
-  ["roughOpeningWidthMm", "roughOpeningWidth"],
-  ["roughOpeningHeightMm", "roughOpeningHeight"],
+  ['leafWidthMm', 'leafWidth'],
+  ['leafHeightMm', 'leafHeight'],
+  ['leafThicknessMm', 'leafThickness'],
+  ['secondaryLeafWidthMm', 'secondaryLeafWidth'],
+  ['unitWidthMm', 'unitWidth'],
+  ['unitHeightMm', 'unitHeight'],
+  ['frameDepthMm', 'frameDepth'],
+  ['roughOpeningWidthMm', 'roughOpeningWidth'],
+  ['roughOpeningHeightMm', 'roughOpeningHeight'],
 ] as const;
 
 const componentFields = [
-  ["FRAME", "componentFrame"],
-  ["ARCHITRAVE", "componentArchitrave"],
-  ["HINGE", "componentHinge"],
-  ["HANDLE", "componentHandle"],
-  ["LOCK", "componentLock"],
-  ["CYLINDER", "componentCylinder"],
-  ["THRESHOLD", "componentThreshold"],
-  ["FRAME_EXTENSION", "componentFrameExtension"],
+  ['FRAME', 'componentFrame'],
+  ['ARCHITRAVE', 'componentArchitrave'],
+  ['HINGE', 'componentHinge'],
+  ['HANDLE', 'componentHandle'],
+  ['LOCK', 'componentLock'],
+  ['CYLINDER', 'componentCylinder'],
+  ['THRESHOLD', 'componentThreshold'],
+  ['FRAME_EXTENSION', 'componentFrameExtension'],
 ] as const;
 
 function createVariant(): ProductVariantDraft {
   return {
-    sku: "",
-    itemType: "FRAMED_UNIT",
-    status: "ACTIVE",
+    sku: '',
+    itemType: 'FRAMED_UNIT',
+    status: 'ACTIVE',
     priceAmount: null,
     compareAtAmount: null,
     stockOnHand: 0,
@@ -62,26 +67,75 @@ function createVariant(): ProductVariantDraft {
     handing: null,
     swing: null,
     includedComponents: null,
+    images: [],
+    removeImageIds: [],
   };
 }
 
 export function ProductVariantsEditor({
   variants,
   disabled,
+  open,
   labels,
+  onImageUploadingChange,
+  onError,
   onChange,
 }: Props) {
   const copy = labels.variant;
 
-  function updateVariant(
-    index: number,
-    update: Partial<ProductVariantDraft>,
-  ): void {
+  function updateVariant(index: number, update: Partial<ProductVariantDraft>): void {
     onChange(
       variants.map((variant, variantIndex) =>
         variantIndex === index ? { ...variant, ...update } : variant,
       ),
     );
+  }
+
+  function updateVariantImages(index: number, images: ProductDraftImage[]): void {
+    const variant = variants[index];
+    if (!variant) return;
+    const visibleIds = new Set(
+      images.flatMap((image) => (image.existingId ? [image.existingId] : [])),
+    );
+    const removedImageIds = [
+      ...new Set([
+        ...variant.removeImageIds,
+        ...variant.images.flatMap((image) =>
+          image.existingId && !visibleIds.has(image.existingId) ? [image.existingId] : [],
+        ),
+      ]),
+    ];
+    updateVariant(index, { images, removeImageIds: removedImageIds });
+  }
+
+  async function removeVariant(index: number): Promise<void> {
+    const variant = variants[index];
+    if (!variant) return;
+
+    const pendingImages = variant.images.flatMap((image) =>
+      image.mediaAssetId ? [{ key: image.key, mediaAssetId: image.mediaAssetId }] : [],
+    );
+    const outcomes = await Promise.allSettled(
+      pendingImages.map((image) => discardPendingAdminImage(image.mediaAssetId)),
+    );
+    const discardedKeys = new Set(
+      outcomes.flatMap((outcome, outcomeIndex) =>
+        outcome.status === 'fulfilled' && pendingImages[outcomeIndex]
+          ? [pendingImages[outcomeIndex].key]
+          : [],
+      ),
+    );
+
+    if (outcomes.some((outcome) => outcome.status === 'rejected')) {
+      updateVariantImages(
+        index,
+        variant.images.filter((image) => !discardedKeys.has(image.key)),
+      );
+      onError(labels.media.pendingDeleteError);
+      return;
+    }
+
+    onChange(variants.filter((_, variantIndex) => variantIndex !== index));
   }
 
   return (
@@ -114,9 +168,7 @@ export function ProductVariantsEditor({
               <input
                 required
                 value={variant.sku}
-                onChange={(event) =>
-                  updateVariant(index, { sku: event.target.value })
-                }
+                onChange={(event) => updateVariant(index, { sku: event.target.value })}
                 className={ADMIN_INPUT}
               />
             </label>
@@ -126,7 +178,7 @@ export function ProductVariantsEditor({
                 value={variant.itemType}
                 onChange={(event) =>
                   updateVariant(index, {
-                    itemType: event.target.value as ProductVariantDraft["itemType"],
+                    itemType: event.target.value as ProductVariantDraft['itemType'],
                   })
                 }
                 className={ADMIN_INPUT}
@@ -143,13 +195,10 @@ export function ProductVariantsEditor({
                 min={0}
                 step={1}
                 type="number"
-                value={variant.priceAmount ?? ""}
+                value={variant.priceAmount ?? ''}
                 onChange={(event) =>
                   updateVariant(index, {
-                    priceAmount:
-                      event.target.value === ""
-                        ? null
-                        : Number(event.target.value),
+                    priceAmount: event.target.value === '' ? null : Number(event.target.value),
                   })
                 }
                 className={ADMIN_INPUT}
@@ -161,13 +210,10 @@ export function ProductVariantsEditor({
                 min={0}
                 step={1}
                 type="number"
-                value={variant.compareAtAmount ?? ""}
+                value={variant.compareAtAmount ?? ''}
                 onChange={(event) =>
                   updateVariant(index, {
-                    compareAtAmount:
-                      event.target.value === ""
-                        ? null
-                        : Number(event.target.value),
+                    compareAtAmount: event.target.value === '' ? null : Number(event.target.value),
                   })
                 }
                 className={ADMIN_INPUT}
@@ -211,7 +257,7 @@ export function ProductVariantsEditor({
                 value={variant.status}
                 onChange={(event) =>
                   updateVariant(index, {
-                    status: event.target.value as ProductVariantDraft["status"],
+                    status: event.target.value as ProductVariantDraft['status'],
                   })
                 }
                 className={ADMIN_INPUT}
@@ -233,13 +279,10 @@ export function ProductVariantsEditor({
                   min={1}
                   step={1}
                   type="number"
-                  value={variant[field] ?? ""}
+                  value={variant[field] ?? ''}
                   onChange={(event) =>
                     updateVariant(index, {
-                      [field]:
-                        event.target.value === ""
-                          ? null
-                          : Number(event.target.value),
+                      [field]: event.target.value === '' ? null : Number(event.target.value),
                     })
                   }
                   className={ADMIN_INPUT}
@@ -251,16 +294,16 @@ export function ProductVariantsEditor({
           <div className="grid gap-3 sm:grid-cols-2">
             {(
               [
-                ["colorName", copy.color],
-                ["finishName", copy.finish],
-                ["exteriorColorName", copy.exteriorColor],
-                ["exteriorFinishName", copy.exteriorFinish],
+                ['colorName', copy.color],
+                ['finishName', copy.finish],
+                ['exteriorColorName', copy.exteriorColor],
+                ['exteriorFinishName', copy.exteriorFinish],
               ] as const
             ).map(([field, label]) => (
               <label key={field}>
                 <span className={ADMIN_LABEL}>{label}</span>
                 <input
-                  value={variant[field] ?? ""}
+                  value={variant[field] ?? ''}
                   onChange={(event) =>
                     updateVariant(index, { [field]: event.target.value || null })
                   }
@@ -270,15 +313,13 @@ export function ProductVariantsEditor({
             ))}
             <label>
               <span className={ADMIN_LABEL}>{copy.handing}</span>
-              <span className="mb-1 block text-xs text-gray-500">
-                {copy.handingEntryHint}
-              </span>
+              <span className="mb-1 block text-xs text-gray-500">{copy.handingEntryHint}</span>
               <select
-                value={variant.handing ?? ""}
+                value={variant.handing ?? ''}
                 onChange={(event) =>
                   updateVariant(index, {
                     handing: event.target.value
-                      ? (event.target.value as ProductVariantDraft["handing"])
+                      ? (event.target.value as ProductVariantDraft['handing'])
                       : null,
                   })
                 }
@@ -294,11 +335,11 @@ export function ProductVariantsEditor({
             <label>
               <span className={ADMIN_LABEL}>{copy.swing}</span>
               <select
-                value={variant.swing ?? ""}
+                value={variant.swing ?? ''}
                 onChange={(event) =>
                   updateVariant(index, {
                     swing: event.target.value
-                      ? (event.target.value as ProductVariantDraft["swing"])
+                      ? (event.target.value as ProductVariantDraft['swing'])
                       : null,
                   })
                 }
@@ -314,28 +355,21 @@ export function ProductVariantsEditor({
 
           <div className="grid gap-3 sm:grid-cols-2">
             {componentFields.map(([code, labelKey]) => {
-              const component = variant.includedComponents?.find(
-                (entry) => entry.code === code,
-              );
+              const component = variant.includedComponents?.find((entry) => entry.code === code);
               return (
                 <label key={code}>
-                  <span className={ADMIN_LABEL}>
-                    {copy[labelKey]}
-                  </span>
+                  <span className={ADMIN_LABEL}>{copy[labelKey]}</span>
                   <select
-                    value={component?.status ?? ""}
+                    value={component?.status ?? ''}
                     onChange={(event) => {
                       const remaining =
-                        variant.includedComponents?.filter(
-                          (entry) => entry.code !== code,
-                        ) ?? [];
+                        variant.includedComponents?.filter((entry) => entry.code !== code) ?? [];
                       const next = event.target.value
                         ? [
                             ...remaining,
                             {
                               code,
-                              status: event.target
-                                .value as "INCLUDED" | "EXCLUDED" | "UNKNOWN",
+                              status: event.target.value as 'INCLUDED' | 'EXCLUDED' | 'UNKNOWN',
                               ...(component?.quantity != null
                                 ? { quantity: component.quantity }
                                 : {}),
@@ -353,13 +387,13 @@ export function ProductVariantsEditor({
                     <option value="EXCLUDED">{copy.excluded}</option>
                     <option value="UNKNOWN">{copy.unknown}</option>
                   </select>
-                  {component?.status === "INCLUDED" ? (
+                  {component?.status === 'INCLUDED' ? (
                     <input
-                      aria-label={`${copy[componentFields.find(([field]) => field === code)?.[1] ?? "includedComponents"]} ${labels.componentQuantity}`}
+                      aria-label={`${copy[componentFields.find(([field]) => field === code)?.[1] ?? 'includedComponents']} ${labels.componentQuantity}`}
                       min={1}
                       step={1}
                       type="number"
-                      value={component.quantity ?? ""}
+                      value={component.quantity ?? ''}
                       onChange={(event) =>
                         updateVariant(index, {
                           includedComponents:
@@ -368,7 +402,7 @@ export function ProductVariantsEditor({
                                 ? {
                                     ...entry,
                                     quantity:
-                                      event.target.value === ""
+                                      event.target.value === ''
                                         ? undefined
                                         : Number(event.target.value),
                                   }
@@ -384,12 +418,24 @@ export function ProductVariantsEditor({
             })}
           </div>
 
+          <ProductDrawerImages
+            heading={labels.media.variantHeading}
+            images={variant.images}
+            disabled={disabled}
+            open={open}
+            purpose="product"
+            labels={labels.media}
+            onChange={(images) => updateVariantImages(index, images)}
+            onUploadingChange={(uploading) =>
+              onImageUploadingChange(variant.id ?? `new-${index}`, uploading)
+            }
+            onError={onError}
+          />
+
           {variants.length > 1 ? (
             <button
               type="button"
-              onClick={() =>
-                onChange(variants.filter((_, variantIndex) => variantIndex !== index))
-              }
+              onClick={() => void removeVariant(index)}
               className="text-sm text-red-700 underline"
             >
               {copy.removeVariant}

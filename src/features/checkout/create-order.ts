@@ -1,11 +1,11 @@
-"use server";
+'use server';
 
-import { createHash } from "node:crypto";
+import { createHash } from 'node:crypto';
 
-import { and, asc, eq, inArray, or, sql } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { and, asc, eq, inArray, or, sql } from 'drizzle-orm';
+import { cookies } from 'next/headers';
 
-import { getProviders } from "@/config/providers";
+import { getProviders } from '@/config/providers';
 import {
   cartItems,
   carts,
@@ -19,43 +19,33 @@ import {
   products,
   promotions,
   stockMovements,
-} from "@/db/schema";
-import type { OrderVariantSnapshot } from "@/db/schema/orders";
-import { withTransaction } from "@/db/transaction";
-import {
-  getCartWithItems,
-  revalidateCartPaths,
-} from "@/features/cart/cart";
-import {
-  checkoutSchema,
-  type CheckoutInput,
-} from "@/features/checkout/schemas";
-import { toPaymentRecord } from "@/features/checkout/domain/payment-methods";
+} from '@/db/schema';
+import { getDb } from '@/db/client';
+import type { OrderVariantSnapshot } from '@/db/schema/orders';
+import { withTransaction } from '@/db/transaction';
+import { getCartWithItems, revalidateCartPaths } from '@/features/cart/cart';
+import { hashGuestToken, peekGuestCartToken } from '@/features/cart/guest-token';
+import { checkoutSchema, type CheckoutInput } from '@/features/checkout/schemas';
+import { createCheckoutRequestFingerprint } from '@/features/checkout/domain/idempotency';
+import { toPaymentRecord } from '@/features/checkout/domain/payment-methods';
 import {
   ORDER_NUMBER_LOCK_KEY,
   formatOrderNumber,
   nextOrderSequence,
-} from "@/features/orders/domain/order-number";
+} from '@/features/orders/domain/order-number';
 import {
   couponDiscountErrorMessage,
   evaluateCouponDiscount,
-} from "@/features/promotions/domain/evaluate-coupon";
-import { normalizePromotionCode } from "@/features/promotions/domain/promotion-rules";
-import { resolveVariantPrices } from "@/features/promotions/application/resolve-product-prices";
-import { isVariantPurchasable } from "@/features/products/domain/door-variant";
-import { getCurrentUser } from "@/lib/auth/session";
-import { getCheckoutRateSnapshot } from "@/lib/fx/service";
-import { createId } from "@/lib/id";
-import { convertAmount } from "@/lib/money/convert";
-import { defaultCurrency } from "@/lib/money/currency";
-import {
-  CURRENCY_COOKIE_NAME,
-  parseCurrencyCookie,
-} from "@/lib/money/currency-cookie";
-
-function hashValue(value: string): string {
-  return createHash("sha256").update(value).digest("hex");
-}
+} from '@/features/promotions/domain/evaluate-coupon';
+import { normalizePromotionCode } from '@/features/promotions/domain/promotion-rules';
+import { resolveVariantPrices } from '@/features/promotions/application/resolve-product-prices';
+import { isVariantPurchasable } from '@/features/products/domain/door-variant';
+import { getCurrentUser } from '@/lib/auth/session';
+import { getCheckoutRateSnapshot } from '@/lib/fx/service';
+import { createId } from '@/lib/id';
+import { convertAmount } from '@/lib/money/convert';
+import { defaultCurrency } from '@/lib/money/currency';
+import { CURRENCY_COOKIE_NAME, parseCurrencyCookie } from '@/lib/money/currency-cookie';
 
 function deliveryLabel(countryCode: string, city: string | null): string {
   const cityPart = city?.trim();
@@ -65,92 +55,167 @@ function deliveryLabel(countryCode: string, city: string | null): string {
   return countryCode;
 }
 
-export type CreateOrderResult =
-  | { ok: true; orderNumber: string }
-  | { ok: false; error: string };
+export type CreateOrderResult = { ok: true; orderNumber: string } | { ok: false; error: string };
 
 /** Creates a COD order with server-side totals, stock decrement, and cart clear. */
-export async function createOrderAction(
-  raw: CheckoutInput,
-): Promise<CreateOrderResult> {
+export async function createOrderAction(raw: CheckoutInput): Promise<CreateOrderResult> {
   const parsed = checkoutSchema.safeParse(raw);
   if (!parsed.success) {
-    return { ok: false, error: "Invalid checkout data." };
+    return { ok: false, error: 'Invalid checkout data.' };
   }
 
   const input = parsed.data;
   const user = await getCurrentUser();
   const { cart, items } = await getCartWithItems();
+  const guestToken = user ? null : await peekGuestCartToken();
   const cookieStore = await cookies();
-  const displayCurrency = parseCurrencyCookie(
-    cookieStore.get(CURRENCY_COOKIE_NAME)?.value,
-  );
+  const displayCurrency = parseCurrencyCookie(cookieStore.get(CURRENCY_COOKIE_NAME)?.value);
 
-  if (items.length === 0 || !cart) {
-    return { ok: false, error: "Cart is empty." };
-  }
-
-  let rateSnapshot;
-  try {
-    rateSnapshot = await getCheckoutRateSnapshot(displayCurrency);
-  } catch {
-    return { ok: false, error: "Exchange rate unavailable. Try again shortly." };
+  const ownerIdentity =
+    user?.id ?? cart?.guestTokenHash ?? (guestToken ? hashGuestToken(guestToken) : null);
+  if (!ownerIdentity) {
+    return { ok: false, error: 'Cart is empty.' };
   }
 
   const contactName = `${input.firstName} ${input.lastName}`.trim();
-  const scopeHash = hashValue(user?.id ?? cart.guestTokenHash ?? cart.id);
-  const keyHash = hashValue(input.idempotencyKey);
-  const fingerprint = hashValue(
-    JSON.stringify({
-      cartId: cart.id,
-      items: items.map(({ item }) => ({
+  const scopeHash = createHash('sha256').update(ownerIdentity).digest('hex');
+  const keyHash = createHash('sha256').update(input.idempotencyKey).digest('hex');
+
+  try {
+    const existingOrders = await getDb()
+      .select({
+        id: orders.id,
+        orderNumber: orders.orderNumber,
+        requestFingerprint: orders.requestFingerprint,
+      })
+      .from(orders)
+      .where(
+        and(eq(orders.idempotencyScopeHash, scopeHash), eq(orders.idempotencyKeyHash, keyHash)),
+      )
+      .limit(2);
+
+    if (existingOrders.length > 1) {
+      return {
+        ok: false,
+        error: 'This checkout request conflicts with an earlier order.',
+      };
+    }
+
+    const existingOrder = existingOrders[0];
+    if (existingOrder) {
+      const savedItems = await getDb()
+        .select({
+          variantId: orderItems.variantId,
+          quantity: orderItems.quantity,
+        })
+        .from(orderItems)
+        .where(eq(orderItems.orderId, existingOrder.id));
+      const fingerprintItems =
+        items.length > 0
+          ? items.map(({ item }) => ({
+              variantId: item.variantId,
+              quantity: item.quantity,
+            }))
+          : savedItems.flatMap((item) =>
+              item.variantId ? [{ variantId: item.variantId, quantity: item.quantity }] : [],
+            );
+      const fingerprint = createCheckoutRequestFingerprint(
+        input,
+        fingerprintItems,
+        displayCurrency,
+      );
+      if (fingerprint !== existingOrder.requestFingerprint) {
+        return {
+          ok: false,
+          error: 'This checkout request conflicts with an earlier order.',
+        };
+      }
+      return { ok: true, orderNumber: existingOrder.orderNumber };
+    }
+
+    if (items.length === 0 || !cart) {
+      return { ok: false, error: 'Cart is empty.' };
+    }
+
+    let rateSnapshot: Awaited<ReturnType<typeof getCheckoutRateSnapshot>>;
+    try {
+      rateSnapshot = await getCheckoutRateSnapshot(displayCurrency);
+    } catch {
+      return {
+        ok: false,
+        error: 'Exchange rate unavailable. Try again shortly.',
+      };
+    }
+
+    const fingerprint = createCheckoutRequestFingerprint(
+      input,
+      items.map(({ item }) => ({
         variantId: item.variantId,
         quantity: item.quantity,
       })),
-      email: input.contactEmail.toLowerCase(),
-      shippingMethod: input.shippingMethod,
-      paymentMethod: input.paymentMethod,
-      deliveryRuleId: input.deliveryRuleId ?? null,
-    }),
-  );
+      displayCurrency,
+    );
 
-  try {
     const orderNumber = await withTransaction(async (tx) => {
-      const [existing] = await tx
-        .select({ orderNumber: orders.orderNumber })
+      await tx.execute(
+        sql`select pg_advisory_xact_lock(hashtext(${scopeHash}), hashtext(${keyHash}))`,
+      );
+      const existingRows = await tx
+        .select({
+          id: orders.id,
+          orderNumber: orders.orderNumber,
+          requestFingerprint: orders.requestFingerprint,
+        })
         .from(orders)
         .where(
-          and(
-            eq(orders.idempotencyScopeHash, scopeHash),
-            eq(orders.idempotencyKeyHash, keyHash),
-            eq(orders.requestFingerprint, fingerprint),
-          ),
+          and(eq(orders.idempotencyScopeHash, scopeHash), eq(orders.idempotencyKeyHash, keyHash)),
         )
-        .limit(1);
+        .limit(2);
 
+      if (existingRows.length > 1) {
+        throw new Error('IDEMPOTENCY_CONFLICT');
+      }
+      const existing = existingRows[0];
       if (existing) {
+        const savedItems = await tx
+          .select({
+            variantId: orderItems.variantId,
+            quantity: orderItems.quantity,
+          })
+          .from(orderItems)
+          .where(eq(orderItems.orderId, existing.id));
+        const fingerprintItems =
+          items.length > 0
+            ? items.map(({ item }) => ({
+                variantId: item.variantId,
+                quantity: item.quantity,
+              }))
+            : savedItems.flatMap((item) =>
+                item.variantId ? [{ variantId: item.variantId, quantity: item.quantity }] : [],
+              );
+        if (
+          createCheckoutRequestFingerprint(input, fingerprintItems, displayCurrency) !==
+          existing.requestFingerprint
+        ) {
+          throw new Error('IDEMPOTENCY_CONFLICT');
+        }
         return existing.orderNumber;
       }
 
       let delivery: typeof deliveryRules.$inferSelect | null = null;
-      if (input.shippingMethod === "delivery") {
+      if (input.shippingMethod === 'delivery') {
         if (!input.deliveryRuleId) {
-          throw new Error("Delivery location is required.");
+          throw new Error('Delivery location is required.');
         }
 
         const [matched] = await tx
           .select()
           .from(deliveryRules)
-          .where(
-            and(
-              eq(deliveryRules.id, input.deliveryRuleId),
-              eq(deliveryRules.isActive, true),
-            ),
-          )
+          .where(and(eq(deliveryRules.id, input.deliveryRuleId), eq(deliveryRules.isActive, true)))
           .limit(1);
 
         if (!matched) {
-          throw new Error("Selected delivery location is unavailable.");
+          throw new Error('Selected delivery location is unavailable.');
         }
 
         delivery = matched;
@@ -160,16 +225,16 @@ export async function createOrderAction(
         recipientFirstName: input.firstName,
         recipientLastName: input.lastName,
         phone: input.contactPhone,
-        countryCode: delivery?.countryCode ?? "AM",
+        countryCode: delivery?.countryCode ?? 'AM',
         region: input.region,
         city:
-          input.shippingMethod === "pickup"
-            ? (input.city?.trim() || "Yerevan")
-            : (delivery?.city?.trim() || input.city?.trim() || ""),
+          input.shippingMethod === 'pickup'
+            ? input.city?.trim() || 'Yerevan'
+            : delivery?.city?.trim() || input.city?.trim() || '',
         line1:
-          input.shippingMethod === "pickup"
-            ? (input.line1?.trim() || "Store pickup")
-            : (input.line1 ?? ""),
+          input.shippingMethod === 'pickup'
+            ? input.line1?.trim() || 'Store pickup'
+            : (input.line1 ?? ''),
         line2: input.line2,
         postalCode: input.postalCode,
       };
@@ -203,22 +268,22 @@ export async function createOrderAction(
           .from(productVariants)
           .innerJoin(products, eq(productVariants.productId, products.id))
           .where(eq(productVariants.id, item.variantId))
-          .for("update")
+          .for('update')
           .limit(1);
 
         if (
           !locked ||
-          locked.product.status !== "ACTIVE" ||
+          locked.product.status !== 'ACTIVE' ||
           !isVariantPurchasable({
             product: locked.product,
             variant: locked.variant,
           })
         ) {
-          throw new Error("A selected product configuration is unavailable.");
+          throw new Error('A selected product configuration is unavailable.');
         }
 
         if (locked.variant.stockOnHand < item.quantity) {
-          throw new Error("Insufficient stock for one or more items.");
+          throw new Error('Insufficient stock for one or more items.');
         }
 
         lockedVariants.push({
@@ -246,7 +311,7 @@ export async function createOrderAction(
         .from(mediaAssets)
         .where(
           and(
-            eq(mediaAssets.uploadStatus, "READY"),
+            eq(mediaAssets.uploadStatus, 'READY'),
             or(
               inArray(
                 mediaAssets.productId,
@@ -257,7 +322,7 @@ export async function createOrderAction(
                 lockedVariants.map(({ variant }) => variant.id),
               ),
             ),
-            or(eq(mediaAssets.isPrimary, true), eq(mediaAssets.role, "PRIMARY")),
+            or(eq(mediaAssets.isPrimary, true), eq(mediaAssets.role, 'PRIMARY')),
           ),
         )
         .orderBy(asc(mediaAssets.sortOrder));
@@ -283,12 +348,7 @@ export async function createOrderAction(
         );
         const lineTotal = unitAmount * quantity;
         const unitDisplayAmount = Number(
-          convertAmount(
-            unitAmount,
-            rateSnapshot.rate,
-            defaultCurrency,
-            displayCurrency,
-          ).amount,
+          convertAmount(unitAmount, rateSnapshot.rate, defaultCurrency, displayCurrency).amount,
         );
         subtotal += lineTotal;
         lineSnapshots.push({
@@ -300,10 +360,7 @@ export async function createOrderAction(
             product.modelName ??
             product.sku,
           sku: variant.sku,
-          imageUrl:
-            variantImages.get(variant.id) ??
-            productImages.get(product.id) ??
-            null,
+          imageUrl: variantImages.get(variant.id) ?? productImages.get(product.id) ?? null,
           variantSnapshot: {
             product: {
               brandName: product.brandName,
@@ -325,27 +382,17 @@ export async function createOrderAction(
             },
             itemType: variant.itemType,
             dimensionsMm: {
-              ...(variant.leafWidthMm != null
-                ? { leafWidth: variant.leafWidthMm }
-                : {}),
-              ...(variant.leafHeightMm != null
-                ? { leafHeight: variant.leafHeightMm }
-                : {}),
+              ...(variant.leafWidthMm != null ? { leafWidth: variant.leafWidthMm } : {}),
+              ...(variant.leafHeightMm != null ? { leafHeight: variant.leafHeightMm } : {}),
               ...(variant.leafThicknessMm != null
                 ? { leafThickness: variant.leafThicknessMm }
                 : {}),
               ...(variant.secondaryLeafWidthMm != null
                 ? { secondaryLeafWidth: variant.secondaryLeafWidthMm }
                 : {}),
-              ...(variant.unitWidthMm != null
-                ? { unitWidth: variant.unitWidthMm }
-                : {}),
-              ...(variant.unitHeightMm != null
-                ? { unitHeight: variant.unitHeightMm }
-                : {}),
-              ...(variant.frameDepthMm != null
-                ? { frameDepth: variant.frameDepthMm }
-                : {}),
+              ...(variant.unitWidthMm != null ? { unitWidth: variant.unitWidthMm } : {}),
+              ...(variant.unitHeightMm != null ? { unitHeight: variant.unitHeightMm } : {}),
+              ...(variant.frameDepthMm != null ? { frameDepth: variant.frameDepthMm } : {}),
               ...(variant.roughOpeningWidthMm != null
                 ? { roughOpeningWidth: variant.roughOpeningWidthMm }
                 : {}),
@@ -356,12 +403,8 @@ export async function createOrderAction(
             appearance: {
               ...(variant.colorName ? { color: variant.colorName } : {}),
               ...(variant.finishName ? { finish: variant.finishName } : {}),
-              ...(variant.exteriorColorName
-                ? { exteriorColor: variant.exteriorColorName }
-                : {}),
-              ...(variant.exteriorFinishName
-                ? { exteriorFinish: variant.exteriorFinishName }
-                : {}),
+              ...(variant.exteriorColorName ? { exteriorColor: variant.exteriorColorName } : {}),
+              ...(variant.exteriorFinishName ? { exteriorFinish: variant.exteriorFinishName } : {}),
             },
             handing: variant.handing,
             swing: variant.swing,
@@ -378,11 +421,10 @@ export async function createOrderAction(
       }
 
       const deliveryAmount =
-        input.shippingMethod === "pickup"
+        input.shippingMethod === 'pickup'
           ? 0
           : delivery &&
-              (delivery.freeThresholdAmount === null ||
-                subtotal < delivery.freeThresholdAmount)
+              (delivery.freeThresholdAmount === null || subtotal < delivery.freeThresholdAmount)
             ? delivery.priceAmount
             : 0;
 
@@ -393,19 +435,15 @@ export async function createOrderAction(
         const [coupon] = await tx
           .select()
           .from(promotions)
-          .where(
-            and(eq(promotions.kind, "COUPON"), eq(promotions.code, code)),
-          )
-          .for("update")
+          .where(and(eq(promotions.kind, 'COUPON'), eq(promotions.code, code)))
+          .for('update')
           .limit(1);
 
         const nowCheck = new Date();
         const evaluated = evaluateCouponDiscount(coupon, subtotal, nowCheck);
         if (!evaluated.ok || !coupon) {
           throw new Error(
-            couponDiscountErrorMessage(
-              evaluated.ok ? "INVALID_OR_INACTIVE" : evaluated.error,
-            ),
+            couponDiscountErrorMessage(evaluated.ok ? 'INVALID_OR_INACTIVE' : evaluated.error),
           );
         }
 
@@ -423,9 +461,7 @@ export async function createOrderAction(
 
       const totalAmount = Math.max(0, subtotal - discountAmount) + deliveryAmount;
       const orderId = createId();
-      await tx.execute(
-        sql`select pg_advisory_xact_lock(${ORDER_NUMBER_LOCK_KEY})`,
-      );
+      await tx.execute(sql`select pg_advisory_xact_lock(${ORDER_NUMBER_LOCK_KEY})`);
       const [maxRow] = await tx
         .select({
           maxSeq: sql<number | null>`max(cast(substring(${orders.orderNumber} from 2) as integer))`,
@@ -442,8 +478,8 @@ export async function createOrderAction(
         contactEmail: input.contactEmail.toLowerCase(),
         contactPhone: input.contactPhone,
         contactName,
-        status: "PENDING",
-        paymentStatus: "PENDING",
+        status: 'PENDING',
+        paymentStatus: 'PENDING',
         baseCurrency: defaultCurrency,
         displayCurrency,
         exchangeRate: rateSnapshot.rate,
@@ -461,16 +497,15 @@ export async function createOrderAction(
         promotionTypeSnapshot: appliedPromotion?.discountType ?? null,
         promotionValueSnapshot: appliedPromotion?.discountValue ?? null,
         promotionDiscountAmount: appliedPromotion ? discountAmount : null,
-        deliveryRuleId:
-          input.shippingMethod === "delivery" ? (delivery?.id ?? null) : null,
+        deliveryRuleId: input.shippingMethod === 'delivery' ? (delivery?.id ?? null) : null,
         deliveryLabelSnapshot:
-          input.shippingMethod === "pickup"
-            ? "Store pickup"
+          input.shippingMethod === 'pickup'
+            ? 'Store pickup'
             : delivery
               ? deliveryLabel(delivery.countryCode, delivery.city)
-              : "Delivery",
+              : 'Delivery',
         deliveryEstimateSnapshot:
-          input.shippingMethod === "pickup"
+          input.shippingMethod === 'pickup'
             ? null
             : delivery
               ? `${delivery.estimatedDaysMin ?? 1}-${delivery.estimatedDaysMax ?? 3} days`
@@ -514,7 +549,7 @@ export async function createOrderAction(
           productId: line.productId,
           variantId: line.variantId,
           delta: -line.quantity,
-          reason: "ORDER",
+          reason: 'ORDER',
           orderId,
           resultingBalance: line.nextStock,
           correlationId: number,
@@ -537,25 +572,25 @@ export async function createOrderAction(
         providerReference: payment.providerReference,
         amount: totalAmount,
         currency: defaultCurrency,
-        status: "PENDING",
+        status: 'PENDING',
         attemptNumber: 1,
       });
 
       await tx.insert(orderEvents).values({
         id: createId(),
         orderId,
-        eventType: "STATUS_CHANGE",
+        eventType: 'STATUS_CHANGE',
         fromState: null,
-        toState: "PENDING",
+        toState: 'PENDING',
         actorUserId: user?.id,
         isCustomerVisible: true,
-        payload: { source: "checkout" },
+        payload: { source: 'checkout' },
       });
 
       await tx.delete(cartItems).where(eq(cartItems.cartId, cart.id));
       await tx
         .update(carts)
-        .set({ status: "CONVERTED", updatedAt: now })
+        .set({ status: 'CONVERTED', updatedAt: now })
         .where(eq(carts.id, cart.id));
 
       return number;
@@ -564,8 +599,13 @@ export async function createOrderAction(
     await revalidateCartPaths();
     return { ok: true, orderNumber };
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Unable to place order.";
+    const message = error instanceof Error ? error.message : 'Unable to place order.';
+    if (message === 'IDEMPOTENCY_CONFLICT') {
+      return {
+        ok: false,
+        error: 'This checkout request conflicts with an earlier order.',
+      };
+    }
     return { ok: false, error: message };
   }
 }

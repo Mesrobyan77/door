@@ -1,31 +1,28 @@
-"use server";
+'use server';
 
-import { eq } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { eq } from 'drizzle-orm';
+import { revalidatePath } from 'next/cache';
 
+import { auditLogs, orderEvents, orderItems, orders } from '@/db/schema';
+import { withTransaction } from '@/db/transaction';
 import {
-  auditLogs,
-  orderEvents,
-  orderItems,
-  orders,
-  productVariants,
-  stockMovements,
-} from "@/db/schema";
-import { withTransaction } from "@/db/transaction";
+  reserveReopenedOrderStock,
+  restoreOrderStock,
+} from '@/features/orders/application/order-stock';
 import {
   canTransitionOrderStatus,
   isOrderStatus,
   shouldRestoreStockOnCancel,
   type OrderStatus,
-} from "@/features/orders/domain/order-status";
+} from '@/features/orders/domain/order-status';
 import {
   changeOrderStatusSchema,
   type ChangeOrderStatusInput,
-} from "@/features/orders/schemas/change-status";
-import { requireAdmin } from "@/lib/auth/policies";
-import { createId } from "@/lib/id";
-import { isLocale, type Locale } from "@/lib/i18n/config";
-import { err, ok, type Result } from "@/lib/result";
+} from '@/features/orders/schemas/change-status';
+import { requireAdmin } from '@/lib/auth/policies';
+import { createId } from '@/lib/id';
+import { isLocale, type Locale } from '@/lib/i18n/config';
+import { err, ok, type Result } from '@/lib/result';
 
 export type ChangeOrderStatusData = {
   orderNumber: string;
@@ -42,12 +39,12 @@ export async function changeOrderStatusAction(
   raw: ChangeOrderStatusInput,
 ): Promise<Result<ChangeOrderStatusData>> {
   if (!isLocale(locale)) {
-    return err("INVALID_LOCALE", "Invalid locale.");
+    return err('INVALID_LOCALE', 'Invalid locale.');
   }
 
   const parsed = changeOrderStatusSchema.safeParse(raw);
   if (!parsed.success) {
-    return err("VALIDATION_ERROR", "Invalid status change payload.");
+    return err('VALIDATION_ERROR', 'Invalid status change payload.');
   }
 
   const actor = await requireAdmin(locale as Locale);
@@ -59,25 +56,25 @@ export async function changeOrderStatusAction(
         .select()
         .from(orders)
         .where(eq(orders.orderNumber, orderNumber))
-        .for("update")
+        .for('update')
         .limit(1);
 
       if (!locked) {
-        throw new Error("ORDER_NOT_FOUND");
+        throw new Error('ORDER_NOT_FOUND');
       }
 
       if (!isOrderStatus(locked.status)) {
-        throw new Error("INVALID_CURRENT_STATUS");
+        throw new Error('INVALID_CURRENT_STATUS');
       }
 
       const fromStatus = locked.status;
 
       if (fromStatus === toStatus) {
-        throw new Error("SAME_STATUS");
+        throw new Error('SAME_STATUS');
       }
 
       if (!canTransitionOrderStatus(fromStatus, toStatus)) {
-        throw new Error("INVALID_TRANSITION");
+        throw new Error('INVALID_TRANSITION');
       }
 
       const now = new Date();
@@ -91,12 +88,12 @@ export async function changeOrderStatusAction(
       await tx.insert(orderEvents).values({
         id: createId(),
         orderId: locked.id,
-        eventType: "STATUS_CHANGE",
+        eventType: 'STATUS_CHANGE',
         fromState: fromStatus,
         toState: toStatus,
         actorUserId: actor.id,
         isCustomerVisible: true,
-        payload: note ? { note } : { source: "admin" },
+        payload: note ? { note } : { source: 'admin' },
         correlationId,
       });
 
@@ -104,7 +101,7 @@ export async function changeOrderStatusAction(
         await tx.insert(orderEvents).values({
           id: createId(),
           orderId: locked.id,
-          eventType: "NOTE",
+          eventType: 'NOTE',
           fromState: null,
           toState: null,
           actorUserId: actor.id,
@@ -114,58 +111,23 @@ export async function changeOrderStatusAction(
         });
       }
 
-      if (toStatus === "CANCELLED" && shouldRestoreStockOnCancel(fromStatus)) {
-        const lines = await tx
-          .select()
-          .from(orderItems)
-          .where(eq(orderItems.orderId, locked.id));
+      const restoresStock = toStatus === 'CANCELLED' && shouldRestoreStockOnCancel(fromStatus);
+      const reopensOrder = fromStatus === 'CANCELLED' && toStatus !== 'CANCELLED';
+      if (restoresStock || reopensOrder) {
+        const lines = await tx.select().from(orderItems).where(eq(orderItems.orderId, locked.id));
 
-        for (const line of lines) {
-          const variantId = line.variantId ?? line.productId;
-          if (!variantId) {
-            continue;
-          }
-
-          const [variant] = await tx
-            .select()
-            .from(productVariants)
-            .where(eq(productVariants.id, variantId))
-            .for("update")
-            .limit(1);
-
-          if (!variant) {
-            continue;
-          }
-
-          const nextStock = variant.stockOnHand + line.quantity;
-
-          await tx
-            .update(productVariants)
-            .set({
-              stockOnHand: nextStock,
-              updatedAt: now,
-            })
-            .where(eq(productVariants.id, variant.id));
-
-          await tx.insert(stockMovements).values({
-            id: createId(),
-            productId: variant.productId,
-            variantId: variant.id,
-            delta: line.quantity,
-            reason: "CANCEL",
-            orderId: locked.id,
-            actorUserId: actor.id,
-            resultingBalance: nextStock,
-            correlationId,
-          });
+        if (restoresStock) {
+          await restoreOrderStock(tx, lines, locked.id, actor.id, correlationId, now);
+        } else {
+          await reserveReopenedOrderStock(tx, lines, locked.id, actor.id, correlationId, now);
         }
       }
 
       await tx.insert(auditLogs).values({
         id: createId(),
         actorUserId: actor.id,
-        action: "order.change_status",
-        targetType: "order",
+        action: 'order.change_status',
+        targetType: 'order',
         targetId: locked.id,
         beforeDiff: { status: fromStatus },
         afterDiff: { status: toStatus },
@@ -182,22 +144,30 @@ export async function changeOrderStatusAction(
 
     return ok(result);
   } catch (error) {
-    const code = error instanceof Error ? error.message : "UNKNOWN";
+    const code = error instanceof Error ? error.message : 'UNKNOWN';
 
     switch (code) {
-      case "ORDER_NOT_FOUND":
-        return err("ORDER_NOT_FOUND", "Order not found.");
-      case "SAME_STATUS":
-        return err("SAME_STATUS", "Order already has this status.");
-      case "INVALID_TRANSITION":
+      case 'ORDER_NOT_FOUND':
+        return err('ORDER_NOT_FOUND', 'Order not found.');
+      case 'SAME_STATUS':
+        return err('SAME_STATUS', 'Order already has this status.');
+      case 'INVALID_TRANSITION':
+        return err('INVALID_TRANSITION', 'That status transition is not allowed.');
+      case 'INVALID_CURRENT_STATUS':
+        return err('INVALID_CURRENT_STATUS', 'Order has an unknown status.');
+      case 'INSUFFICIENT_STOCK_TO_REOPEN':
         return err(
-          "INVALID_TRANSITION",
-          "That status transition is not allowed.",
+          'INSUFFICIENT_STOCK',
+          'The order cannot be reopened because its stock is no longer available.',
         );
-      case "INVALID_CURRENT_STATUS":
-        return err("INVALID_CURRENT_STATUS", "Order has an unknown status.");
+      case 'ORDER_STOCK_HISTORY_MISSING':
+      case 'ORDER_VARIANT_NOT_FOUND':
+        return err(
+          'STOCK_HISTORY_UNAVAILABLE',
+          'The order stock history is incomplete; inventory was not changed.',
+        );
       default:
-        return err("ORDER_STATUS_FAILED", "Unable to update order status.");
+        return err('ORDER_STATUS_FAILED', 'Unable to update order status.');
     }
   }
 }

@@ -1,8 +1,8 @@
 # White Shop — փուլային implementation plan
 
-**Կարգավիճակ.** Active — Phase 2 schema migrated; seed/auth next
+**Կարգավիճակ.** Active — existing baseline phases remain; approved door-variant slice migrated and verified on the test database; wider release readiness remains open
 **Scope model.** Vertical slices after foundation
-**Վերջին թարմացում.** 2026-07-18
+**Վերջին թարմացում.** 2026-11-06
 
 ## 1. Delivery principles
 
@@ -24,7 +24,7 @@
 ### Exit criteria
 
 - [x] TECH_CARD status-ը `հաստատված` է։
-- [x] Բոլոր blocking open decisions-ը resolved են (non-blocking OPEN-* defaults documented)։
+- [x] Բոլոր blocking open decisions-ը resolved են (non-blocking OPEN-\* defaults documented)։
 - [x] Product owner/tech lead-ը հաստատել են implementation sequence-ը։
 
 ## 3. Foundation — Phase 1
@@ -49,7 +49,7 @@
 
 ### Deliverables
 
-- Canonical 26-table migration՝ ըստ `03-DATA-MODEL.md` inventory-ի; the door-variant incremental migration requires an approved non-production target before application։
+- Canonical 26-table migration՝ ըստ `03-DATA-MODEL.md` inventory-ի; incremental migrations require an approved non-production target. Door-variant migrations `0004`/`0005` were applied to the confirmed test database on 2026-11-06.
 - Identity schema՝ users/sessions/addresses, իսկ verification/reset tokens՝ Redis TTL/atomic consume contract-ով։
 - Catalog/content entities՝ validated translation JSONB + locale slug expression indexes։
 - Unified promotions, embedded order address/idempotency snapshots, order events, audit և outbox schema։
@@ -87,6 +87,7 @@
 - Multilingual translations/slugs/SEO/media sorting/primary image։
 - Inventory adjustment + movements, featured/upcoming/badge fields։
 - Door model/shared specifications plus sellable variant SKU, dimensions, appearance, handing/swing, included components, price, stock and status management։
+- Variant-specific media management through the existing authenticated Cloudinary lifecycle, with product-image fallback։
 - Admin table/drawer primitives և audit logs։
 
 ### Exit criteria
@@ -104,6 +105,7 @@
 - Product list search/filter/sort/page URL contract։
 - Product detail gallery/quantity/related products։
 - Explicit door-variant selection, variant-aware pricing/availability and inquiry-only handling։
+- Combined price/availability filters must match a single eligible variant։
 - Dynamic metadata, canonical/hreflang, sitemap/robots և Product/Breadcrumb JSON-LD։
 
 ### Exit criteria

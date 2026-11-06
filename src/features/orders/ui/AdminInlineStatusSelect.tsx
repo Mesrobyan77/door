@@ -1,39 +1,26 @@
-"use client";
+'use client';
 
-import {
-  useEffect,
-  useId,
-  useLayoutEffect,
-  useRef,
-  useState,
-  useTransition,
-} from "react";
-import { createPortal } from "react-dom";
-import { useRouter } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, useTransition } from 'react';
+import { createPortal } from 'react-dom';
+import { useRouter } from 'next/navigation';
+import { ChevronDown } from 'lucide-react';
 
-import {
-  DROPDOWN_ANIMATION_MS,
-  SelectDropdownOptionRow,
-} from "@/components/ui/SelectDropdown";
-import {
-  orderStatusBadgeClass,
-  paymentStatusBadgeClass,
-} from "@/features/admin/ui/status-badge";
-import { changeOrderStatusAction } from "@/features/orders/application/change-order-status";
-import { changePaymentStatusAction } from "@/features/orders/application/change-payment-status";
+import { DROPDOWN_ANIMATION_MS, SelectDropdownOptionRow } from '@/components/ui/SelectDropdown';
+import { orderStatusBadgeClass, paymentStatusBadgeClass } from '@/features/admin/ui/status-badge';
+import { changeOrderStatusAction } from '@/features/orders/application/change-order-status';
+import { changePaymentStatusAction } from '@/features/orders/application/change-payment-status';
 import {
   ADMIN_ORDER_STATUS_OPTIONS,
   orderStatusLabel,
   type OrderStatus,
-} from "@/features/orders/domain/order-status";
+} from '@/features/orders/domain/order-status';
 import {
   ADMIN_PAYMENT_STATUS_OPTIONS,
   paymentStatusLabel,
   type PaymentStatus,
-} from "@/features/orders/domain/payment-status";
-import { useHoldFlag } from "@/lib/react/use-hold-flag";
-import { useSyncedState } from "@/lib/react/sync-state-from-prop";
+} from '@/features/orders/domain/payment-status';
+import { useHoldFlag } from '@/lib/react/use-hold-flag';
+import { useSyncedState } from '@/lib/react/sync-state-from-prop';
 
 type MenuPosition = {
   top: number;
@@ -44,7 +31,7 @@ type MenuPosition = {
 type AdminInlineStatusSelectProps = {
   locale: string;
   orderNumber: string;
-  kind: "order" | "payment";
+  kind: 'order' | 'payment';
   value: string;
   disabled?: boolean;
 };
@@ -76,20 +63,13 @@ export function AdminInlineStatusSelect({
     };
   }, []);
 
-  const options =
-    kind === "order"
-      ? ADMIN_ORDER_STATUS_OPTIONS
-      : ADMIN_PAYMENT_STATUS_OPTIONS;
+  const options = kind === 'order' ? ADMIN_ORDER_STATUS_OPTIONS : ADMIN_PAYMENT_STATUS_OPTIONS;
 
   const currentLabel =
-    kind === "order"
-      ? orderStatusLabel(displayValue)
-      : paymentStatusLabel(displayValue);
+    kind === 'order' ? orderStatusLabel(displayValue) : paymentStatusLabel(displayValue);
 
   const badgeClassName =
-    kind === "order"
-      ? orderStatusBadgeClass(displayValue)
-      : paymentStatusBadgeClass(displayValue);
+    kind === 'order' ? orderStatusBadgeClass(displayValue) : paymentStatusBadgeClass(displayValue);
 
   function updateMenuPosition(): void {
     const trigger = rootRef.current;
@@ -120,33 +100,30 @@ export function AdminInlineStatusSelect({
 
     function handlePointerDown(event: MouseEvent): void {
       const target = event.target as Node;
-      if (
-        rootRef.current?.contains(target) ||
-        menuRef.current?.contains(target)
-      ) {
+      if (rootRef.current?.contains(target) || menuRef.current?.contains(target)) {
         return;
       }
       setOpen(false);
     }
 
     function handleKeyDown(event: KeyboardEvent): void {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === 'Escape') setOpen(false);
     }
 
     function handleReposition(): void {
       updateMenuPosition();
     }
 
-    document.addEventListener("mousedown", handlePointerDown);
-    document.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("resize", handleReposition);
-    window.addEventListener("scroll", handleReposition, true);
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleReposition);
+    window.addEventListener('scroll', handleReposition, true);
 
     return () => {
-      document.removeEventListener("mousedown", handlePointerDown);
-      document.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("resize", handleReposition);
-      window.removeEventListener("scroll", handleReposition, true);
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleReposition);
+      window.removeEventListener('scroll', handleReposition, true);
     };
   }, [open]);
 
@@ -161,7 +138,7 @@ export function AdminInlineStatusSelect({
     startTransition(async () => {
       setError(null);
       const result =
-        kind === "order"
+        kind === 'order'
           ? await changeOrderStatusAction(locale, {
               orderNumber,
               toStatus: next as OrderStatus,
@@ -193,14 +170,12 @@ export function AdminInlineStatusSelect({
   }
 
   const menu =
-    mounted && menuPosition
+    (open || mounted) && menuPosition
       ? createPortal(
           <div
             ref={menuRef}
             className={`fixed z-[200] transition-[opacity,transform] ease-[cubic-bezier(0.22,1,0.36,1)] ${
-              open
-                ? "translate-y-0 opacity-100"
-                : "pointer-events-none -translate-y-1 opacity-0"
+              open ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-1 opacity-0'
             }`}
             style={{
               top: menuPosition.top,
@@ -218,10 +193,8 @@ export function AdminInlineStatusSelect({
               {options.map((option) => {
                 const selected =
                   option.value === displayValue ||
-                  (kind === "order" &&
-                    orderStatusLabel(displayValue) === option.label) ||
-                  (kind === "payment" &&
-                    paymentStatusLabel(displayValue) === option.label);
+                  (kind === 'order' && orderStatusLabel(displayValue) === option.label) ||
+                  (kind === 'payment' && paymentStatusLabel(displayValue) === option.label);
                 return (
                   <SelectDropdownOptionRow
                     key={option.value}
@@ -247,12 +220,15 @@ export function AdminInlineStatusSelect({
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-controls={menuId}
-        onClick={() => setOpen((valueOpen) => !valueOpen)}
+        onClick={() => {
+          if (!open) updateMenuPosition();
+          setOpen((valueOpen) => !valueOpen);
+        }}
       >
         <span>{currentLabel}</span>
         <ChevronDown
           className={`h-3.5 w-3.5 shrink-0 opacity-70 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-            open ? "rotate-180" : ""
+            open ? 'rotate-180' : ''
           }`}
           aria-hidden
         />
@@ -260,11 +236,7 @@ export function AdminInlineStatusSelect({
 
       {menu}
 
-      {error ? (
-        <p className="mt-1 whitespace-nowrap text-[10px] text-red-700">
-          {error}
-        </p>
-      ) : null}
+      {error ? <p className="mt-1 whitespace-nowrap text-[10px] text-red-700">{error}</p> : null}
     </div>
   );
 }

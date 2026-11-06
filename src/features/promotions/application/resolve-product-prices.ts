@@ -1,14 +1,14 @@
-import "server-only";
+import 'server-only';
 
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from 'drizzle-orm';
 
-import { getDb } from "@/db/client";
-import { productCategories, promotions } from "@/db/schema";
+import { getDb } from '@/db/client';
+import { productCategories, promotions } from '@/db/schema';
 import {
   resolveCatalogPrice,
   type ResolvedCatalogPrice,
-} from "@/features/promotions/domain/resolve-automatic-discount";
-import { getStoreGlobalDiscount } from "@/features/settings/application/queries";
+} from '@/features/promotions/domain/resolve-automatic-discount';
+import { getStoreGlobalDiscount } from '@/features/settings/application/queries';
 
 export type ProductPriceInput = {
   id: string;
@@ -26,6 +26,7 @@ export type VariantPriceInput = {
 type AutomaticPromoRow = {
   discountValue: number;
   productId: string | null;
+  productVariantId: string | null;
   categoryId: string | null;
 };
 
@@ -68,13 +69,14 @@ async function resolvePrices(
       .select({
         discountValue: promotions.discountValue,
         productId: promotions.productId,
+        productVariantId: promotions.productVariantId,
         categoryId: promotions.categoryId,
       })
       .from(promotions)
       .where(
         and(
-          eq(promotions.kind, "AUTOMATIC"),
-          eq(promotions.discountType, "PERCENTAGE"),
+          eq(promotions.kind, 'AUTOMATIC'),
+          eq(promotions.discountType, 'PERCENTAGE'),
           eq(promotions.isActive, true),
         ),
       ),
@@ -88,8 +90,15 @@ async function resolvePrices(
   ]);
 
   const productPercent = new Map<string, number>();
+  const variantPercent = new Map<string, number>();
   const categoryPercent = new Map<string, number>();
   for (const promo of promoRows as AutomaticPromoRow[]) {
+    if (promo.productVariantId) {
+      const current = variantPercent.get(promo.productVariantId);
+      if (current == null || promo.discountValue > current) {
+        variantPercent.set(promo.productVariantId, promo.discountValue);
+      }
+    }
     if (promo.productId) {
       const current = productPercent.get(promo.productId);
       if (current == null || promo.discountValue > current) {
@@ -121,6 +130,7 @@ async function resolvePrices(
       product.id,
       resolveCatalogPrice({
         listAmount: product.priceAmount,
+        variantPercent: variantPercent.get(product.id) ?? null,
         productPercent: productPercent.get(product.productId) ?? null,
         categoryPercents,
         globalPercent: globalDiscount.percentage,

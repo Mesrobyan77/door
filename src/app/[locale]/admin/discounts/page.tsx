@@ -1,18 +1,16 @@
-import { notFound } from "next/navigation";
+import { notFound } from 'next/navigation';
 
-import { ADMIN_PAGE_TITLE } from "@/features/admin/ui/admin-form-classes";
-import { getAdminDiscountsBoard } from "@/features/promotions/application/discounts-board";
-import { AdminDiscountsView } from "@/features/promotions/ui/AdminDiscountsView";
-import { isLocale } from "@/lib/i18n/config";
-import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { ADMIN_PAGE_TITLE } from '@/features/admin/ui/admin-form-classes';
+import { getAdminDiscountsBoard } from '@/features/promotions/application/discounts-board';
+import { AdminDiscountsView } from '@/features/promotions/ui/AdminDiscountsView';
+import { isLocale } from '@/lib/i18n/config';
+import { getDictionary } from '@/lib/i18n/get-dictionary';
 
 type AdminDiscountsPageProps = {
   params: Promise<{ locale: string }>;
 };
 
-export default async function AdminDiscountsPage({
-  params,
-}: AdminDiscountsPageProps) {
+export default async function AdminDiscountsPage({ params }: AdminDiscountsPageProps) {
   const { locale } = await params;
   if (!isLocale(locale)) {
     notFound();
@@ -30,6 +28,7 @@ export default async function AdminDiscountsPage({
         locale={locale}
         board={board}
         inquiryLabel={getDictionary(locale).product.variant.inquiry}
+        variantCopy={getDictionary(locale).product.variant}
       />
     </section>
   );

@@ -1,49 +1,59 @@
-import "server-only";
+import 'server-only';
 
-import { and, asc, desc, eq, inArray, isNull, or, sql } from "drizzle-orm";
-import { unstable_cache } from "next/cache";
-import { cache } from "react";
+import { and, asc, desc, eq, exists, inArray, isNull, ne, or, sql } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
+import { cache } from 'react';
 
-import { getDb } from "@/db/client";
+import { getDb } from '@/db/client';
 import {
   categories,
   mediaAssets,
+  orderItems,
+  orders,
   productCategories,
   productVariants,
   products,
-} from "@/db/schema";
-import { resolveVariantPrices } from "@/features/promotions/application/resolve-product-prices";
-import { isVariantPurchasable } from "@/features/products/domain/door-variant";
+} from '@/db/schema';
+import { resolveVariantPrices } from '@/features/promotions/application/resolve-product-prices';
+import { isVariantPurchasable } from '@/features/products/domain/door-variant';
+import {
+  catalogFiltersNeedVariantMatch,
+  defaultCatalogFilters,
+  getMatchingCatalogVariant,
+  type CatalogFilters,
+} from '@/features/products/domain/catalog-filters';
 import type {
   CatalogProduct,
   ProductCategoryRef,
   ProductDetail,
   ProductGalleryImage,
-} from "@/features/products/types";
-import {
-  CACHE_TAGS,
-  PUBLIC_CACHE_REVALIDATE_SECONDS,
-} from "@/lib/cache/tags";
-import type { Locale } from "@/lib/i18n/config";
+} from '@/features/products/types';
+import { CACHE_TAGS, PUBLIC_CACHE_REVALIDATE_SECONDS } from '@/lib/cache/tags';
+import type { Locale } from '@/lib/i18n/config';
 
 export type {
   CatalogProduct,
   ProductCategoryRef,
   ProductDetail,
   ProductGalleryImage,
-} from "@/features/products/types";
+} from '@/features/products/types';
 
 const RELATED_PRODUCTS_LIMIT = 4;
 export const CATALOG_PAGE_SIZE = 24;
+
+export type CatalogCategoryOption = {
+  slug: string;
+  title: string;
+};
 
 function toCatalogProduct(
   product: typeof products.$inferSelect,
   locale: Locale,
   imageUrl: string | null = null,
-  variants: ProductDetail["variants"] = [],
+  variants: ProductDetail['variants'] = [],
 ): Omit<
   CatalogProduct,
-  "priceAmount" | "compareAtAmount" | "discountPercent" | "listPriceAmount"
+  'priceAmount' | 'compareAtAmount' | 'discountPercent' | 'listPriceAmount'
 > | null {
   const translation = product.translations[locale] ?? product.translations.hy;
   if (!translation) {
@@ -54,8 +64,7 @@ function toCatalogProduct(
     id: product.id,
     sku: variants[0]?.sku ?? product.sku,
     stockOnHand: variants.reduce(
-      (total, variant) =>
-        total + (variant.purchasable ? variant.stockOnHand : 0),
+      (total, variant) => total + (variant.purchasable ? variant.stockOnHand : 0),
       0,
     ),
     translation,
@@ -82,9 +91,7 @@ function toCatalogProduct(
   };
 }
 
-async function loadPrimaryProductImages(
-  productIds: string[],
-): Promise<Map<string, string>> {
+async function loadPrimaryProductImages(productIds: string[]): Promise<Map<string, string>> {
   const map = new Map<string, string>();
   if (productIds.length === 0) {
     return map;
@@ -102,8 +109,8 @@ async function loadPrimaryProductImages(
     .where(
       and(
         inArray(mediaAssets.productId, productIds),
-        eq(mediaAssets.uploadStatus, "READY"),
-        or(eq(mediaAssets.isPrimary, true), eq(mediaAssets.role, "PRIMARY")),
+        eq(mediaAssets.uploadStatus, 'READY'),
+        or(eq(mediaAssets.isPrimary, true), eq(mediaAssets.role, 'PRIMARY')),
       ),
     )
     .orderBy(asc(mediaAssets.sortOrder));
@@ -139,17 +146,28 @@ async function withProductImages(
       .orderBy(asc(productVariants.sku)),
   ]);
   const variantRows = allVariantRows.filter(
-    (
-      variant,
-    ): variant is (typeof variant) & { status: "ACTIVE" | "INQUIRY" } =>
-      variant.status !== "ARCHIVED",
+    (variant): variant is typeof variant & { status: 'ACTIVE' | 'INQUIRY' } =>
+      variant.status !== 'ARCHIVED',
   );
   const variantIds = variantRows.map((variant) => variant.id);
+  const productTitlesById = new Map(
+    rows.flatMap((product) => {
+      const title =
+        product.translations[locale]?.title ?? product.translations.hy?.title ?? product.sku;
+      return title ? [[product.id, title] as const] : [];
+    }),
+  );
+  const productTitles = new Map(
+    variantRows.map((variant) => [
+      variant.id,
+      productTitlesById.get(variant.productId) ?? variant.sku,
+    ]),
+  );
   const [variantImages, prices] = await Promise.all([
-    loadPrimaryVariantImages(variantIds),
+    loadVariantImages(variantIds, locale, productTitles),
     resolveVariantPrices(
       variantRows.flatMap((variant) =>
-        variant.priceAmount != null && variant.status === "ACTIVE"
+        variant.priceAmount != null && variant.status === 'ACTIVE'
           ? [
               {
                 id: variant.id,
@@ -163,7 +181,7 @@ async function withProductImages(
     ),
   ]);
 
-  const variantsByProduct = new Map<string, ProductDetail["variants"]>();
+  const variantsByProduct = new Map<string, ProductDetail['variants']>();
   const productsById = new Map(rows.map((product) => [product.id, product]));
   for (const variant of variantRows) {
     const resolved = prices.get(variant.id);
@@ -174,7 +192,7 @@ async function withProductImages(
       itemType: variant.itemType,
       status: variant.status,
       priceAmount:
-        variant.status === "ACTIVE" && variant.priceAmount != null
+        variant.status === 'ACTIVE' && variant.priceAmount != null
           ? (resolved?.unitAmount ?? variant.priceAmount)
           : null,
       compareAtAmount: resolved?.compareAtAmount ?? null,
@@ -196,14 +214,15 @@ async function withProductImages(
       handing: variant.handing,
       swing: variant.swing,
       includedComponents: variant.includedComponents,
-      imageUrl: variantImages.get(variant.id) ?? null,
+      images: variantImages.get(variant.id) ?? [],
+      imageUrl: variantImages.get(variant.id)?.[0]?.url ?? null,
       purchasable:
         parent != null &&
         isVariantPurchasable({
           product: parent,
           variant,
         }),
-    } satisfies ProductDetail["variants"][number];
+    } satisfies ProductDetail['variants'][number];
     const list = variantsByProduct.get(variant.productId) ?? [];
     list.push(option);
     variantsByProduct.set(variant.productId, list);
@@ -221,19 +240,14 @@ async function withProductImages(
       if (!base) return null;
 
       const pricedVariants = variantOptions
-        .filter(
-          (variant) =>
-            variant.status === "ACTIVE" && variant.priceAmount != null,
-        )
+        .filter((variant) => variant.status === 'ACTIVE' && variant.priceAmount != null)
         .sort(
           (first, second) =>
             (first.priceAmount ?? Number.MAX_SAFE_INTEGER) -
             (second.priceAmount ?? Number.MAX_SAFE_INTEGER),
         );
       const lowest = pricedVariants[0];
-      const sourceVariant = lowest
-        ? variantRows.find((variant) => variant.id === lowest.id)
-        : null;
+      const sourceVariant = lowest ? variantRows.find((variant) => variant.id === lowest.id) : null;
       const resolved = sourceVariant ? prices.get(sourceVariant.id) : null;
       return {
         ...base,
@@ -246,41 +260,58 @@ async function withProductImages(
     .filter((product): product is CatalogProduct => product !== null);
 }
 
-async function loadPrimaryVariantImages(
+async function loadVariantImages(
   variantIds: string[],
-): Promise<Map<string, string>> {
-  const map = new Map<string, string>();
+  locale: Locale,
+  productTitles: Map<string, string>,
+): Promise<Map<string, ProductGalleryImage[]>> {
+  const map = new Map<string, ProductGalleryImage[]>();
   if (variantIds.length === 0) return map;
 
   const rows = await getDb()
     .select({
+      id: mediaAssets.id,
       variantId: mediaAssets.variantId,
       secureUrl: mediaAssets.secureUrl,
       isPrimary: mediaAssets.isPrimary,
-      role: mediaAssets.role,
       sortOrder: mediaAssets.sortOrder,
+      altTranslations: mediaAssets.altTranslations,
     })
     .from(mediaAssets)
-    .where(
-      and(
-        inArray(mediaAssets.variantId, variantIds),
-        eq(mediaAssets.uploadStatus, "READY"),
-        or(eq(mediaAssets.isPrimary, true), eq(mediaAssets.role, "PRIMARY")),
-      ),
-    )
-    .orderBy(asc(mediaAssets.sortOrder));
+    .where(and(inArray(mediaAssets.variantId, variantIds), eq(mediaAssets.uploadStatus, 'READY')))
+    .orderBy(desc(mediaAssets.isPrimary), asc(mediaAssets.sortOrder));
 
   for (const row of rows) {
-    if (!row.variantId || !row.secureUrl || map.has(row.variantId)) continue;
-    map.set(row.variantId, row.secureUrl);
+    if (!row.variantId || !row.secureUrl) continue;
+    const list = map.get(row.variantId) ?? [];
+    list.push({
+      id: row.id,
+      url: row.secureUrl,
+      alt: row.altTranslations?.[locale] ?? productTitles.get(row.variantId) ?? '',
+      isPrimary: row.isPrimary,
+    });
+    map.set(row.variantId, list);
   }
   return map;
 }
 
-const activeCatalogWhere = and(
-  eq(products.status, "ACTIVE"),
-  isNull(products.deletedAt),
-);
+const activeCatalogWhere = and(eq(products.status, 'ACTIVE'), isNull(products.deletedAt));
+
+export async function getActiveCatalogCategories(locale: Locale): Promise<CatalogCategoryOption[]> {
+  const rows = await getDb()
+    .select({
+      translations: categories.translations,
+      sortOrder: categories.sortOrder,
+    })
+    .from(categories)
+    .where(and(eq(categories.status, 'ACTIVE'), isNull(categories.deletedAt)))
+    .orderBy(asc(categories.sortOrder));
+
+  return rows.flatMap((category) => {
+    const translation = category.translations[locale];
+    return translation ? [{ slug: translation.slug, title: translation.title }] : [];
+  });
+}
 
 /** Active products by id — used by wishlist (not shared-cache; IDs are user-specific). */
 export async function getActiveProductsByIds(
@@ -302,20 +333,126 @@ export async function getActiveProductsByIds(
 async function loadActiveProductsPage(
   locale: Locale,
   page: number,
+  filters: CatalogFilters,
+  rate: string,
 ): Promise<{ products: CatalogProduct[]; total: number; pageSize: number }> {
-  const offset = (page - 1) * CATALOG_PAGE_SIZE;
+  const offset = (page - 1) * filters.pageSize;
+  const catalogWhere = and(
+    activeCatalogWhere,
+    filters.q
+      ? sql`(
+          strpos(
+            lower(coalesce(
+              ${products.translations}->${locale}->>'title',
+              ${products.translations}->'hy'->>'title',
+              ''
+            )),
+            lower(${filters.q})
+          ) > 0
+          OR strpos(lower(${products.sku}), lower(${filters.q})) > 0
+        )`
+      : undefined,
+    filters.category
+      ? exists(
+          getDb()
+            .select({ id: categories.id })
+            .from(productCategories)
+            .innerJoin(categories, eq(productCategories.categoryId, categories.id))
+            .where(
+              and(
+                eq(productCategories.productId, products.id),
+                eq(categories.status, 'ACTIVE'),
+                isNull(categories.deletedAt),
+                sql`${categories.translations}->${locale}->>'slug' = ${filters.category}`,
+              ),
+            ),
+        )
+      : undefined,
+  );
+  const needsVariantMatch = catalogFiltersNeedVariantMatch(filters);
+  const needsFullScan =
+    needsVariantMatch ||
+    filters.sort === 'price_asc' ||
+    filters.sort === 'price_desc' ||
+    filters.sort === 'popular';
+
+  if (needsFullScan) {
+    const rows = await getDb()
+      .select()
+      .from(products)
+      .where(catalogWhere)
+      .orderBy(desc(products.createdAt));
+    const enriched = await withProductImages(rows, locale);
+    const matchingProducts = enriched.flatMap((product) => {
+      const matchedVariant = getMatchingCatalogVariant(product, filters, rate);
+      if (needsVariantMatch && !matchedVariant) return [];
+      if (!matchedVariant) return [product];
+      return [
+        {
+          ...product,
+          listPriceAmount: matchedVariant.compareAtAmount ?? matchedVariant.priceAmount,
+          priceAmount: matchedVariant.priceAmount,
+          compareAtAmount: matchedVariant.compareAtAmount,
+          discountPercent: matchedVariant.discountPercent ?? null,
+        },
+      ];
+    });
+
+    const newestPosition = new Map(rows.map((row, index) => [row.id, index] as const));
+    const popularity = new Map<string, number>();
+    if (filters.sort === 'popular' && rows.length > 0) {
+      const productIds = rows.map((row) => row.id);
+      const popularityRows = await getDb()
+        .select({
+          productId: productVariants.productId,
+          quantity: sql<number>`coalesce(sum(${orderItems.quantity}), 0)::int`,
+        })
+        .from(orderItems)
+        .innerJoin(productVariants, eq(orderItems.variantId, productVariants.id))
+        .innerJoin(orders, eq(orderItems.orderId, orders.id))
+        .where(and(inArray(productVariants.productId, productIds), ne(orders.status, 'CANCELLED')))
+        .groupBy(productVariants.productId);
+      for (const row of popularityRows) {
+        popularity.set(row.productId, row.quantity);
+      }
+    }
+
+    matchingProducts.sort((first, second) => {
+      if (filters.sort === 'price_asc' || filters.sort === 'price_desc') {
+        const firstPrice = first.priceAmount ?? Number.MAX_SAFE_INTEGER;
+        const secondPrice = second.priceAmount ?? Number.MAX_SAFE_INTEGER;
+        const difference = firstPrice - secondPrice;
+        if (difference !== 0) {
+          return filters.sort === 'price_asc' ? difference : -difference;
+        }
+      } else if (filters.sort === 'popular') {
+        const difference = (popularity.get(second.id) ?? 0) - (popularity.get(first.id) ?? 0);
+        if (difference !== 0) return difference;
+      }
+      return (
+        (newestPosition.get(first.id) ?? Number.MAX_SAFE_INTEGER) -
+        (newestPosition.get(second.id) ?? Number.MAX_SAFE_INTEGER)
+      );
+    });
+
+    return {
+      products: matchingProducts.slice(offset, offset + filters.pageSize),
+      total: matchingProducts.length,
+      pageSize: filters.pageSize,
+    };
+  }
 
   const [[countRow], rows] = await Promise.all([
     getDb()
       .select({ count: sql<number>`count(*)::int` })
       .from(products)
-      .where(activeCatalogWhere),
+      .where(catalogWhere),
     getDb()
       .select()
       .from(products)
-      .where(activeCatalogWhere)
+      .where(catalogWhere)
       .orderBy(desc(products.createdAt))
-      .limit(CATALOG_PAGE_SIZE)
+      .limit(filters.pageSize)
       .offset(offset),
   ]);
 
@@ -324,7 +461,7 @@ async function loadActiveProductsPage(
   return {
     products: enriched,
     total: countRow?.count ?? 0,
-    pageSize: CATALOG_PAGE_SIZE,
+    pageSize: filters.pageSize,
   };
 }
 
@@ -332,12 +469,18 @@ async function loadActiveProductsPage(
 export async function getActiveProductsPage(
   locale: Locale,
   page: number,
+  filters: CatalogFilters = defaultCatalogFilters,
+  rate = '1',
 ): Promise<{ products: CatalogProduct[]; total: number; pageSize: number }> {
   const safePage = Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+  const safeFilters = {
+    ...filters,
+    page: safePage,
+  };
 
   return unstable_cache(
-    async () => loadActiveProductsPage(locale, safePage),
-    ["active-products-page", locale, String(safePage)],
+    async () => loadActiveProductsPage(locale, safePage, safeFilters, rate),
+    ['active-products-page', locale, JSON.stringify(safeFilters), rate],
     {
       tags: [CACHE_TAGS.products],
       revalidate: PUBLIC_CACHE_REVALIDATE_SECONDS,
@@ -346,9 +489,7 @@ export async function getActiveProductsPage(
 }
 
 /** @deprecated Prefer getActiveProductsPage — kept for narrow internal callers. */
-export async function getActiveProducts(
-  locale: Locale,
-): Promise<CatalogProduct[]> {
+export async function getActiveProducts(locale: Locale): Promise<CatalogProduct[]> {
   const result = await getActiveProductsPage(locale, 1);
   if (result.total <= result.pageSize) {
     return result.products;
@@ -358,35 +499,23 @@ export async function getActiveProducts(
   return withProductImages(rows, locale);
 }
 
-async function loadFeaturedProducts(
-  locale: Locale,
-): Promise<CatalogProduct[]> {
+async function loadFeaturedProducts(locale: Locale): Promise<CatalogProduct[]> {
   const rows = await getDb()
     .select()
     .from(products)
     .where(
-      and(
-        eq(products.status, "ACTIVE"),
-        eq(products.isFeatured, true),
-        isNull(products.deletedAt),
-      ),
+      and(eq(products.status, 'ACTIVE'), eq(products.isFeatured, true), isNull(products.deletedAt)),
     )
     .limit(8);
 
   return withProductImages(rows, locale);
 }
 
-export async function getFeaturedProducts(
-  locale: Locale,
-): Promise<CatalogProduct[]> {
-  return unstable_cache(
-    async () => loadFeaturedProducts(locale),
-    ["featured-products", locale],
-    {
-      tags: [CACHE_TAGS.products],
-      revalidate: PUBLIC_CACHE_REVALIDATE_SECONDS,
-    },
-  )();
+export async function getFeaturedProducts(locale: Locale): Promise<CatalogProduct[]> {
+  return unstable_cache(async () => loadFeaturedProducts(locale), ['featured-products', locale], {
+    tags: [CACHE_TAGS.products],
+    revalidate: PUBLIC_CACHE_REVALIDATE_SECONDS,
+  })();
 }
 
 export async function getProductBySlug(
@@ -398,7 +527,7 @@ export async function getProductBySlug(
     .from(products)
     .where(
       and(
-        eq(products.status, "ACTIVE"),
+        eq(products.status, 'ACTIVE'),
         isNull(products.deletedAt),
         sql`${products.translations}->${locale}->>'slug' = ${slug}`,
       ),
@@ -427,23 +556,20 @@ async function loadProductGallery(
       altTranslations: mediaAssets.altTranslations,
     })
     .from(mediaAssets)
-    .where(
-      and(
-        eq(mediaAssets.productId, productId),
-        eq(mediaAssets.uploadStatus, "READY"),
-      ),
-    )
+    .where(and(eq(mediaAssets.productId, productId), eq(mediaAssets.uploadStatus, 'READY')))
     .orderBy(asc(mediaAssets.sortOrder));
 
   return rows
     .flatMap((row) =>
       row.secureUrl
-        ? [{
-      id: row.id,
-      url: row.secureUrl,
-      alt: row.altTranslations?.[locale] ?? fallbackTitle,
-      isPrimary: row.isPrimary,
-        }]
+        ? [
+            {
+              id: row.id,
+              url: row.secureUrl,
+              alt: row.altTranslations?.[locale] ?? fallbackTitle,
+              isPrimary: row.isPrimary,
+            },
+          ]
         : [],
     )
     .sort((a, b) => Number(b.isPrimary) - Number(a.isPrimary));
@@ -465,7 +591,7 @@ async function loadProductCategories(
     .where(
       and(
         eq(productCategories.productId, productId),
-        eq(categories.status, "ACTIVE"),
+        eq(categories.status, 'ACTIVE'),
         isNull(categories.deletedAt),
       ),
     )
@@ -524,12 +650,9 @@ export const getProductDetailBySlug = cache(
   async (locale: Locale, slug: string): Promise<ProductDetail | null> => {
     return unstable_cache(
       async () => loadProductDetailBySlug(locale, slug),
-      ["product-detail", locale, slug],
+      ['product-detail', locale, slug],
       {
-        tags: [
-          CACHE_TAGS.productDetail,
-          CACHE_TAGS.productSlug(locale, slug),
-        ],
+        tags: [CACHE_TAGS.productDetail, CACHE_TAGS.productSlug(locale, slug)],
         revalidate: PUBLIC_CACHE_REVALIDATE_SECONDS,
       },
     )();
