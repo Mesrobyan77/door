@@ -32,3 +32,4 @@ public/uploads/
 # *.swp
 # *.swo
 #docs/reference/payment integration/Example only
+.neon

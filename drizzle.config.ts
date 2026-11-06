@@ -3,9 +3,15 @@ import path from "node:path";
 import { config as loadEnv } from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
-loadEnv({ path: path.resolve(process.cwd(), ".env") });
+loadEnv({
+  path: [
+    path.resolve(process.cwd(), ".env.local"),
+    path.resolve(process.cwd(), ".env"),
+  ],
+});
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl =
+  process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
 
 if (!databaseUrl) {
   throw new Error("DATABASE_URL is required for drizzle-kit");
