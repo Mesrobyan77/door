@@ -1,0 +1,17 @@
+{
+  "title": "Shopping Cart",
+  "itemsOne": "1 item",
+  "itemsMany": "{count} items",
+  "empty": "Your cart is empty.",
+  "emptyDescription": "Nothing here yet — find and add your favorite products.",
+  "emptyCta": "Continue shopping",
+  "loading": "Loading cart…",
+  "subtotal": "Subtotal",
+  "shipping": "Shipping",
+  "total": "Total",
+  "checkout": "Proceed to checkout",
+  "close": "Close cart",
+  "removeItem": "Remove item",
+  "decreaseQuantity": "Decrease quantity",
+  "increaseQuantity": "Increase quantity"
+}

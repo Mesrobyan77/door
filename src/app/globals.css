@@ -1,0 +1,309 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f9fafb;
+  --foreground: #111827;
+  --muted: #4b5563;
+  --border: #e5e7eb;
+  --accent: #111827;
+  --accent-foreground: #f9fafb;
+  --radius: 15px;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --radius-sm: 15px;
+  --radius-md: 15px;
+  --radius-lg: 15px;
+  --radius-xl: 15px;
+  --radius-2xl: 15px;
+  --radius-3xl: 15px;
+  --radius-4xl: 15px;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), ui-sans-serif, sans-serif;
+}
+
+@layer base {
+  a[href],
+  button:not(:disabled),
+  summary,
+  [role="button"]:not([aria-disabled="true"]),
+  label[for],
+  select:not(:disabled),
+  input[type="button"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="file"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  select:disabled,
+  input:disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+}
+
+/* Confirm / modal dismiss — same motion as Mobee storefront dialog */
+@keyframes confirm-dialog-backdrop-in {
+  0% {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes confirm-dialog-backdrop-out {
+  0% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes confirm-dialog-panel-in {
+  0% {
+    opacity: 0;
+    transform: translateY(16px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes confirm-dialog-panel-out {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+}
+
+.animate-confirm-dialog-backdrop-in {
+  animation: 0.32s cubic-bezier(0.22, 1, 0.36, 1) confirm-dialog-backdrop-in;
+}
+
+.animate-confirm-dialog-backdrop-out {
+  animation: 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards
+    confirm-dialog-backdrop-out;
+}
+
+.animate-confirm-dialog-panel-in {
+  animation: 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards
+    confirm-dialog-panel-in;
+}
+
+.animate-confirm-dialog-panel-out {
+  animation: 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards
+    confirm-dialog-panel-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-confirm-dialog-backdrop-in,
+  .animate-confirm-dialog-backdrop-out,
+  .animate-confirm-dialog-panel-in,
+  .animate-confirm-dialog-panel-out {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+  }
+}
+
+/* Sheets — identical duration + easing for open and close */
+@keyframes sheet-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sheet-backdrop-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes bottom-sheet-panel-in {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes bottom-sheet-panel-out {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+@keyframes side-sheet-panel-in-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes side-sheet-panel-out-right {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes side-sheet-panel-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes side-sheet-panel-out-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-sheet-backdrop-in {
+  animation: 0.3s cubic-bezier(0.32, 0.72, 0, 1) both sheet-backdrop-in;
+}
+
+.animate-sheet-backdrop-out {
+  animation: 0.3s cubic-bezier(0.32, 0.72, 0, 1) both sheet-backdrop-out;
+}
+
+.animate-bottom-sheet-panel-in {
+  animation: 0.3s cubic-bezier(0.32, 0.72, 0, 1) both bottom-sheet-panel-in;
+}
+
+.animate-bottom-sheet-panel-out {
+  animation: 0.3s cubic-bezier(0.32, 0.72, 0, 1) both bottom-sheet-panel-out;
+}
+
+.animate-side-sheet-panel-in-right {
+  animation: 0.3s cubic-bezier(0.32, 0.72, 0, 1) both side-sheet-panel-in-right;
+}
+
+.animate-side-sheet-panel-out-right {
+  animation: 0.3s cubic-bezier(0.32, 0.72, 0, 1) both
+    side-sheet-panel-out-right;
+}
+
+.animate-side-sheet-panel-in-left {
+  animation: 0.3s cubic-bezier(0.32, 0.72, 0, 1) both side-sheet-panel-in-left;
+}
+
+.animate-side-sheet-panel-out-left {
+  animation: 0.3s cubic-bezier(0.32, 0.72, 0, 1) both side-sheet-panel-out-left;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-sheet-backdrop-in,
+  .animate-sheet-backdrop-out,
+  .animate-bottom-sheet-panel-in,
+  .animate-bottom-sheet-panel-out,
+  .animate-side-sheet-panel-in-right,
+  .animate-side-sheet-panel-out-right,
+  .animate-side-sheet-panel-in-left,
+  .animate-side-sheet-panel-out-left {
+    animation-duration: 0.01ms;
+    animation-iteration-count: 1;
+  }
+}
+
+/**
+ * Profile desktop: normal page scroll so the site footer is reachable below content.
+ * (No locked 100dvh shell — that hid/clipped the footer.)
+ */
+@media (min-width: 1024px) {
+  .storefront-shell:has(.profile-desktop-page) .storefront-main {
+    padding-top: 24px;
+    padding-bottom: 40px;
+  }
+}
+
+/**
+ * MaMarie-style mobile profile page: slightly cooler canvas behind hub cards.
+ * Hide the storefront top header — profile hub is the chrome on mobile.
+ * Hide the storefront bottom tab bar — profile has its own hub chrome.
+ */
+@media (max-width: 1023px) {
+  .storefront-shell:has(.profile-mobile-page) .site-header {
+    display: none;
+  }
+
+  .storefront-shell:has(.profile-mobile-page) .storefront-main {
+    padding-top: 0.5rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .storefront-shell:has(.profile-mobile-page) .mobile-bottom-nav {
+    display: none;
+  }
+
+  .profile-mobile-tab-sheet-scroll {
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-y;
+  }
+
+  /* Dashboard + orders: more inset from the sheet edges. */
+  .profile-mobile-tab-sheet-scroll:has(> div > .profile-sheet-keep-frame) {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  /**
+   * Form sheets: flush outer cards + compact horizontal inset.
+   * Dashboard + orders (`.profile-sheet-keep-frame`) keep their own padding/frames.
+   */
+  .profile-mobile-tab-sheet-scroll
+    > div
+    > *:not(.profile-sheet-keep-frame)
+    > .rounded-2xl,
+  .profile-mobile-tab-sheet-scroll
+    > div
+    > *:not(.profile-sheet-keep-frame)
+    > .rounded-lg {
+    border-width: 0;
+    box-shadow: none;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}

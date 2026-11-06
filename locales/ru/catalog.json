@@ -1,0 +1,6 @@
+{
+  "paginationLabel": "Страницы каталога",
+  "previousPage": "Назад",
+  "nextPage": "Далее",
+  "pageStatus": "Страница {page} из {total}"
+}

@@ -1,0 +1,36 @@
+{
+  "brand": "White-Shop",
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "shop": "Shop",
+    "blog": "Blog",
+    "cart": "Cart",
+    "about": "About",
+    "contact": "Contact",
+    "wishlist": "Wishlist",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "navigation": "Navigation",
+    "shopNow": "Shop now"
+  },
+  "header": {
+    "language": "Language",
+    "currency": "Currency",
+    "login": "Login",
+    "logout": "Logout",
+    "profile": "Profile",
+    "admin": "Admin",
+    "createAccount": "Create account"
+  },
+  "footer": {
+    "shop": "Shop",
+    "description": "Professional e-commerce storefront for everyday shopping.",
+    "quickLinks": "Quick Links",
+    "legal": "Legal",
+    "privacyPolicy": "Privacy Policy",
+    "terms": "Terms",
+    "contactInfo": "Contact Information",
+    "copyright": "Copyright © {year} Neetrino IT Company. All Rights Reserved."
+  }
+}

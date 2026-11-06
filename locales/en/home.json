@@ -1,0 +1,20 @@
+{
+  "title": "White Shop",
+  "subtitle": "Multilingual storefront is live.",
+  "cta": "Browse products",
+  "featuredTitle": "Featured Products",
+  "viewAll": "View more",
+  "emptyFeatured": "No featured products yet.",
+  "aboutEyebrow": "About us",
+  "aboutTitle": "We provide high quality products",
+  "aboutDescription": "Discover a curated selection of products with reliable delivery and customer-first support.",
+  "aboutCta": "Learn more",
+  "features": {
+    "deliveryTitle": "Fast Delivery",
+    "deliveryDescription": "Quick and reliable shipping to your door.",
+    "qualityTitle": "Best Quality",
+    "qualityDescription": "Carefully selected products you can trust.",
+    "returnTitle": "Free Return",
+    "returnDescription": "Easy returns when something is not right."
+  }
+}

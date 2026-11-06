@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1784397778662,
+      "tag": "0000_crazy_puppet_master",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784398149148,
+      "tag": "0001_wild_katie_power",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784471653841,
+      "tag": "0002_narrow_caretaker",
+      "breakpoints": true
+    }
+  ]
+}

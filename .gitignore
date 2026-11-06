@@ -1,0 +1,34 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Env and secrets
+.env
+.env.*
+!.env.example
+
+# Dependencies (if scripts use Node/npm)
+node_modules/
+
+# Build output
+.next/
+dist/
+build/
+coverage/
+
+# Logs and temp
+*.log
+npm-debug.log*
+tmp/
+temp/
+.cache/
+
+# Local stub product uploads (until R2)
+public/uploads/
+
+# IDE (optional, uncomment if needed)
+# .idea/
+# .vscode/
+# *.swp
+# *.swo
+#docs/reference/payment integration/Example only

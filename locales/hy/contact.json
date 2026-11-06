@@ -1,0 +1,29 @@
+{
+  "title": "Կապ",
+  "subtitle": "Ուղարկեք հաղորդագրություն, և մենք կպատասխանենք։",
+  "name": "Անուն",
+  "email": "Էլ. փոստ",
+  "phone": "Հեռախոս (ըստ ցանկության)",
+  "subject": "Թեմա",
+  "message": "Հաղորդագրություն",
+  "submit": "Ուղարկել",
+  "success": "Շնորհակալություն — հաղորդագրությունն ուղարկված է։",
+  "error": "Չհաջողվեց ուղարկել հաղորդագրությունը։",
+  "storePhone": "+374 XX XXX XXX",
+  "storeEmail": "info@shop.am",
+  "storeAddress": "Երևան, Աբովյան 10",
+  "social": {
+    "instagram": "https://instagram.com",
+    "facebook": "https://facebook.com",
+    "linkedin": "https://linkedin.com"
+  },
+  "callTitle": "Զանգահարեք մեզ՝",
+  "callDescription": "Մենք հասանելի ենք 24/7, շաբաթը 7 օր։",
+  "writeTitle": "Գրեք մեզ՝",
+  "writeDescription": "Լրացրեք ձևը, և մենք կկապվենք ձեզ հետ 24 ժամվա ընթացքում։",
+  "emailLabel": "Էլ. փոստ՝",
+  "hqTitle": "Գլխամաս՝",
+  "hoursWeekdays": "Երկուշաբթի - Ուրբաթ՝ 9:00-20:00",
+  "hoursSaturday": "Շաբաթ՝ 11:00 - 15:00",
+  "mapTitle": "Խանութի գտնվելու վայրը"
+}

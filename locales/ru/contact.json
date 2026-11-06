@@ -1,0 +1,29 @@
+{
+  "title": "Контакты",
+  "subtitle": "Отправьте сообщение — мы ответим вам.",
+  "name": "Имя",
+  "email": "Email",
+  "phone": "Телефон (необязательно)",
+  "subject": "Тема",
+  "message": "Сообщение",
+  "submit": "Отправить",
+  "success": "Спасибо — сообщение отправлено.",
+  "error": "Не удалось отправить сообщение.",
+  "storePhone": "+374 XX XXX XXX",
+  "storeEmail": "info@shop.am",
+  "storeAddress": "Ереван, Абовян 10",
+  "social": {
+    "instagram": "https://instagram.com",
+    "facebook": "https://facebook.com",
+    "linkedin": "https://linkedin.com"
+  },
+  "callTitle": "Позвоните нам:",
+  "callDescription": "Мы на связи 24/7, 7 дней в неделю.",
+  "writeTitle": "Напишите нам:",
+  "writeDescription": "Заполните форму, и мы свяжемся с вами в течение 24 часов.",
+  "emailLabel": "Email:",
+  "hqTitle": "Главный офис:",
+  "hoursWeekdays": "Понедельник - Пятница: 9:00-20:00",
+  "hoursSaturday": "Суббота: 11:00 - 15:00",
+  "mapTitle": "Расположение магазина"
+}

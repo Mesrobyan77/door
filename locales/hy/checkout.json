@@ -1,0 +1,85 @@
+{
+  "title": "Վճարում",
+  "titleLead": "Վճարում",
+  "titleAccent": "",
+  "productsInOrder": "Պատվերի ապրանքներ",
+  "itemsOne": "1 ապրանք",
+  "itemsMany": "{count} ապրանք",
+  "removeItem": "Հեռացնել ապրանքը",
+  "contactInformation": "Կոնտակտային տվյալներ",
+  "shippingMethod": "Առաքման եղանակ",
+  "shippingAddress": "Առաքման հասցե",
+  "paymentMethod": "Վճարման եղանակ",
+  "orderSummary": "Պատվերի ամփոփում",
+  "form": {
+    "firstName": "Անուն",
+    "lastName": "Ազգանուն",
+    "email": "Էլ․ փոստ",
+    "phone": "Հեռախոս",
+    "address": "Հասցե",
+    "city": "Քաղաք",
+    "deliveryLocation": "Առաքման վայր",
+    "selectLocation": "Ընտրեք վայրը"
+  },
+  "placeholders": {
+    "phone": "+374XXXXXXXX",
+    "address": "Փողոց, բնակարան, գրասենյակ և այլն",
+    "city": "Քաղաք"
+  },
+  "shipping": {
+    "storePickup": "Խանութից վերցնել",
+    "storePickupDescription": "Վերցրեք պատվերը խանութից (Անվճար)",
+    "delivery": "Առաքում",
+    "deliveryDescription": "Կառաքենք ձեր հասցեով",
+    "freePickup": "Անվճար (Խանութից)",
+    "enterCity": "Մուտքագրեք քաղաքը",
+    "selectDeliveryLocation": "Ընտրեք առաքման վայրը"
+  },
+  "payment": {
+    "cashOnDelivery": "Կանխիկ առաքման պահին",
+    "cashShort": "Կանխիկ",
+    "cashOnDeliveryDescription": "Վճարեք պատվերը ստանալիս։",
+    "cashChange": {
+      "title": "ՄԱՆՐ",
+      "hint": "Սեղմեք այն թղթադրամին, որը կվճարեք, որպեսզի պատրաստենք մանրը:",
+      "none": "Մանր պետք չէ",
+      "courierChange": "Առաքիչը պետք է տա մանր՝ {amount}"
+    },
+    "idram": "iDram",
+    "idramDescription": "Վճարեք ձեր iDram հաշվով։",
+    "card": "Բանկային քարտ",
+    "cardDescription": "Անվտանգ վճարում բանկային քարտով։",
+    "arca": "Բանկային քարտ",
+    "arcaDescription": "Անվտանգ վճարում բանկային քարտով։"
+  },
+  "coupon": {
+    "title": "Ունե՞ք պրոմոկոդ",
+    "placeholder": "Մուտքագրեք պրոմոկոդը",
+    "apply": "Կիրառել",
+    "applying": "Կիրառվում է…"
+  },
+  "summary": {
+    "subtotal": "Ենթագումար",
+    "discount": "Զեղչ",
+    "shipping": "Առաքում",
+    "tax": "Հարկ",
+    "total": "Ընդամենը"
+  },
+  "buttons": {
+    "placeOrder": "Պատվիրել",
+    "processing": "Մշակվում է…",
+    "continueShopping": "Շարունակել գնումները"
+  },
+  "errors": {
+    "cartEmpty": "Զամբյուղը դատարկ է",
+    "cartEmptyDescription": "Ավելացրեք ապրանքներ՝ շարունակելու համար",
+    "cartEmptyCta": "Շարունակել գնումները"
+  },
+  "success": {
+    "title": "Պատվերը հաստատված է",
+    "body": "Պատվեր {orderNumber}-ը հաջողությամբ տեղադրվել է։ Զամբյուղը մաքրվել է։",
+    "total": "Ընդամենը՝ {amount}",
+    "continueShopping": "Շարունակել գնումները",
+    "viewOrders": "Դիտել պատվերները"
+  }
+}

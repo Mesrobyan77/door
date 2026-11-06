@@ -1,0 +1,36 @@
+{
+  "brand": "White-Shop",
+  "nav": {
+    "home": "Գլխավոր",
+    "products": "Ապրանքներ",
+    "shop": "Խանութ",
+    "blog": "Բլոգ",
+    "cart": "Զամբյուղ",
+    "about": "Մեր մասին",
+    "contact": "Կապ",
+    "wishlist": "Ցանկեր",
+    "openMenu": "Բացել մենյուն",
+    "closeMenu": "Փակել մենյուն",
+    "navigation": "Նավիգացիա",
+    "shopNow": "Գնել հիմա"
+  },
+  "header": {
+    "language": "Լեզու",
+    "currency": "Արժույթ",
+    "login": "Մուտք",
+    "logout": "Ելք",
+    "profile": "Պրոֆիլ",
+    "admin": "Ադմին",
+    "createAccount": "Գրանցվել"
+  },
+  "footer": {
+    "shop": "Խանութ",
+    "description": "Պրոֆեսիոնալ առցանց խանութ ամենօրյա գնումների համար։",
+    "quickLinks": "Արագ հղումներ",
+    "legal": "Իրավական",
+    "privacyPolicy": "Գաղտնիության քաղաքականություն",
+    "terms": "Պայմաններ",
+    "contactInfo": "Կապի տվյալներ",
+    "copyright": "Copyright © {year} Neetrino IT Company. All Rights Reserved."
+  }
+}

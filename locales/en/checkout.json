@@ -1,0 +1,85 @@
+{
+  "title": "Checkout",
+  "titleLead": "Checkout",
+  "titleAccent": "",
+  "productsInOrder": "Products in your order",
+  "itemsOne": "1 item",
+  "itemsMany": "{count} items",
+  "removeItem": "Remove item",
+  "contactInformation": "Contact Information",
+  "shippingMethod": "Shipping Method",
+  "shippingAddress": "Shipping Address",
+  "paymentMethod": "Payment Method",
+  "orderSummary": "Order Summary",
+  "form": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "city": "City",
+    "deliveryLocation": "Delivery location",
+    "selectLocation": "Select location"
+  },
+  "placeholders": {
+    "phone": "+374XXXXXXXX",
+    "address": "Street, apartment, office, etc.",
+    "city": "City"
+  },
+  "shipping": {
+    "storePickup": "Store Pickup",
+    "storePickupDescription": "Pick up your order from the store (Free)",
+    "delivery": "Delivery",
+    "deliveryDescription": "We will deliver your order to your address",
+    "freePickup": "Free (Store Pickup)",
+    "enterCity": "Enter City",
+    "selectDeliveryLocation": "Select delivery location"
+  },
+  "payment": {
+    "cashOnDelivery": "Cash on Delivery",
+    "cashShort": "Cash",
+    "cashOnDeliveryDescription": "Pay when receiving the order.",
+    "cashChange": {
+      "title": "CHANGE",
+      "hint": "Click the banknote you will pay with so we can prepare the change:",
+      "none": "No change needed",
+      "courierChange": "Courier should bring {amount} in change"
+    },
+    "idram": "iDram",
+    "idramDescription": "Pay using your iDram account.",
+    "card": "Bank card",
+    "cardDescription": "Pay securely by bank card.",
+    "arca": "Bank card",
+    "arcaDescription": "Pay securely by bank card."
+  },
+  "coupon": {
+    "title": "Have a coupon?",
+    "placeholder": "Enter your coupon code",
+    "apply": "Apply",
+    "applying": "Applying…"
+  },
+  "summary": {
+    "subtotal": "Subtotal",
+    "discount": "Discount",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "total": "Total"
+  },
+  "buttons": {
+    "placeOrder": "Place Order",
+    "processing": "Processing...",
+    "continueShopping": "Continue Shopping"
+  },
+  "errors": {
+    "cartEmpty": "Cart is empty",
+    "cartEmptyDescription": "Add products to continue shopping",
+    "cartEmptyCta": "Continue Shopping"
+  },
+  "success": {
+    "title": "Order confirmed",
+    "body": "Order {orderNumber} was placed successfully. Your cart has been cleared.",
+    "total": "Total: {amount}",
+    "continueShopping": "Continue shopping",
+    "viewOrders": "View orders"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "brand": "White-Shop",
+  "nav": {
+    "home": "Главная",
+    "products": "Товары",
+    "shop": "Магазин",
+    "blog": "Блог",
+    "cart": "Корзина",
+    "about": "О нас",
+    "contact": "Контакты",
+    "wishlist": "Избранное",
+    "openMenu": "Открыть меню",
+    "closeMenu": "Закрыть меню",
+    "navigation": "Навигация",
+    "shopNow": "В магазин"
+  },
+  "header": {
+    "language": "Язык",
+    "currency": "Валюта",
+    "login": "Вход",
+    "logout": "Выход",
+    "profile": "Профиль",
+    "admin": "Админ",
+    "createAccount": "Создать аккаунт"
+  },
+  "footer": {
+    "shop": "Магазин",
+    "description": "Профессиональный интернет-магазин для повседневных покупок.",
+    "quickLinks": "Быстрые ссылки",
+    "legal": "Правовая информация",
+    "privacyPolicy": "Политика конфиденциальности",
+    "terms": "Условия",
+    "contactInfo": "Контактная информация",
+    "copyright": "Copyright © {year} Neetrino IT Company. All Rights Reserved."
+  }
+}

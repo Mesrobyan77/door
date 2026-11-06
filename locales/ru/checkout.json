@@ -1,0 +1,85 @@
+{
+  "title": "Оформление",
+  "titleLead": "Оформление",
+  "titleAccent": "",
+  "productsInOrder": "Товары в заказе",
+  "itemsOne": "1 товар",
+  "itemsMany": "{count} товаров",
+  "removeItem": "Удалить товар",
+  "contactInformation": "Контактные данные",
+  "shippingMethod": "Способ доставки",
+  "shippingAddress": "Адрес доставки",
+  "paymentMethod": "Способ оплаты",
+  "orderSummary": "Итог заказа",
+  "form": {
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "email": "Email",
+    "phone": "Телефон",
+    "address": "Адрес",
+    "city": "Город",
+    "deliveryLocation": "Место доставки",
+    "selectLocation": "Выберите место"
+  },
+  "placeholders": {
+    "phone": "+374XXXXXXXX",
+    "address": "Улица, квартира, офис и т.д.",
+    "city": "Город"
+  },
+  "shipping": {
+    "storePickup": "Самовывоз",
+    "storePickupDescription": "Заберите заказ в магазине (Бесплатно)",
+    "delivery": "Доставка",
+    "deliveryDescription": "Доставим заказ по вашему адресу",
+    "freePickup": "Бесплатно (Самовывоз)",
+    "enterCity": "Укажите город",
+    "selectDeliveryLocation": "Выберите место доставки"
+  },
+  "payment": {
+    "cashOnDelivery": "Наличными при получении",
+    "cashShort": "Наличные",
+    "cashOnDeliveryDescription": "Оплатите при получении заказа.",
+    "cashChange": {
+      "title": "СДАЧА",
+      "hint": "Нажмите на купюру, которой будете платить, чтобы мы подготовили сдачу:",
+      "none": "Сдача не нужна",
+      "courierChange": "Курьеру нужно приготовить сдачу {amount}"
+    },
+    "idram": "iDram",
+    "idramDescription": "Оплатите через свой аккаунт iDram.",
+    "card": "Банковская карта",
+    "cardDescription": "Безопасная оплата банковской картой.",
+    "arca": "Банковская карта",
+    "arcaDescription": "Безопасная оплата банковской картой."
+  },
+  "coupon": {
+    "title": "Есть промокод?",
+    "placeholder": "Введите промокод",
+    "apply": "Применить",
+    "applying": "Применение…"
+  },
+  "summary": {
+    "subtotal": "Подытог",
+    "discount": "Скидка",
+    "shipping": "Доставка",
+    "tax": "Налог",
+    "total": "Итого"
+  },
+  "buttons": {
+    "placeOrder": "Оформить заказ",
+    "processing": "Обработка…",
+    "continueShopping": "Продолжить покупки"
+  },
+  "errors": {
+    "cartEmpty": "Корзина пуста",
+    "cartEmptyDescription": "Добавьте товары, чтобы продолжить",
+    "cartEmptyCta": "Продолжить покупки"
+  },
+  "success": {
+    "title": "Заказ подтверждён",
+    "body": "Заказ {orderNumber} успешно оформлен. Корзина очищена.",
+    "total": "Итого: {amount}",
+    "continueShopping": "Продолжить покупки",
+    "viewOrders": "Мои заказы"
+  }
+}
