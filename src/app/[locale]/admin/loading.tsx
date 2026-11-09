@@ -1,4 +1,4 @@
-import { AdminPageSkeleton } from "@/components/loading/storefront-skeletons";
+import { AdminPageSkeleton } from '@/components/loading/storefront-skeletons';
 
 export default function AdminLoading() {
   return <AdminPageSkeleton />;

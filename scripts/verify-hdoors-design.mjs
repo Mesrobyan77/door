@@ -14,7 +14,7 @@ const chrome = spawn(
     '--headless=new',
     '--no-first-run',
     '--remote-debugging-port=9333',
-    `--user-data-dir=${path.resolve('.next/hdoors-visual-browser')}`,
+    `--user-data-dir=${path.resolve(`.next/hdoors-visual-browser-${process.pid}`)}`,
     'about:blank',
   ],
   { windowsHide: true, stdio: 'ignore' },
@@ -288,6 +288,8 @@ try {
         }
         if (locale === 'hy' && /products|login|checkout/.test(route))
           await screenshot(`route-${locale}-${route.split('/').at(-1).split('?')[0]}`);
+        if (locale === 'hy' && /about|legal\/(privacy|terms)/.test(route))
+          await screenshot(`route-${locale}-${route.replaceAll('/', '-').slice(1)}`);
       }
       console.log(`Verified ${locale} desktop routes.`);
     }
@@ -300,6 +302,9 @@ try {
       '/hy/login',
       '/hy/checkout',
       '/hy/contact',
+      '/hy/about',
+      '/hy/legal/privacy',
+      '/hy/legal/terms',
     ]) {
       await navigate(route);
       const state = await evaluate(

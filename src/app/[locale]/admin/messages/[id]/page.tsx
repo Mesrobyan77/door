@@ -1,20 +1,20 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import { Card } from "@/components/ui/Card";
+import { Card } from '@/components/ui/Card';
 import {
   ADMIN_PAGE_SUBTITLE,
   ADMIN_PAGE_TITLE,
   ADMIN_SECTION_TITLE,
-} from "@/features/admin/ui/admin-form-classes";
-import { ADMIN_BADGE } from "@/features/admin/ui/status-badge";
-import { getAdminContactMessageById } from "@/features/contact/application/queries";
+} from '@/features/admin/ui/admin-form-classes';
+import { ADMIN_BADGE } from '@/features/admin/ui/status-badge';
+import { getAdminContactMessageById } from '@/features/contact/application/queries';
 import {
   getEligibleContactStatuses,
   isContactStatus,
-} from "@/features/contact/domain/contact-rules";
-import { UpdateContactStatusForm } from "@/features/contact/ui/UpdateContactStatusForm";
-import { isLocale } from "@/lib/i18n/config";
+} from '@/features/contact/domain/contact-rules';
+import { UpdateContactStatusForm } from '@/features/contact/ui/UpdateContactStatusForm';
+import { isLocale } from '@/lib/i18n/config';
 
 type AdminMessageDetailPageProps = {
   params: Promise<{ locale: string; id: string }>;
@@ -22,16 +22,14 @@ type AdminMessageDetailPageProps = {
 
 function contactStatusBadgeClass(status: string): string {
   const normalized = status.toUpperCase();
-  if (normalized === "UNREAD") return "bg-blue-100 text-blue-800";
-  if (normalized === "READ") return "bg-yellow-100 text-yellow-800";
-  if (normalized === "REPLIED") return "bg-green-100 text-green-800";
-  if (normalized === "ARCHIVED") return "bg-gray-100 text-gray-800";
-  return "bg-gray-100 text-gray-800";
+  if (normalized === 'UNREAD') return 'bg-blue-100 text-blue-800';
+  if (normalized === 'READ') return 'bg-yellow-100 text-yellow-800';
+  if (normalized === 'REPLIED') return 'bg-green-100 text-green-800';
+  if (normalized === 'ARCHIVED') return 'bg-gray-100 text-gray-800';
+  return 'bg-gray-100 text-gray-800';
 }
 
-export default async function AdminMessageDetailPage({
-  params,
-}: AdminMessageDetailPageProps) {
+export default async function AdminMessageDetailPage({ params }: AdminMessageDetailPageProps) {
   const { locale, id } = await params;
   if (!isLocale(locale)) {
     notFound();
@@ -65,23 +63,18 @@ export default async function AdminMessageDetailPage({
             From: <strong className="text-gray-900">{message.name}</strong>
           </p>
           <p className="text-gray-700">Email: {message.email}</p>
-          <p className="text-gray-700">Phone: {message.phone ?? "—"}</p>
+          <p className="text-gray-700">Phone: {message.phone ?? '—'}</p>
           <p className="text-gray-700">
-            Status:{" "}
-            <span
-              className={`${ADMIN_BADGE} ${contactStatusBadgeClass(message.status)}`}
-            >
+            Status:{' '}
+            <span className={`${ADMIN_BADGE} ${contactStatusBadgeClass(message.status)}`}>
               {message.status}
             </span>
           </p>
           <p className="text-gray-700">
-            Spam score:{" "}
-            {message.spamScore === null ? "—" : message.spamScore}
+            Spam score: {message.spamScore === null ? '—' : message.spamScore}
           </p>
           <p className="text-gray-700">
-            Received:{" "}
-            {message.createdAt.toISOString().slice(0, 19).replace("T", " ")}{" "}
-            UTC
+            Received: {message.createdAt.toISOString().slice(0, 19).replace('T', ' ')} UTC
           </p>
         </div>
       </Card>

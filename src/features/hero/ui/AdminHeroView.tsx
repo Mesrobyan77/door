@@ -1,18 +1,19 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { useAdminDictionary } from '@/features/admin/ui/AdminI18nContext';
 import {
   ADMIN_PAGE_SUBTITLE,
   ADMIN_PAGE_TITLE,
   ADMIN_SECTION_TITLE,
-} from "@/features/admin/ui/admin-form-classes";
-import { ADMIN_BADGE } from "@/features/admin/ui/status-badge";
-import type { AdminHeroSlideListItem } from "@/features/hero/application/queries";
-import { HeroSlideControls } from "@/features/hero/ui/HeroSlideControls";
-import { HeroSlideModal } from "@/features/hero/ui/HeroSlideModal";
+} from '@/features/admin/ui/admin-form-classes';
+import { ADMIN_BADGE } from '@/features/admin/ui/status-badge';
+import type { AdminHeroSlideListItem } from '@/features/hero/application/queries';
+import { HeroSlideControls } from '@/features/hero/ui/HeroSlideControls';
+import { HeroSlideModal } from '@/features/hero/ui/HeroSlideModal';
 
 type AdminHeroViewProps = {
   locale: string;
@@ -20,18 +21,12 @@ type AdminHeroViewProps = {
   initialEditId?: string;
 };
 
-export function AdminHeroView({
-  locale,
-  slides,
-  initialEditId,
-}: AdminHeroViewProps) {
+export function AdminHeroView({ locale, slides, initialEditId }: AdminHeroViewProps) {
+  const { navigation } = useAdminDictionary();
   const initialSlide =
-    initialEditId != null
-      ? (slides.find((slide) => slide.id === initialEditId) ?? null)
-      : null;
+    initialEditId != null ? (slides.find((slide) => slide.id === initialEditId) ?? null) : null;
   const [modalOpen, setModalOpen] = useState(initialSlide != null);
-  const [editingSlide, setEditingSlide] =
-    useState<AdminHeroSlideListItem | null>(initialSlide);
+  const [editingSlide, setEditingSlide] = useState<AdminHeroSlideListItem | null>(initialSlide);
 
   function openCreate(): void {
     setEditingSlide(null);
@@ -52,9 +47,9 @@ export function AdminHeroView({
     <section>
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h1 className={ADMIN_PAGE_TITLE}>Hero slides</h1>
+          <h1 className={ADMIN_PAGE_TITLE}>{navigation.hero}</h1>
           <p className={`mt-1 ${ADMIN_PAGE_SUBTITLE}`}>
-            {slides.length} slide{slides.length === 1 ? "" : "s"}
+            {slides.length} slide{slides.length === 1 ? '' : 's'}
           </p>
         </div>
         <Button type="button" onClick={openCreate}>
@@ -94,17 +89,13 @@ export function AdminHeroView({
                     </button>
                   </p>
                   <div className="mt-2 flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-gray-500">
-                      sort {slide.sortOrder}
-                    </span>
+                    <span className="text-xs text-gray-500">sort {slide.sortOrder}</span>
                     <span
                       className={`${ADMIN_BADGE} ${
-                        slide.isActive
-                          ? "bg-green-100 text-green-800"
-                          : "bg-gray-100 text-gray-800"
+                        slide.isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
                       }`}
                     >
-                      {slide.isActive ? "PUBLISHED" : "DRAFT"}
+                      {slide.isActive ? 'PUBLISHED' : 'DRAFT'}
                     </span>
                   </div>
                   {slide.subtitle ? (
@@ -124,20 +115,12 @@ export function AdminHeroView({
         ))}
         {slides.length === 0 ? (
           <Card className="p-6">
-            <p className="text-center text-sm text-gray-600">
-              No hero slides yet.
-            </p>
+            <p className="text-center text-sm text-gray-600">No hero slides yet.</p>
           </Card>
         ) : null}
       </div>
 
-      <HeroSlideModal
-        locale={locale}
-        open={modalOpen}
-        onClose={closeModal}
-        slide={editingSlide}
-      />
+      <HeroSlideModal locale={locale} open={modalOpen} onClose={closeModal} slide={editingSlide} />
     </section>
   );
 }
-

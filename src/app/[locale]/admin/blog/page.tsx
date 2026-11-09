@@ -1,8 +1,8 @@
-import { notFound } from "next/navigation";
+import { notFound } from 'next/navigation';
 
-import { listAdminBlogPosts } from "@/features/blog/application/queries";
-import { AdminBlogView } from "@/features/blog/ui/AdminBlogView";
-import { isLocale } from "@/lib/i18n/config";
+import { listAdminBlogPosts } from '@/features/blog/application/queries';
+import { AdminBlogView } from '@/features/blog/ui/AdminBlogView';
+import { isLocale } from '@/lib/i18n/config';
 
 type AdminBlogPageProps = {
   params: Promise<{ locale: string }>;

@@ -228,19 +228,19 @@ async function main() {
     const heroCopy = [
       {
         hy: [
-          'Hdoors դռների ցուցադրական կատալոգ',
-          'Ընտրեք աղբյուրով հաստատված 29 մոդելներից։',
-          'Դիտել կատալոգը',
+          'Ժամանակակից դռներ Ձեր ինտերիերի համար',
+          'Բացահայտեք անթերի դիզայնի և բարձր որակի բացառիկ հավաքածուն։',
+          'Դիտել հավաքածուն',
         ],
         en: [
-          'Hdoors demonstration catalog',
-          'Explore 29 source-backed door models.',
-          'Browse catalog',
+          'Modern Doors for Your Interior',
+          'Discover an exclusive collection of flawless design and premium quality.',
+          'Browse Collection',
         ],
         ru: [
-          'Демонстрационный каталог Hdoors',
-          'Выберите из 29 моделей с указанными источниками.',
-          'Смотреть каталог',
+          'Современные двери для вашего интерьера',
+          'Откройте эксклюзивную коллекцию безупречного дизайна и премиального качества.',
+          'Смотреть коллекцию',
         ],
       },
       {
@@ -309,40 +309,38 @@ async function main() {
           },
         },
       });
-      await db
-        .insert(schema.mediaAssets)
-        .values({
-          id: uuidv7(),
-          legacyObjectKey: `pexels:${source.pexelsPhotoId}:home-hero:${index}`,
-          secureUrl: remote.secure_url,
-          cloudinaryPublicId: remote.public_id,
-          mimeType: downloaded?.mimeType ?? `image/${remote.format ?? 'jpeg'}`,
-          byteSize: downloaded?.buffer.byteLength ?? Number(remote.bytes ?? 0),
-          width: remote.width,
-          height: remote.height,
-          checksum: downloaded?.checksum ?? null,
-          uploadStatus: 'READY',
-          role: 'HERO_DESKTOP',
-          sortOrder: 0,
-          isPrimary: false,
-          purpose: 'hero',
-          altTranslations: {
-            hy: 'Hdoors գլխավոր բաժնի պատկերազարդ լուսանկար',
-            en: 'Illustrative Hdoors homepage photograph',
-            ru: 'Иллюстративная фотография главной страницы Hdoors',
-          },
-          sourceMetadata: {
-            kind: 'ILLUSTRATIVE_PEXELS',
-            sourceUrl: source.photoPageUrl,
-            photographer: source.photographer,
-            photographerUrl: source.photographerUrl,
-            permissionStatus: 'LICENSED',
-            permissionBasis: 'Pexels License and API attribution requirements',
-            retrievedAt: '2026-11-09',
-            exactMatch: false,
-          },
-          heroSlideId: id,
-        });
+      await db.insert(schema.mediaAssets).values({
+        id: uuidv7(),
+        legacyObjectKey: `pexels:${source.pexelsPhotoId}:home-hero:${index}`,
+        secureUrl: remote.secure_url,
+        cloudinaryPublicId: remote.public_id,
+        mimeType: downloaded?.mimeType ?? `image/${remote.format ?? 'jpeg'}`,
+        byteSize: downloaded?.buffer.byteLength ?? Number(remote.bytes ?? 0),
+        width: remote.width,
+        height: remote.height,
+        checksum: downloaded?.checksum ?? null,
+        uploadStatus: 'READY',
+        role: 'HERO_DESKTOP',
+        sortOrder: 0,
+        isPrimary: false,
+        purpose: 'hero',
+        altTranslations: {
+          hy: 'Hdoors գլխավոր բաժնի պատկերազարդ լուսանկար',
+          en: 'Illustrative Hdoors homepage photograph',
+          ru: 'Иллюстративная фотография главной страницы Hdoors',
+        },
+        sourceMetadata: {
+          kind: 'ILLUSTRATIVE_PEXELS',
+          sourceUrl: source.photoPageUrl,
+          photographer: source.photographer,
+          photographerUrl: source.photographerUrl,
+          permissionStatus: 'LICENSED',
+          permissionBasis: 'Pexels License and API attribution requirements',
+          retrievedAt: '2026-11-09',
+          exactMatch: false,
+        },
+        heroSlideId: id,
+      });
     }
   }
 
@@ -369,17 +367,15 @@ async function main() {
         const price = isDraft ? null : item.source.observedPrice;
         const stock = price ? developmentStock : 0;
         if (v.stockOnHand !== stock)
-          await tx
-            .insert(schema.stockMovements)
-            .values({
-              id: uuidv7(),
-              productId: p.id,
-              variantId: v.id,
-              delta: stock - v.stockOnHand,
-              reason: 'IMPORT',
-              resultingBalance: stock,
-              correlationId: `hdoors-development-catalog:${item.recordKey}`,
-            });
+          await tx.insert(schema.stockMovements).values({
+            id: uuidv7(),
+            productId: p.id,
+            variantId: v.id,
+            delta: stock - v.stockOnHand,
+            reason: 'IMPORT',
+            resultingBalance: stock,
+            correlationId: `hdoors-development-catalog:${item.recordKey}`,
+          });
         await tx
           .update(schema.productVariants)
           .set({

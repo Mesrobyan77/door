@@ -1,13 +1,10 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 
-import {
-  discardPendingAdminImage,
-  uploadAdminImage,
-} from "@/lib/media/client-upload";
-import type { MediaPurpose, UploadedMedia } from "@/lib/media/types";
+import { discardPendingAdminImage, uploadAdminImage } from '@/lib/media/client-upload';
+import type { MediaPurpose, UploadedMedia } from '@/lib/media/types';
 
 type CloudinaryImagePickerProps = {
   open: boolean;
@@ -47,13 +44,13 @@ export function CloudinaryImagePicker({
   useEffect(
     () => () => {
       openRef.current = false;
-      if (previewUrlRef.current?.startsWith("blob:")) {
+      if (previewUrlRef.current?.startsWith('blob:')) {
         URL.revokeObjectURL(previewUrlRef.current);
       }
       const pendingId = pendingIdRef.current;
       if (pendingId) {
         void discardPendingAdminImage(pendingId).catch((discardError: unknown) => {
-          console.error("Unable to discard pending Cloudinary image.", discardError);
+          console.error('Unable to discard pending Cloudinary image.', discardError);
         });
       }
       onUploadingChangeRef.current(false);
@@ -91,26 +88,17 @@ export function CloudinaryImagePicker({
       pendingIdRef.current = uploaded.mediaAssetId;
       updatePreviewUrl(uploaded.secureUrl);
       onChangeRef.current(uploaded);
-      if (previousUrl?.startsWith("blob:")) URL.revokeObjectURL(previousUrl);
+      if (previousUrl?.startsWith('blob:')) URL.revokeObjectURL(previousUrl);
     } catch (uploadError) {
       if (uploadedMediaAssetId) {
-        await discardPendingAdminImage(uploadedMediaAssetId).catch(
-          (discardError: unknown) => {
-            console.error(
-              "Unable to discard failed Cloudinary image.",
-              discardError,
-            );
-          },
-        );
+        await discardPendingAdminImage(uploadedMediaAssetId).catch((discardError: unknown) => {
+          console.error('Unable to discard failed Cloudinary image.', discardError);
+        });
       }
       URL.revokeObjectURL(preview);
       if (openRef.current) {
         updatePreviewUrl(previousUrl);
-        setError(
-          uploadError instanceof Error
-            ? uploadError.message
-            : "Unable to upload image.",
-        );
+        setError(uploadError instanceof Error ? uploadError.message : 'Unable to upload image.');
       }
     } finally {
       setIsUploading(false);
@@ -128,7 +116,7 @@ export function CloudinaryImagePicker({
         setError(
           discardError instanceof Error
             ? discardError.message
-            : "Unable to remove the pending image.",
+            : 'Unable to remove the pending image.',
         );
         return;
       }
@@ -148,11 +136,7 @@ export function CloudinaryImagePicker({
           onClick={() => fileInputRef.current?.click()}
           className="inline-flex items-center rounded-xl border border-dashed border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:bg-gray-50 disabled:opacity-50"
         >
-          {isUploading
-            ? "Uploading…"
-            : previewUrl
-              ? "Change image"
-              : "+ Upload image"}
+          {isUploading ? 'Uploading…' : previewUrl ? 'Change image' : '+ Upload image'}
         </button>
         <input
           ref={fileInputRef}
@@ -162,7 +146,7 @@ export function CloudinaryImagePicker({
           disabled={disabled || isUploading}
           onChange={(event) => {
             const file = event.target.files?.[0];
-            event.target.value = "";
+            event.target.value = '';
             void handleFile(file);
           }}
         />
@@ -184,7 +168,7 @@ export function CloudinaryImagePicker({
           width={112}
           height={112}
           className="mt-3 h-28 w-28 rounded-xl border border-gray-200 object-cover"
-          unoptimized={previewUrl.startsWith("blob:")}
+          unoptimized={previewUrl.startsWith('blob:')}
         />
       ) : null}
       {isUploading ? (

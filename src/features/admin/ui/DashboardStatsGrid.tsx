@@ -1,6 +1,7 @@
-import Link from "next/link";
+import Link from 'next/link';
 
-import { Card } from "@/components/ui/Card";
+import { Card } from '@/components/ui/Card';
+import type { Dictionary } from '@/lib/i18n/get-dictionary';
 
 type DashboardStatsGridProps = {
   locale: string;
@@ -9,6 +10,7 @@ type DashboardStatsGridProps = {
   orders: number;
   revenueLabel: string;
   revenueDelta?: string;
+  copy: Dictionary['admin']['dashboard'];
 };
 
 function StatCard({
@@ -35,7 +37,7 @@ function StatCard({
           <div className="min-w-0">
             <p className="text-sm font-medium text-gray-600">{label}</p>
             <p className="mt-1 text-2xl font-bold text-gray-900">{value}</p>
-            <p className="mt-1 min-h-4 text-xs text-gray-500">{hint ?? "\u00a0"}</p>
+            <p className="mt-1 min-h-4 text-xs text-gray-500">{hint ?? '\u00a0'}</p>
           </div>
           <div
             className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full ${iconBg}`}
@@ -46,12 +48,7 @@ function StatCard({
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d={iconPath}
-              />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={iconPath} />
             </svg>
           </div>
         </div>
@@ -67,6 +64,7 @@ export function DashboardStatsGrid({
   orders,
   revenueLabel,
   revenueDelta,
+  copy,
 }: DashboardStatsGridProps) {
   const base = `/${locale}/admin`;
 
@@ -74,7 +72,7 @@ export function DashboardStatsGrid({
     <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
       <StatCard
         href={`${base}/users`}
-        label="Users"
+        label={copy.users}
         value={String(users)}
         iconBg="bg-blue-100"
         iconColor="text-blue-600"
@@ -82,7 +80,7 @@ export function DashboardStatsGrid({
       />
       <StatCard
         href={`${base}/products`}
-        label="Active products"
+        label={copy.activeProducts}
         value={String(products)}
         iconBg="bg-green-100"
         iconColor="text-green-600"
@@ -90,7 +88,7 @@ export function DashboardStatsGrid({
       />
       <StatCard
         href={`${base}/orders`}
-        label="Orders (range)"
+        label={copy.ordersRange}
         value={String(orders)}
         iconBg="bg-yellow-100"
         iconColor="text-yellow-600"
@@ -98,7 +96,7 @@ export function DashboardStatsGrid({
       />
       <StatCard
         href={`${base}/analytics`}
-        label="Revenue (range)"
+        label={copy.revenueRange}
         value={revenueLabel}
         hint={revenueDelta}
         iconBg="bg-purple-100"

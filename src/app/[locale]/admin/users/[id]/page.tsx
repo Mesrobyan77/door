@@ -1,26 +1,26 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import { Card } from "@/components/ui/Card";
+import { Card } from '@/components/ui/Card';
 import {
   ADMIN_PAGE_SUBTITLE,
   ADMIN_PAGE_TITLE,
   ADMIN_SECTION_TITLE,
-} from "@/features/admin/ui/admin-form-classes";
+} from '@/features/admin/ui/admin-form-classes';
 import {
   ADMIN_BADGE,
   orderStatusBadgeClass,
   paymentStatusBadgeClass,
-} from "@/features/admin/ui/status-badge";
-import { getAdminUserById } from "@/features/users/application/queries";
+} from '@/features/admin/ui/status-badge';
+import { getAdminUserById } from '@/features/users/application/queries';
 import {
   getEligibleUserStatuses,
   isUserRole,
   isUserStatus,
-} from "@/features/users/domain/user-lifecycle";
-import { UpdateUserRoleForm } from "@/features/users/ui/UpdateUserRoleForm";
-import { UpdateUserStatusForm } from "@/features/users/ui/UpdateUserStatusForm";
-import { isLocale } from "@/lib/i18n/config";
+} from '@/features/users/domain/user-lifecycle';
+import { UpdateUserRoleForm } from '@/features/users/ui/UpdateUserRoleForm';
+import { UpdateUserStatusForm } from '@/features/users/ui/UpdateUserStatusForm';
+import { isLocale } from '@/lib/i18n/config';
 
 type AdminUserDetailPageProps = {
   params: Promise<{ locale: string; id: string }>;
@@ -28,29 +28,21 @@ type AdminUserDetailPageProps = {
 
 function userStatusBadgeClass(status: string): string {
   const normalized = status.toUpperCase();
-  if (normalized === "ACTIVE") return "bg-green-100 text-green-800";
-  if (normalized === "PENDING" || normalized === "INVITED") {
-    return "bg-yellow-100 text-yellow-800";
+  if (normalized === 'ACTIVE') return 'bg-green-100 text-green-800';
+  if (normalized === 'PENDING' || normalized === 'INVITED') {
+    return 'bg-yellow-100 text-yellow-800';
   }
-  if (
-    normalized === "SUSPENDED" ||
-    normalized === "BANNED" ||
-    normalized === "ANONYMIZED"
-  ) {
-    return "bg-red-100 text-red-800";
+  if (normalized === 'SUSPENDED' || normalized === 'BANNED' || normalized === 'ANONYMIZED') {
+    return 'bg-red-100 text-red-800';
   }
-  return "bg-gray-100 text-gray-800";
+  return 'bg-gray-100 text-gray-800';
 }
 
 function userRoleBadgeClass(role: string): string {
-  return role.toUpperCase() === "ADMIN"
-    ? "bg-blue-100 text-blue-800"
-    : "bg-gray-100 text-gray-800";
+  return role.toUpperCase() === 'ADMIN' ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800';
 }
 
-export default async function AdminUserDetailPage({
-  params,
-}: AdminUserDetailPageProps) {
+export default async function AdminUserDetailPage({ params }: AdminUserDetailPageProps) {
   const { locale, id } = await params;
   if (!isLocale(locale)) {
     notFound();
@@ -65,7 +57,7 @@ export default async function AdminUserDetailPage({
   const role = isUserRole(user.role) ? user.role : null;
   const status = isUserStatus(user.status) ? user.status : null;
   const eligibleStatuses = status ? getEligibleUserStatuses(status) : [];
-  const isAnonymized = status === "ANONYMIZED";
+  const isAnonymized = status === 'ANONYMIZED';
 
   return (
     <section>
@@ -87,38 +79,28 @@ export default async function AdminUserDetailPage({
       <Card className="mb-6 p-6">
         <div className="grid gap-3 text-sm md:grid-cols-2">
           <p className="text-gray-700">
-            Role:{" "}
-            <span
-              className={`${ADMIN_BADGE} ${userRoleBadgeClass(user.role)}`}
-            >
-              {user.role}
-            </span>
+            Role:{' '}
+            <span className={`${ADMIN_BADGE} ${userRoleBadgeClass(user.role)}`}>{user.role}</span>
           </p>
           <p className="text-gray-700">
-            Status:{" "}
-            <span
-              className={`${ADMIN_BADGE} ${userStatusBadgeClass(user.status)}`}
-            >
+            Status:{' '}
+            <span className={`${ADMIN_BADGE} ${userStatusBadgeClass(user.status)}`}>
               {user.status}
             </span>
           </p>
-          <p className="text-gray-700">Phone: {user.phone ?? "—"}</p>
+          <p className="text-gray-700">Phone: {user.phone ?? '—'}</p>
           <p className="text-gray-700">
-            Email verified:{" "}
-            {user.emailVerifiedAt
-              ? user.emailVerifiedAt.toISOString().slice(0, 10)
-              : "no"}
+            Email verified:{' '}
+            {user.emailVerifiedAt ? user.emailVerifiedAt.toISOString().slice(0, 10) : 'no'}
           </p>
           <p className="text-gray-700">
-            Last login:{" "}
+            Last login:{' '}
             {user.lastLoginAt
-              ? user.lastLoginAt.toISOString().slice(0, 16).replace("T", " ")
-              : "never"}{" "}
+              ? user.lastLoginAt.toISOString().slice(0, 16).replace('T', ' ')
+              : 'never'}{' '}
             UTC
           </p>
-          <p className="text-gray-700">
-            Created: {user.createdAt.toISOString().slice(0, 10)}
-          </p>
+          <p className="text-gray-700">Created: {user.createdAt.toISOString().slice(0, 10)}</p>
         </div>
       </Card>
 
@@ -155,28 +137,20 @@ export default async function AdminUserDetailPage({
               className="block rounded-lg border border-gray-200 p-3 transition-colors hover:bg-gray-50"
             >
               <div className="flex flex-wrap items-center gap-2">
-                <strong className="text-sm text-gray-900">
-                  {order.orderNumber}
-                </strong>
-                <span
-                  className={`${ADMIN_BADGE} ${orderStatusBadgeClass(order.status)}`}
-                >
+                <strong className="text-sm text-gray-900">{order.orderNumber}</strong>
+                <span className={`${ADMIN_BADGE} ${orderStatusBadgeClass(order.status)}`}>
                   {order.status}
                 </span>
-                <span
-                  className={`${ADMIN_BADGE} ${paymentStatusBadgeClass(order.paymentStatus)}`}
-                >
+                <span className={`${ADMIN_BADGE} ${paymentStatusBadgeClass(order.paymentStatus)}`}>
                   {order.paymentStatus}
                 </span>
               </div>
               <p className="mt-1 text-sm text-gray-600">
-                {order.totalAmount.toLocaleString("en-US")} {order.baseCurrency}
+                {order.totalAmount.toLocaleString('en-US')} {order.baseCurrency}
               </p>
             </Link>
           ))}
-          {recentOrders.length === 0 ? (
-            <p className="text-sm text-gray-600">No orders.</p>
-          ) : null}
+          {recentOrders.length === 0 ? <p className="text-sm text-gray-600">No orders.</p> : null}
         </div>
       </Card>
     </section>

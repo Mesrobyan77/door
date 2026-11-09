@@ -1,19 +1,14 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
+import { Pencil, Plus, Trash2 } from 'lucide-react';
 
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import {
-  ConfirmDialog,
-  deleteConfirmDescription,
-} from "@/components/ui/ConfirmDialog";
-import {
-  ADMIN_PAGE_SUBTITLE,
-  ADMIN_PAGE_TITLE,
-} from "@/features/admin/ui/admin-form-classes";
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { useAdminDictionary } from '@/features/admin/ui/AdminI18nContext';
+import { ConfirmDialog, deleteConfirmDescription } from '@/components/ui/ConfirmDialog';
+import { ADMIN_PAGE_SUBTITLE, ADMIN_PAGE_TITLE } from '@/features/admin/ui/admin-form-classes';
 import {
   ADMIN_TABLE,
   ADMIN_TABLE_CARD,
@@ -26,29 +21,25 @@ import {
   ADMIN_TABLE_TH,
   ADMIN_TABLE_TH_CENTER,
   ADMIN_TABLE_THEAD,
-} from "@/features/admin/ui/admin-table-classes";
-import { deleteDeliveryLocationAction } from "@/features/delivery/application/manage-delivery";
-import type { AdminDeliveryLocation } from "@/features/delivery/application/queries";
-import { DeliveryLocationDrawer } from "@/features/delivery/ui/DeliveryLocationDrawer";
-import { formatMoneyAmount } from "@/lib/money/format";
+} from '@/features/admin/ui/admin-table-classes';
+import { deleteDeliveryLocationAction } from '@/features/delivery/application/manage-delivery';
+import type { AdminDeliveryLocation } from '@/features/delivery/application/queries';
+import { DeliveryLocationDrawer } from '@/features/delivery/ui/DeliveryLocationDrawer';
+import { formatMoneyAmount } from '@/lib/money/format';
 
 type AdminDeliveryViewProps = {
   locale: string;
   locations: AdminDeliveryLocation[];
 };
 
-export function AdminDeliveryView({
-  locale,
-  locations,
-}: AdminDeliveryViewProps) {
+export function AdminDeliveryView({ locale, locations }: AdminDeliveryViewProps) {
+  const { navigation } = useAdminDictionary();
   const router = useRouter();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editingLocation, setEditingLocation] =
-    useState<AdminDeliveryLocation | null>(null);
+  const [editingLocation, setEditingLocation] = useState<AdminDeliveryLocation | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
-  const [pendingDelete, setPendingDelete] =
-    useState<AdminDeliveryLocation | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<AdminDeliveryLocation | null>(null);
 
   function openCreate(): void {
     setEditingLocation(null);
@@ -89,7 +80,7 @@ export function AdminDeliveryView({
     <section>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className={ADMIN_PAGE_TITLE}>Delivery</h1>
+          <h1 className={ADMIN_PAGE_TITLE}>{navigation.delivery}</h1>
           <p className={`mt-1 ${ADMIN_PAGE_SUBTITLE}`}>
             Set delivery prices by country and city for checkout.
           </p>
@@ -110,8 +101,7 @@ export function AdminDeliveryView({
       <Card className={ADMIN_TABLE_CARD}>
         {locations.length === 0 ? (
           <p className={`${ADMIN_TABLE_STATE_INSET} text-sm text-gray-600`}>
-            No delivery locations yet. Add a location to offer delivery at
-            checkout.
+            No delivery locations yet. Add a location to offer delivery at checkout.
           </p>
         ) : (
           <div className={ADMIN_TABLE_OUTER_SCROLL}>
@@ -130,21 +120,15 @@ export function AdminDeliveryView({
                   <tr key={location.id} className={ADMIN_TABLE_ROW}>
                     <td className={ADMIN_TABLE_TD}>{location.country}</td>
                     <td className={ADMIN_TABLE_TD_CENTER}>
-                      <span className="font-medium text-gray-900">
-                        {location.city}
-                      </span>
+                      <span className="font-medium text-gray-900">{location.city}</span>
                     </td>
                     <td className={ADMIN_TABLE_TD_CENTER}>
-                      {formatMoneyAmount(location.priceAmount, "AMD", locale)}
+                      {formatMoneyAmount(location.priceAmount, 'AMD', locale)}
                     </td>
                     <td className={ADMIN_TABLE_TD_CENTER}>
                       {location.freeThresholdAmount != null
-                        ? formatMoneyAmount(
-                            location.freeThresholdAmount,
-                            "AMD",
-                            locale,
-                          )
-                        : "—"}
+                        ? formatMoneyAmount(location.freeThresholdAmount, 'AMD', locale)
+                        : '—'}
                     </td>
                     <td className={ADMIN_TABLE_TD_CENTER}>
                       <div className="inline-flex items-center justify-center gap-1">
@@ -187,9 +171,7 @@ export function AdminDeliveryView({
         open={pendingDelete !== null}
         title="Delete"
         description={
-          pendingDelete
-            ? deleteConfirmDescription("delivery location", pendingDelete.city)
-            : ""
+          pendingDelete ? deleteConfirmDescription('delivery location', pendingDelete.city) : ''
         }
         isPending={isPending}
         onClose={() => {

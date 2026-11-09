@@ -134,7 +134,7 @@ export default async function ProductsPage({ params, searchParams }: ProductsPag
           {totalPages > 1 ? (
             <nav
               aria-label={dictionary.catalog.paginationLabel}
-              className="flex items-center justify-center gap-4"
+              className="flex items-center justify-center gap-4 mt-4!"
             >
               {page > 1 ? (
                 <AppLink

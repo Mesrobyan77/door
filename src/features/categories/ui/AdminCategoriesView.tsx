@@ -1,20 +1,16 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { ChevronRight, GripVertical, Pencil, Plus, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { ChevronRight, GripVertical, Pencil, Plus, Trash2 } from 'lucide-react';
 
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import {
-  ConfirmDialog,
-  deleteConfirmDescription,
-} from "@/components/ui/ConfirmDialog";
-import {
-  ADMIN_PAGE_TITLE,
-} from "@/features/admin/ui/admin-form-classes";
-import { AdminSearchInput } from "@/features/admin/ui/AdminSearchInput";
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { useAdminDictionary } from '@/features/admin/ui/AdminI18nContext';
+import { ConfirmDialog, deleteConfirmDescription } from '@/components/ui/ConfirmDialog';
+import { ADMIN_PAGE_TITLE } from '@/features/admin/ui/admin-form-classes';
+import { AdminSearchInput } from '@/features/admin/ui/AdminSearchInput';
 import {
   ADMIN_TABLE,
   ADMIN_TABLE_CARD,
@@ -27,14 +23,11 @@ import {
   ADMIN_TABLE_TH,
   ADMIN_TABLE_TH_CENTER,
   ADMIN_TABLE_THEAD,
-} from "@/features/admin/ui/admin-table-classes";
-import {
-  deleteCategoryAction,
-  reorderCategoriesAction,
-} from "@/features/categories/actions";
-import type { AdminCategoryListItem } from "@/features/categories/application/list-admin-categories";
-import { AddCategoryDrawer } from "@/features/categories/ui/AddCategoryDrawer";
-import { useSyncedState } from "@/lib/react/sync-state-from-prop";
+} from '@/features/admin/ui/admin-table-classes';
+import { deleteCategoryAction, reorderCategoriesAction } from '@/features/categories/actions';
+import type { AdminCategoryListItem } from '@/features/categories/application/list-admin-categories';
+import { AddCategoryDrawer } from '@/features/categories/ui/AddCategoryDrawer';
+import { useSyncedState } from '@/lib/react/sync-state-from-prop';
 
 type AdminCategoriesViewProps = {
   locale: string;
@@ -58,23 +51,17 @@ function moveItem<T>(list: T[], fromIndex: number, toIndex: number): T[] {
   return next;
 }
 
-function sameOrder(
-  left: AdminCategoryListItem[],
-  right: AdminCategoryListItem[],
-): boolean {
+function sameOrder(left: AdminCategoryListItem[], right: AdminCategoryListItem[]): boolean {
   if (left.length !== right.length) return false;
   return left.every((item, index) => item.id === right[index]?.id);
 }
 
-export function AdminCategoriesView({
-  locale,
-  categories,
-}: AdminCategoriesViewProps) {
+export function AdminCategoriesView({ locale, categories }: AdminCategoriesViewProps) {
+  const { navigation } = useAdminDictionary();
   const router = useRouter();
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editingCategory, setEditingCategory] =
-    useState<AdminCategoryListItem | null>(null);
+  const [editingCategory, setEditingCategory] = useState<AdminCategoryListItem | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [pendingDelete, setPendingDelete] = useState<{
@@ -96,9 +83,7 @@ export function AdminCategoriesView({
 
   const visible = useMemo(() => {
     if (!isFiltering) return ordered;
-    return ordered.filter((category) =>
-      category.title.toLowerCase().includes(needle),
-    );
+    return ordered.filter((category) => category.title.toLowerCase().includes(needle));
   }, [ordered, isFiltering, needle]);
 
   function requestDelete(categoryId: string, categoryTitle: string): void {
@@ -147,9 +132,7 @@ export function AdminCategoriesView({
   function reorderToward(targetId: string): void {
     if (!draggingId || isFiltering || draggingId === targetId) return;
     setOrdered((current) => {
-      const fromIndex = current.findIndex(
-        (category) => category.id === draggingId,
-      );
+      const fromIndex = current.findIndex((category) => category.id === draggingId);
       const toIndex = current.findIndex((category) => category.id === targetId);
       if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) return current;
       const next = moveItem(current, fromIndex, toIndex);
@@ -161,7 +144,7 @@ export function AdminCategoriesView({
   return (
     <section>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className={ADMIN_PAGE_TITLE}>Categories</h1>
+        <h1 className={ADMIN_PAGE_TITLE}>{navigation.categories}</h1>
         <Button
           type="button"
           size="sm"
@@ -185,9 +168,7 @@ export function AdminCategoriesView({
       />
 
       {isFiltering ? (
-        <p className="mb-3 text-xs text-gray-500">
-          Clear search to reorder categories.
-        </p>
+        <p className="mb-3 text-xs text-gray-500">Clear search to reorder categories.</p>
       ) : null}
 
       {error ? <p className="mb-3 text-sm text-red-700">{error}</p> : null}
@@ -195,9 +176,7 @@ export function AdminCategoriesView({
       <Card className={ADMIN_TABLE_CARD}>
         {visible.length === 0 ? (
           <p className={`${ADMIN_TABLE_STATE_INSET} text-sm text-gray-600`}>
-            {categories.length === 0
-              ? "No categories yet."
-              : "No categories match this search."}
+            {categories.length === 0 ? 'No categories yet.' : 'No categories match this search.'}
           </p>
         ) : (
           <div className={ADMIN_TABLE_OUTER_SCROLL}>
@@ -219,12 +198,12 @@ export function AdminCategoriesView({
                     <tr
                       key={category.id}
                       className={`${ADMIN_TABLE_ROW} ${
-                        isDragging ? "bg-gray-50 opacity-50 shadow-sm" : ""
+                        isDragging ? 'bg-gray-50 opacity-50 shadow-sm' : ''
                       }`}
                       onDragOver={(event) => {
                         if (isFiltering || !draggingId) return;
                         event.preventDefault();
-                        event.dataTransfer.dropEffect = "move";
+                        event.dataTransfer.dropEffect = 'move';
                         reorderToward(category.id);
                       }}
                       onDrop={(event) => {
@@ -243,11 +222,8 @@ export function AdminCategoriesView({
                               event.preventDefault();
                               return;
                             }
-                            event.dataTransfer.effectAllowed = "move";
-                            event.dataTransfer.setData(
-                              "text/plain",
-                              category.id,
-                            );
+                            event.dataTransfer.effectAllowed = 'move';
+                            event.dataTransfer.setData('text/plain', category.id);
                             dragOriginRef.current = orderedRef.current;
                             persistedRef.current = false;
                             setDraggingId(category.id);
@@ -278,13 +254,11 @@ export function AdminCategoriesView({
                         </div>
                       </td>
                       <td className={ADMIN_TABLE_TD}>
-                        <p className="font-medium text-gray-900">
-                          {category.title}
-                        </p>
+                        <p className="font-medium text-gray-900">{category.title}</p>
                       </td>
                       <td className={ADMIN_TABLE_TD}>
                         <span className="text-sm text-gray-500">
-                          {category.parentTitle ?? "None (Root Category)"}
+                          {category.parentTitle ?? 'None (Root Category)'}
                         </span>
                       </td>
                       <td className={ADMIN_TABLE_TD_CENTER}>
@@ -303,9 +277,7 @@ export function AdminCategoriesView({
                           <button
                             type="button"
                             disabled={isPending}
-                            onClick={() =>
-                              requestDelete(category.id, category.title)
-                            }
+                            onClick={() => requestDelete(category.id, category.title)}
                             className="rounded p-1.5 text-red-600 hover:bg-red-50"
                             aria-label={`Delete ${category.title}`}
                           >
@@ -344,11 +316,7 @@ export function AdminCategoriesView({
       <ConfirmDialog
         open={pendingDelete !== null}
         title="Delete"
-        description={
-          pendingDelete
-            ? deleteConfirmDescription("category", pendingDelete.title)
-            : ""
-        }
+        description={pendingDelete ? deleteConfirmDescription('category', pendingDelete.title) : ''}
         isPending={isPending}
         onClose={() => {
           if (!isPending) setPendingDelete(null);

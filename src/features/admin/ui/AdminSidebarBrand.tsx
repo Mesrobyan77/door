@@ -3,12 +3,14 @@
 import Link from 'next/link';
 
 import { useAdminSidebarCollapse } from '@/features/admin/ui/AdminSidebarCollapseContext';
+import { useAdminDictionary } from '@/features/admin/ui/AdminI18nContext';
 
 type AdminSidebarBrandProps = {
   locale: string;
 };
 
 export function AdminSidebarBrand({ locale }: AdminSidebarBrandProps) {
+  const dictionary = useAdminDictionary();
   const { collapsed, toggleCollapsed } = useAdminSidebarCollapse();
 
   return (
@@ -38,8 +40,8 @@ export function AdminSidebarBrand({ locale }: AdminSidebarBrandProps) {
         onClick={toggleCollapsed}
         className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-gray-200 text-gray-600 transition-colors hover:border-gray-300 hover:bg-gray-50 hover:text-gray-900"
         aria-expanded={!collapsed}
-        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        aria-label={collapsed ? dictionary.shell.expandSidebar : dictionary.shell.collapseSidebar}
+        title={collapsed ? dictionary.shell.expandSidebar : dictionary.shell.collapseSidebar}
       >
         {collapsed ? (
           <svg

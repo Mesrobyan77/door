@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { ArrowRight } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { AppLink } from '@/components/ui/AppLink';
 import { getStoreHomepage } from '@/features/settings';
@@ -13,49 +14,63 @@ export default async function AboutPage({ params }: { params: Promise<{ locale: 
   const [homepage, slides] = await Promise.all([getStoreHomepage(), listActiveHeroSlides(locale)]);
   const text = (value: Partial<Record<'hy' | 'en' | 'ru', string>>) =>
     value[locale] ?? value.hy ?? '';
-  const image = slides[0]?.desktopImageUrl;
+  const image = slides[0]?.desktopImageUrl ?? slides[0]?.mobileImageUrl;
+
   return (
-    <article className="space-y-10">
-      <div className="grid items-center gap-8 lg:grid-cols-2">
-        <div>
-          <p className="mb-4 text-xs tracking-[.2em] text-gray-500">Hdoors</p>
-          <h1 className="text-3xl leading-tight font-semibold tracking-tight sm:text-4xl">
-            {text(homepage.about.title) || dictionary.nav.about}
-          </h1>
-          <p className="mt-5 text-sm leading-7 text-gray-600">{text(homepage.about.description)}</p>
-          <AppLink
-            href={`/${locale}/products`}
-            className="gold-button mt-7"
-            prefetchPolicy="intent"
-          >
-            {dictionary.nav.products}
-          </AppLink>
-        </div>
-        {image ? (
-          <figure>
-            <div className="relative h-80 overflow-hidden rounded-md bg-gray-100 sm:h-96">
-              <Image
-                src={image}
-                alt={dictionary.design.hero.illustrative}
-                fill
-                sizes="(max-width: 1023px) 100vw, 50vw"
-                className="object-cover"
-              />
-            </div>
-          </figure>
-        ) : null}
-      </div>
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {homepage.benefits.map((item) => (
-          <div
-            key={text(item.title)}
-            className="rounded-md border border-border border-t-2 border-t-accent bg-white p-6"
-          >
-            <h2 className="font-semibold">{text(item.title)}</h2>
-            <p className="mt-3 text-sm leading-6 text-gray-600">{text(item.description)}</p>
+    <article className="about-page">
+      <section className="about-hero">
+        <div className="about-hero-copy">
+          <p className="about-eyebrow">Hdoors / {dictionary.nav.about}</p>
+          <h1>{text(homepage.about.title) || dictionary.nav.about}</h1>
+          <div className="about-title-rule" aria-hidden="true" />
+          <p className="about-lead">{text(homepage.about.description)}</p>
+          <div className="about-actions">
+            <AppLink href={`/${locale}/products`} className="gold-button" prefetchPolicy="intent">
+              {dictionary.nav.products}
+              <ArrowRight className="h-4 w-4" />
+            </AppLink>
+            <AppLink
+              href={`/${locale}/contact`}
+              className="about-secondary-link"
+              prefetchPolicy="intent"
+            >
+              {dictionary.nav.contact}
+              <ArrowRight className="h-4 w-4" />
+            </AppLink>
           </div>
-        ))}
+        </div>
+        <figure className="about-hero-media">
+          {image ? (
+            <Image
+              src={image}
+              alt={dictionary.design.hero.illustrative}
+              fill
+              priority
+              sizes="(max-width: 1023px) 100vw, 58vw"
+              className="object-cover"
+            />
+          ) : null}
+          <figcaption>Hdoors</figcaption>
+        </figure>
       </section>
+
+      {homepage.benefits.length ? (
+        <section className="about-benefits" aria-labelledby="about-benefits-title">
+          <div className="about-benefits-intro">
+            <p>Hdoors / 02</p>
+            <h2 id="about-benefits-title">{text(homepage.about.title) || dictionary.nav.about}</h2>
+          </div>
+          <div className="about-benefits-grid">
+            {homepage.benefits.map((item, index) => (
+              <article key={`${text(item.title)}-${index}`}>
+                <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+                <h3>{text(item.title)}</h3>
+                <p>{text(item.description)}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </article>
   );
 }

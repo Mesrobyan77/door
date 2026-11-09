@@ -1,29 +1,24 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import { listAdminPromotions } from "@/features/promotions/application/queries";
-import { adminPromotionsFilterSchema } from "@/features/promotions/schemas/admin-promotions";
-import { AdminCouponsView } from "@/features/promotions/ui/AdminCouponsView";
-import { isLocale } from "@/lib/i18n/config";
+import { listAdminPromotions } from '@/features/promotions/application/queries';
+import { adminPromotionsFilterSchema } from '@/features/promotions/schemas/admin-promotions';
+import { AdminCouponsView } from '@/features/promotions/ui/AdminCouponsView';
+import { isLocale } from '@/lib/i18n/config';
 
 type AdminCouponsPageProps = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-function firstParam(
-  value: string | string[] | undefined,
-): string | undefined {
+function firstParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
     return value[0];
   }
   return value;
 }
 
-export default async function AdminCouponsPage({
-  params,
-  searchParams,
-}: AdminCouponsPageProps) {
+export default async function AdminCouponsPage({ params, searchParams }: AdminCouponsPageProps) {
   const { locale } = await params;
   if (!isLocale(locale)) {
     notFound();
@@ -31,16 +26,16 @@ export default async function AdminCouponsPage({
 
   const raw = await searchParams;
   const parsed = adminPromotionsFilterSchema.safeParse({
-    kind: "COUPON",
+    kind: 'COUPON',
     q: firstParam(raw.q) || undefined,
     active: firstParam(raw.active) || undefined,
-    page: firstParam(raw.page) ?? "1",
+    page: firstParam(raw.page) ?? '1',
   });
 
   const filters = parsed.success
     ? parsed.data
     : {
-        kind: "COUPON" as const,
+        kind: 'COUPON' as const,
         page: 1 as const,
         q: undefined,
         active: undefined,

@@ -9,6 +9,8 @@ import {
   type AdminMenuItem,
 } from '@/features/admin/ui/admin-menu.config';
 import { AdminMenuDrawer } from '@/features/admin/ui/AdminMenuDrawer';
+import { useAdminDictionary } from '@/features/admin/ui/AdminI18nContext';
+import { AdminLocaleSwitcher } from '@/features/admin/ui/AdminLocaleSwitcher';
 import { AdminSidebarBrand } from '@/features/admin/ui/AdminSidebarBrand';
 import { useAdminSidebarCollapse } from '@/features/admin/ui/AdminSidebarCollapseContext';
 import {
@@ -17,9 +19,10 @@ import {
   ADMIN_SIDEBAR_NAV,
 } from '@/features/admin/ui/admin-shell-classes';
 import { useAdminProductsSubnavExpanded } from '@/features/admin/ui/useAdminProductsSubnavExpanded';
+import type { Locale } from '@/lib/i18n/config';
 
 type AdminSidebarProps = {
-  locale: string;
+  locale: Locale;
 };
 
 function isNestedVisible(
@@ -36,8 +39,9 @@ function isNestedVisible(
 }
 
 export function AdminSidebar({ locale }: AdminSidebarProps) {
+  const dictionary = useAdminDictionary();
   const pathname = usePathname() ?? `/${locale}/admin`;
-  const tabs = getAdminMenuItems(locale);
+  const tabs = getAdminMenuItems(locale, dictionary.navigation);
   const { collapsed } = useAdminSidebarCollapse();
   const [productsNestedExpanded, toggleProductsNested] = useAdminProductsSubnavExpanded(
     pathname,
@@ -98,8 +102,8 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
                   <button
                     type="button"
                     aria-expanded={productsNestedExpanded}
-                    aria-label="Toggle product subpages"
-                    title="Toggle product subpages"
+                    aria-label={dictionary.shell.toggleProductPages}
+                    title={dictionary.shell.toggleProductPages}
                     onClick={(event) => {
                       event.preventDefault();
                       toggleProductsNested();
@@ -139,6 +143,9 @@ export function AdminSidebar({ locale }: AdminSidebarProps) {
             );
           })}
         </nav>
+        <div className={`shrink-0 border-t border-gray-200 ${collapsed ? 'p-3' : 'p-4'}`}>
+          <AdminLocaleSwitcher locale={locale} collapsed={collapsed} />
+        </div>
       </aside>
     </>
   );

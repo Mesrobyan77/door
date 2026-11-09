@@ -1,16 +1,14 @@
-import { notFound } from "next/navigation";
+import { notFound } from 'next/navigation';
 
-import { listAdminCategories } from "@/features/categories/application/list-admin-categories";
-import { AdminCategoriesView } from "@/features/categories/ui/AdminCategoriesView";
-import { isLocale } from "@/lib/i18n/config";
+import { listAdminCategories } from '@/features/categories/application/list-admin-categories';
+import { AdminCategoriesView } from '@/features/categories/ui/AdminCategoriesView';
+import { isLocale } from '@/lib/i18n/config';
 
 type AdminCategoriesPageProps = {
   params: Promise<{ locale: string }>;
 };
 
-export default async function AdminCategoriesPage({
-  params,
-}: AdminCategoriesPageProps) {
+export default async function AdminCategoriesPage({ params }: AdminCategoriesPageProps) {
   const { locale } = await params;
   if (!isLocale(locale)) {
     notFound();

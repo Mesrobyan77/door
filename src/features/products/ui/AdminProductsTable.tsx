@@ -1,15 +1,12 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import {
-  ConfirmDialog,
-  deleteConfirmDescription,
-} from "@/components/ui/ConfirmDialog";
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { ConfirmDialog, deleteConfirmDescription } from '@/components/ui/ConfirmDialog';
 import {
   ADMIN_TABLE,
   ADMIN_TABLE_CARD,
@@ -21,15 +18,16 @@ import {
   ADMIN_TABLE_TH_CENTER,
   ADMIN_TABLE_TH_CHECK,
   ADMIN_TABLE_THEAD,
-} from "@/features/admin/ui/admin-table-classes";
+} from '@/features/admin/ui/admin-table-classes';
 import {
   duplicateProductAction,
   softDeleteProductsAction,
   toggleProductFeaturedAction,
   toggleProductVisibilityAction,
-} from "@/features/products/application/admin-product-actions";
-import type { AdminProductListItem } from "@/features/products/application/list-admin-products";
-import { AdminProductRow } from "@/features/products/ui/AdminProductRow";
+} from '@/features/products/application/admin-product-actions';
+import type { AdminProductListItem } from '@/features/products/application/list-admin-products';
+import { AdminProductRow } from '@/features/products/ui/AdminProductRow';
+import { useAdminDictionary } from '@/features/admin/ui/AdminI18nContext';
 
 type AdminProductsSortLinks = {
   title: string;
@@ -53,19 +51,19 @@ export function AdminProductsTable({
   onEdit,
   inquiryLabel,
 }: AdminProductsTableProps) {
+  const { products: copy } = useAdminDictionary();
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const [pendingDelete, setPendingDelete] = useState<{
-    kind: "single" | "bulk";
+    kind: 'single' | 'bulk';
     productIds: string[];
     label: string;
   } | null>(null);
 
   const allIds = products.map((product) => product.id);
-  const allSelected =
-    allIds.length > 0 && allIds.every((id) => selected.has(id));
+  const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id));
 
   function toggleOne(id: string): void {
     setSelected((prev) => {
@@ -87,7 +85,7 @@ export function AdminProductsTable({
         await action();
         router.refresh();
       } catch (caught) {
-        setError(caught instanceof Error ? caught.message : "Action failed.");
+        setError(caught instanceof Error ? caught.message : 'Action failed.');
       }
     });
   }
@@ -96,12 +94,9 @@ export function AdminProductsTable({
     if (selected.size === 0) return;
     const count = selected.size;
     setPendingDelete({
-      kind: "bulk",
+      kind: 'bulk',
       productIds: [...selected],
-      label:
-        count === 1
-          ? "selected product"
-          : `${count} selected products`,
+      label: count === 1 ? 'selected product' : `${count} selected products`,
     });
   }
 
@@ -121,7 +116,7 @@ export function AdminProductsTable({
         setPendingDelete(null);
         router.refresh();
       } catch (caught) {
-        setError(caught instanceof Error ? caught.message : "Action failed.");
+        setError(caught instanceof Error ? caught.message : 'Action failed.');
       }
     });
   }
@@ -130,7 +125,7 @@ export function AdminProductsTable({
     <div className="flex flex-col gap-4">
       <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
         <p className="text-sm text-gray-700">
-          Selected {selected.size} product{selected.size === 1 ? "" : "s"}
+          {copy.selected}: {selected.size}
         </p>
         <Button
           type="button"
@@ -139,7 +134,7 @@ export function AdminProductsTable({
           disabled={isPending || selected.size === 0}
           onClick={deleteSelected}
         >
-          Delete Selected
+          {copy.deleteSelected}
         </Button>
       </Card>
 
@@ -147,9 +142,7 @@ export function AdminProductsTable({
 
       <Card className={ADMIN_TABLE_CARD}>
         {products.length === 0 ? (
-          <p className={`${ADMIN_TABLE_STATE_INSET} text-sm text-gray-600`}>
-            No products match these filters.
-          </p>
+          <p className={`${ADMIN_TABLE_STATE_INSET} text-sm text-gray-600`}>{copy.empty}</p>
         ) : (
           <div className={ADMIN_TABLE_OUTER_SCROLL}>
             <table className={ADMIN_TABLE}>
@@ -167,28 +160,25 @@ export function AdminProductsTable({
                   </th>
                   <th className={ADMIN_TABLE_TH}>
                     <Link href={sortLinks.title} className="hover:text-gray-900">
-                      Product
+                      {copy.product}
                     </Link>
                   </th>
                   <th className={ADMIN_TABLE_TH}>
                     <Link href={sortLinks.stock} className="hover:text-gray-900">
-                      Stock
+                      {copy.stock}
                     </Link>
                   </th>
                   <th className={ADMIN_TABLE_TH}>
                     <Link href={sortLinks.price} className="hover:text-gray-900">
-                      Price
+                      {copy.price}
                     </Link>
                   </th>
-                  <th className={ADMIN_TABLE_TH_CENTER}>Category</th>
-                  <th className={ADMIN_TABLE_TH_CENTER}>Featured</th>
-                  <th className={ADMIN_TABLE_TH_CENTER}>Actions</th>
+                  <th className={ADMIN_TABLE_TH_CENTER}>{copy.category}</th>
+                  <th className={ADMIN_TABLE_TH_CENTER}>{copy.featured}</th>
+                  <th className={ADMIN_TABLE_TH_CENTER}>{copy.actions}</th>
                   <th className={ADMIN_TABLE_TH}>
-                    <Link
-                      href={sortLinks.created}
-                      className="hover:text-gray-900"
-                    >
-                      Created
+                    <Link href={sortLinks.created} className="hover:text-gray-900">
+                      {copy.created}
                     </Link>
                   </th>
                 </tr>
@@ -206,35 +196,26 @@ export function AdminProductsTable({
                     onEdit={() => onEdit(product)}
                     onFeatured={() =>
                       runAction(async () => {
-                        const result = await toggleProductFeaturedAction(
-                          locale,
-                          product.id,
-                        );
+                        const result = await toggleProductFeaturedAction(locale, product.id);
                         if (!result.ok) throw new Error(result.error.message);
                       })
                     }
                     onDuplicate={() =>
                       runAction(async () => {
-                        const result = await duplicateProductAction(
-                          locale,
-                          product.id,
-                        );
+                        const result = await duplicateProductAction(locale, product.id);
                         if (!result.ok) throw new Error(result.error.message);
                       })
                     }
                     onDelete={() =>
                       setPendingDelete({
-                        kind: "single",
+                        kind: 'single',
                         productIds: [product.id],
                         label: product.title,
                       })
                     }
                     onVisibility={() =>
                       runAction(async () => {
-                        const result = await toggleProductVisibilityAction(
-                          locale,
-                          product.id,
-                        );
+                        const result = await toggleProductVisibilityAction(locale, product.id);
                         if (!result.ok) throw new Error(result.error.message);
                       })
                     }
@@ -250,11 +231,11 @@ export function AdminProductsTable({
         open={pendingDelete !== null}
         title="Delete"
         description={
-          pendingDelete?.kind === "bulk"
+          pendingDelete?.kind === 'bulk'
             ? `Are you sure you want to delete ${pendingDelete.label}? This action cannot be undone.`
             : pendingDelete
-              ? deleteConfirmDescription("product", pendingDelete.label)
-              : ""
+              ? deleteConfirmDescription('product', pendingDelete.label)
+              : ''
         }
         isPending={isPending}
         onClose={() => {

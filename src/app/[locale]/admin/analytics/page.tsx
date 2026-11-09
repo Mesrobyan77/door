@@ -1,27 +1,25 @@
-import { notFound } from "next/navigation";
+import { notFound } from 'next/navigation';
 
-import { ADMIN_PAGE_SUBTITLE } from "@/features/admin/ui/admin-form-classes";
-import { getAnalyticsSummary } from "@/features/analytics/application/queries";
+import { ADMIN_PAGE_SUBTITLE } from '@/features/admin/ui/admin-form-classes';
+import { getAnalyticsSummary } from '@/features/analytics/application/queries';
 import {
   analyticsDateRangeSchema,
   matchAnalyticsPeriodPreset,
   rangeForAnalyticsPeriod,
-} from "@/features/analytics/domain/date-range";
-import { AnalyticsMetricCards } from "@/features/analytics/ui/AnalyticsMetricCards";
-import { AnalyticsOrdersByDay } from "@/features/analytics/ui/AnalyticsOrdersByDay";
-import { AnalyticsPeriodCard } from "@/features/analytics/ui/AnalyticsPeriodCard";
-import { AnalyticsTopRankings } from "@/features/analytics/ui/AnalyticsTopRankings";
-import { isLocale } from "@/lib/i18n/config";
-import { formatMoneyAmount } from "@/lib/money/format";
+} from '@/features/analytics/domain/date-range';
+import { AnalyticsMetricCards } from '@/features/analytics/ui/AnalyticsMetricCards';
+import { AnalyticsOrdersByDay } from '@/features/analytics/ui/AnalyticsOrdersByDay';
+import { AnalyticsPeriodCard } from '@/features/analytics/ui/AnalyticsPeriodCard';
+import { AnalyticsTopRankings } from '@/features/analytics/ui/AnalyticsTopRankings';
+import { isLocale } from '@/lib/i18n/config';
+import { formatMoneyAmount } from '@/lib/money/format';
 
 type AdminAnalyticsPageProps = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-function firstParam(
-  value: string | string[] | undefined,
-): string | undefined {
+function firstParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
     return value[0];
   }
@@ -38,7 +36,7 @@ export default async function AdminAnalyticsPage({
   }
 
   const raw = await searchParams;
-  const defaults = rangeForAnalyticsPeriod("last_7_days");
+  const defaults = rangeForAnalyticsPeriod('last_7_days');
   const parsed = analyticsDateRangeSchema.safeParse({
     from: firstParam(raw.from) ?? defaults.from,
     to: firstParam(raw.to) ?? defaults.to,
@@ -52,15 +50,12 @@ export default async function AdminAnalyticsPage({
     to: range.to,
   }).toString();
 
-  const formatMoney = (amount: number): string =>
-    formatMoneyAmount(amount, "AMD", locale);
+  const formatMoney = (amount: number): string => formatMoneyAmount(amount, 'AMD', locale);
 
   return (
     <section>
       <div className="mb-6">
-        <p className={ADMIN_PAGE_SUBTITLE}>
-          Track your business performance and statistics
-        </p>
+        <p className={ADMIN_PAGE_SUBTITLE}>Track your business performance and statistics</p>
       </div>
 
       <AnalyticsPeriodCard
@@ -85,10 +80,7 @@ export default async function AdminAnalyticsPage({
         formatMoney={formatMoney}
       />
 
-      <AnalyticsOrdersByDay
-        rows={summary.dailyRows}
-        formatMoney={formatMoney}
-      />
+      <AnalyticsOrdersByDay rows={summary.dailyRows} formatMoney={formatMoney} />
     </section>
   );
 }

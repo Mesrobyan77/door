@@ -1,0 +1,163 @@
+{
+  "version": "1.0",
+  "effectiveDate": "9 November 2026",
+  "labels": {
+    "version": "Version",
+    "effectiveDate": "Effective date",
+    "contents": "Contents",
+    "contact": "Contact"
+  },
+  "privacy": {
+    "intro": "This policy explains what personal data the Hdoors online store processes, why it is processed, who may receive it, and how you can exercise your rights.",
+    "sections": [
+      {
+        "title": "1. Data controller",
+        "paragraphs": [
+          "Hdoors acts as the personal data controller for the operation of this website and online store. You can contact us about privacy through the contact details published on the website."
+        ],
+        "items": []
+      },
+      {
+        "title": "2. Data we process",
+        "paragraphs": [
+          "We process only the data needed to provide the service and meet legal obligations."
+        ],
+        "items": [
+          "account data: first and last name, email address, phone number and a protected password hash;",
+          "shipping and billing addresses, order contents, prices, delivery method and order history;",
+          "payment method, transaction identifier and payment status; Hdoors does not store full bank-card details;",
+          "wishlist, cart, language and currency preferences;",
+          "name, email, subject and message submitted through the contact form;",
+          "security and technical data such as session identifiers, IP address, basic device or browser information and technical activity logs."
+        ]
+      },
+      {
+        "title": "3. Purposes and legal grounds",
+        "paragraphs": [
+          "We process data to perform contracts, respond to requests and meet legal requirements."
+        ],
+        "items": [
+          "creating accounts, authentication and secure access;",
+          "accepting, paying for, delivering, returning and supporting orders;",
+          "fraud prevention, system security and fault diagnosis;",
+          "accounting, tax, consumer-protection and other mandatory compliance;",
+          "communications based on your consent where consent is required."
+        ]
+      },
+      {
+        "title": "4. Service providers and disclosures",
+        "paragraphs": [
+          "We may provide necessary data to payment, delivery, cloud infrastructure, database, file storage, email and security providers. They process data under our instructions or their own legal duties. We may also disclose data to competent public authorities where required by law."
+        ],
+        "items": []
+      },
+      {
+        "title": "5. International transfers",
+        "paragraphs": [
+          "Some technical providers may process data outside Armenia. In those cases we select services with appropriate contractual and security safeguards and transfer only the data required for the service."
+        ],
+        "items": []
+      },
+      {
+        "title": "6. Retention",
+        "paragraphs": [
+          "Account data is kept while the account is active and afterwards for the period necessary to meet legal obligations or resolve disputes. Order and financial records are retained for applicable accounting, tax and contractual periods. Sessions are kept until expiry or revocation, and contact messages for the time needed to resolve the request and protect legal interests. After the applicable period, data is deleted or anonymised unless continued retention is required by law."
+        ],
+        "items": []
+      },
+      {
+        "title": "7. Cookies and local storage",
+        "paragraphs": [
+          "The website uses cookies and similar technologies required for sessions, the cart, language, currency and security settings. Disabling essential cookies may prevent login, cart or checkout functions from working."
+        ],
+        "items": []
+      },
+      {
+        "title": "8. Your rights",
+        "paragraphs": ["Where provided by applicable law, you may:"],
+        "items": [
+          "receive information about processing and access your data;",
+          "request correction of inaccurate or incomplete data;",
+          "request blocking or deletion where there is no lawful basis for processing;",
+          "withdraw consent without affecting processing performed before withdrawal;",
+          "submit a complaint to the competent authority or a court as provided by law."
+        ]
+      },
+      {
+        "title": "9. Security and changes",
+        "paragraphs": [
+          "We use organisational and technical safeguards against unauthorised access, alteration, loss or disclosure. This policy may be updated when the service or law changes. The new version is published on this page with an updated effective date."
+        ],
+        "items": []
+      }
+    ]
+  },
+  "terms": {
+    "intro": "These terms govern use of the Hdoors website, product orders, payment, delivery and the principal rights and duties of the parties.",
+    "sections": [
+      {
+        "title": "1. General",
+        "paragraphs": [
+          "By using the website or placing an order, you confirm that you have read and accepted these terms. If you order for an organisation, you confirm that you are authorised to act for it."
+        ],
+        "items": []
+      },
+      {
+        "title": "2. Product information and prices",
+        "paragraphs": [
+          "We aim to present descriptions, dimensions, materials, images, availability and prices accurately. Screen colours and natural-material shades may differ slightly from the actual product. The price shown when the order is confirmed applies, including discounts and delivery charges separately shown at checkout. If there is an obvious technical or pricing error, before fulfilment we will offer corrected terms or cancellation without charge."
+        ],
+        "items": []
+      },
+      {
+        "title": "3. Orders and contract formation",
+        "paragraphs": [
+          "Adding a product to the cart is not an order. An order is submitted by completing required checkout fields, accepting the terms and activating the order-confirmation control. A contract is formed when Hdoors accepts the order and provides an order number or confirmation. Order information is made available in your account or through the contact channel you provided."
+        ],
+        "items": []
+      },
+      {
+        "title": "4. Payment",
+        "paragraphs": [
+          "Available payment methods appear at checkout. Online payments are processed by the relevant payment provider through its secure page or system. An order is paid only after successful payment confirmation. For payment on delivery, the amount is paid when the product is received using an available method."
+        ],
+        "items": []
+      },
+      {
+        "title": "5. Delivery and acceptance",
+        "paragraphs": [
+          "The delivery address, charge and available conditions appear at checkout or are agreed during order confirmation. A stated delivery time is an estimate and may change because of force majeure or an agreed modification. On receipt, check quantity, visible condition and conformity with the order and report a problem within a reasonable time. Until the consumer or their nominee physically receives the goods, the seller bears the risk of accidental loss or damage to the extent required by law."
+        ],
+        "items": []
+      },
+      {
+        "title": "6. Cancellation, returns and replacement",
+        "paragraphs": [
+          "You may request cancellation before delivery or the start of custom production. Returns, replacement and refunds are handled in the cases and periods required by Armenian consumer law. The right to return goods made to individual dimensions, specifications or special order may be limited to the extent permitted by law. If goods are defective or do not match the order, preserve the goods and proof of purchase and contact us promptly."
+        ],
+        "items": []
+      },
+      {
+        "title": "7. Warranty and liability",
+        "paragraphs": [
+          "Products are covered by the manufacturer or seller warranty terms and mandatory statutory rights. Unless the law provides otherwise, warranty coverage does not extend to incorrect installation, misuse, mechanical damage or failure to follow care instructions. These terms do not exclude consumer rights or seller liability that cannot lawfully be excluded."
+        ],
+        "items": []
+      },
+      {
+        "title": "8. Accounts and website use",
+        "paragraphs": [
+          "You must provide accurate information, protect account credentials and promptly report unauthorised use. You may not disrupt the website, bypass security measures, access another person's account or use the service unlawfully. Website design, text, trademarks and other content are protected by applicable intellectual-property rules."
+        ],
+        "items": []
+      },
+      {
+        "title": "9. Governing law and changes",
+        "paragraphs": [
+          "These terms are governed by the law of the Republic of Armenia. We first seek to resolve disputes through discussion; unresolved disputes are handled under applicable law. A new version applies to orders placed after publication unless the law requires otherwise."
+        ],
+        "items": []
+      }
+    ]
+  }
+}

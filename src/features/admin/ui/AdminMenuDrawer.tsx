@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import { SideSheet } from '@/components/ui/SideSheet';
+import { useAdminDictionary } from '@/features/admin/ui/AdminI18nContext';
+import { AdminLocaleSwitcher } from '@/features/admin/ui/AdminLocaleSwitcher';
 
 import {
   getAdminMenuItems,
@@ -11,9 +13,10 @@ import {
   type AdminMenuItem,
 } from '@/features/admin/ui/admin-menu.config';
 import { useAdminProductsSubnavExpanded } from '@/features/admin/ui/useAdminProductsSubnavExpanded';
+import type { Locale } from '@/lib/i18n/config';
 
 type AdminMenuDrawerProps = {
-  locale: string;
+  locale: Locale;
   pathname: string;
 };
 
@@ -29,8 +32,9 @@ function isNestedVisible(
 }
 
 export function AdminMenuDrawer({ locale, pathname }: AdminMenuDrawerProps) {
+  const dictionary = useAdminDictionary();
   const [open, setOpen] = useState(false);
-  const tabs = getAdminMenuItems(locale);
+  const tabs = getAdminMenuItems(locale, dictionary.navigation);
   const [productsNestedExpanded, toggleProductsNested] = useAdminProductsSubnavExpanded(
     pathname,
     locale,
@@ -54,13 +58,13 @@ export function AdminMenuDrawer({ locale, pathname }: AdminMenuDrawerProps) {
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M4 6H20M4 12H16M4 18H12" />
         </svg>
-        Menu
+        {dictionary.shell.menu}
       </button>
 
       <SideSheet
         open={open}
         onClose={() => setOpen(false)}
-        ariaLabel="Admin menu"
+        ariaLabel={dictionary.shell.adminMenu}
         side="left"
         panelClassName="w-1/2 min-w-[16rem] max-w-full"
       >
@@ -102,7 +106,7 @@ export function AdminMenuDrawer({ locale, pathname }: AdminMenuDrawerProps) {
                     <button
                       type="button"
                       aria-expanded={productsNestedExpanded}
-                      aria-label="Toggle product subpages"
+                      aria-label={dictionary.shell.toggleProductPages}
                       onClick={toggleProductsNested}
                       className={`shrink-0 border-l px-3 py-3 ${
                         isActive ? 'border-white/25 text-white' : 'border-gray-200 text-gray-600'
@@ -142,6 +146,9 @@ export function AdminMenuDrawer({ locale, pathname }: AdminMenuDrawerProps) {
               );
             })}
           </nav>
+          <div className="border-t border-gray-200 p-4">
+            <AdminLocaleSwitcher locale={locale} />
+          </div>
         </div>
       </SideSheet>
     </div>

@@ -1,15 +1,16 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
+import { useState } from 'react';
+import { Plus } from 'lucide-react';
 
 import type {
   AdminCategoryOption,
   AdminProductListItem,
-} from "@/features/products/application/list-admin-products";
-import { AdminProductsTable } from "@/features/products/ui/AdminProductsTable";
-import { ProductDrawer } from "@/features/products/ui/ProductDrawer";
-import type { Dictionary } from "@/lib/i18n/get-dictionary";
+} from '@/features/products/application/list-admin-products';
+import { AdminProductsTable } from '@/features/products/ui/AdminProductsTable';
+import { ProductDrawer } from '@/features/products/ui/ProductDrawer';
+import type { Dictionary } from '@/lib/i18n/get-dictionary';
+import { useAdminDictionary } from '@/features/admin/ui/AdminI18nContext';
 
 type AdminProductsSortLinks = {
   title: string;
@@ -23,7 +24,7 @@ type AdminProductsViewProps = {
   products: AdminProductListItem[];
   sortLinks: AdminProductsSortLinks;
   categories: AdminCategoryOption[];
-  productCopy: Dictionary["product"];
+  productCopy: Dictionary['product'];
 };
 
 export function AdminProductsView({
@@ -33,9 +34,9 @@ export function AdminProductsView({
   categories,
   productCopy,
 }: AdminProductsViewProps) {
+  const { products: copy } = useAdminDictionary();
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editingProduct, setEditingProduct] =
-    useState<AdminProductListItem | null>(null);
+  const [editingProduct, setEditingProduct] = useState<AdminProductListItem | null>(null);
 
   function openCreate(): void {
     setEditingProduct(null);
@@ -60,7 +61,7 @@ export function AdminProductsView({
         className="mb-4 flex w-full items-center justify-center gap-2 rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-gray-800"
       >
         <Plus className="h-4 w-4" aria-hidden />
-        Add New Product
+        {copy.add}
       </button>
 
       <AdminProductsTable

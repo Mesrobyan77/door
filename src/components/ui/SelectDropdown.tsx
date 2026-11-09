@@ -26,6 +26,8 @@ type SelectDropdownProps = {
   deferChange?: boolean;
   /** Size the trigger to the selected label instead of full width. */
   fitContent?: boolean;
+  /** Direction in which the options list opens. Default bottom. */
+  placement?: 'bottom' | 'top';
 };
 
 export function SelectDropdown({
@@ -39,6 +41,7 @@ export function SelectDropdown({
   onValueChange,
   deferChange = true,
   fitContent = false,
+  placement = 'bottom',
 }: SelectDropdownProps) {
   const [open, setOpen] = useState(false);
   const elevated = useHoldFlag(open, DROPDOWN_ANIMATION_MS);
@@ -123,12 +126,14 @@ export function SelectDropdown({
       </button>
 
       <div
-        className={`absolute top-[calc(100%+0.5rem)] left-0 z-[100] grid transition-[grid-template-rows,opacity,transform] ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          fitContent ? 'min-w-full w-max' : 'w-full'
-        } ${
+        className={`absolute left-0 z-[100] grid transition-[grid-template-rows,opacity,transform] ease-[cubic-bezier(0.22,1,0.36,1)] ${
+          placement === 'top' ? 'bottom-[calc(100%+0.5rem)]' : 'top-[calc(100%+0.5rem)]'
+        } ${fitContent ? 'min-w-full w-max' : 'w-full'} ${
           open
             ? 'translate-y-0 grid-rows-[1fr] opacity-100'
-            : 'pointer-events-none -translate-y-1 grid-rows-[0fr] opacity-0'
+            : `pointer-events-none grid-rows-[0fr] opacity-0 ${
+                placement === 'top' ? 'translate-y-1' : '-translate-y-1'
+              }`
         }`}
         style={{ transitionDuration: `${DROPDOWN_ANIMATION_MS}ms` }}
         aria-hidden={!open}

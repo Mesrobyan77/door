@@ -1,13 +1,11 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
-import {
-  ConfirmDialog,
-} from "@/components/ui/ConfirmDialog";
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import {
   ADMIN_TABLE,
   ADMIN_TABLE_CARD,
@@ -24,9 +22,10 @@ import {
   ADMIN_TABLE_TH_CHECK,
   ADMIN_TABLE_TH_METRIC,
   ADMIN_TABLE_THEAD,
-} from "@/features/admin/ui/admin-table-classes";
-import { bulkArchiveOrdersAction } from "@/features/orders/application/bulk-archive-orders";
-import { AdminInlineStatusSelect } from "@/features/orders/ui/AdminInlineStatusSelect";
+} from '@/features/admin/ui/admin-table-classes';
+import { bulkArchiveOrdersAction } from '@/features/orders/application/bulk-archive-orders';
+import { AdminInlineStatusSelect } from '@/features/orders/ui/AdminInlineStatusSelect';
+import { useAdminDictionary } from '@/features/admin/ui/AdminI18nContext';
 
 type BulkOrderRow = {
   id: string;
@@ -48,7 +47,7 @@ type BulkChangeOrderStatusFormProps = {
 };
 
 function formatMoney(amount: number, currency: string): string {
-  return `${amount.toLocaleString("en-US")} ${currency}`;
+  return `${amount.toLocaleString('en-US')} ${currency}`;
 }
 
 export function BulkChangeOrderStatusForm({
@@ -56,6 +55,7 @@ export function BulkChangeOrderStatusForm({
   orders,
   onOpenOrder,
 }: BulkChangeOrderStatusFormProps) {
+  const { orders: copy } = useAdminDictionary();
   const router = useRouter();
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
@@ -64,8 +64,7 @@ export function BulkChangeOrderStatusForm({
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   const allNumbers = orders.map((order) => order.orderNumber);
-  const allSelected =
-    allNumbers.length > 0 && allNumbers.every((n) => selected.has(n));
+  const allSelected = allNumbers.length > 0 && allNumbers.every((n) => selected.has(n));
 
   function toggleOne(orderNumber: string): void {
     setSelected((prev) => {
@@ -85,7 +84,7 @@ export function BulkChangeOrderStatusForm({
 
   function deleteSelected(): void {
     if (selected.size === 0) {
-      setError("Select at least one order.");
+      setError('Select at least one order.');
       return;
     }
     setConfirmOpen(true);
@@ -105,9 +104,7 @@ export function BulkChangeOrderStatusForm({
         return;
       }
 
-      setMessage(
-        `Deleted ${result.value.archived}, skipped ${result.value.skipped}.`,
-      );
+      setMessage(`Deleted ${result.value.archived}, skipped ${result.value.skipped}.`);
       setSelected(new Set());
       setConfirmOpen(false);
       router.refresh();
@@ -118,7 +115,7 @@ export function BulkChangeOrderStatusForm({
     <div className="flex flex-col gap-4">
       <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
         <p className="text-sm text-gray-700">
-          Selected {selected.size} order{selected.size === 1 ? "" : "s"}
+          {copy.selected}: {selected.size}
         </p>
         <Button
           type="button"
@@ -127,14 +124,10 @@ export function BulkChangeOrderStatusForm({
           disabled={isPending || selected.size === 0}
           onClick={deleteSelected}
         >
-          {isPending ? "Deleting…" : "Delete selected"}
+          {isPending ? `${copy.deleteSelected}…` : copy.deleteSelected}
         </Button>
-        {error ? (
-          <p className="w-full text-sm text-red-700">{error}</p>
-        ) : null}
-        {message ? (
-          <p className="w-full text-sm text-green-700">{message}</p>
-        ) : null}
+        {error ? <p className="w-full text-sm text-red-700">{error}</p> : null}
+        {message ? <p className="w-full text-sm text-green-700">{message}</p> : null}
       </Card>
 
       <Card className={ADMIN_TABLE_CARD}>
@@ -152,12 +145,12 @@ export function BulkChangeOrderStatusForm({
                     aria-label="Select all orders on page"
                   />
                 </th>
-                <th className={ADMIN_TABLE_TH}>Order</th>
-                <th className={ADMIN_TABLE_TH}>Customer</th>
-                <th className={ADMIN_TABLE_TH_METRIC}>Status</th>
-                <th className={ADMIN_TABLE_TH_METRIC}>Payment</th>
-                <th className={ADMIN_TABLE_TH_METRIC}>Total</th>
-                <th className={ADMIN_TABLE_TH}>Placed</th>
+                <th className={ADMIN_TABLE_TH}>{copy.order}</th>
+                <th className={ADMIN_TABLE_TH}>{copy.customer}</th>
+                <th className={ADMIN_TABLE_TH_METRIC}>{copy.orderStatus}</th>
+                <th className={ADMIN_TABLE_TH_METRIC}>{copy.payment}</th>
+                <th className={ADMIN_TABLE_TH_METRIC}>{copy.totalAmount}</th>
+                <th className={ADMIN_TABLE_TH}>{copy.placed}</th>
               </tr>
             </thead>
             <tbody className={ADMIN_TABLE_TBODY}>
@@ -170,7 +163,7 @@ export function BulkChangeOrderStatusForm({
                   aria-label={`Open order ${order.orderNumber}`}
                   onClick={() => onOpenOrder(order.orderNumber)}
                   onKeyDown={(event) => {
-                    if (event.key === "Enter" || event.key === " ") {
+                    if (event.key === 'Enter' || event.key === ' ') {
                       event.preventDefault();
                       onOpenOrder(order.orderNumber);
                     }
@@ -191,9 +184,7 @@ export function BulkChangeOrderStatusForm({
                     />
                   </td>
                   <td className={ADMIN_TABLE_TD}>
-                    <span className="font-medium text-gray-900">
-                      {order.orderNumber}
-                    </span>
+                    <span className="font-medium text-gray-900">{order.orderNumber}</span>
                     {order.isArchived ? (
                       <span className="ml-2 rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium uppercase text-gray-600">
                         Archived
@@ -237,11 +228,7 @@ export function BulkChangeOrderStatusForm({
                   </td>
                   <td className={ADMIN_TABLE_TD}>
                     <span className="text-xs text-gray-500">
-                      {new Date(order.placedAt)
-                        .toISOString()
-                        .slice(0, 16)
-                        .replace("T", " ")}{" "}
-                      UTC
+                      {new Date(order.placedAt).toISOString().slice(0, 16).replace('T', ' ')} UTC
                     </span>
                   </td>
                 </tr>
@@ -250,14 +237,10 @@ export function BulkChangeOrderStatusForm({
           </table>
         </div>
         {orders.length === 0 ? (
-          <p className={`${ADMIN_TABLE_STATE_INSET} text-sm text-gray-600`}>
-            No orders match these filters.
-          </p>
+          <p className={`${ADMIN_TABLE_STATE_INSET} text-sm text-gray-600`}>{copy.empty}</p>
         ) : (
           <div className={ADMIN_TABLE_FOOTER_ROUNDED_B}>
-            <p className="text-sm text-gray-600">
-              {selected.size} selected on this page
-            </p>
+            <p className="text-sm text-gray-600">{selected.size} selected on this page</p>
           </div>
         )}
       </Card>
@@ -265,7 +248,7 @@ export function BulkChangeOrderStatusForm({
       <ConfirmDialog
         open={confirmOpen}
         title="Delete"
-        description={`Are you sure you want to delete ${selected.size} selected order${selected.size === 1 ? "" : "s"}? This action cannot be undone.`}
+        description={`Are you sure you want to delete ${selected.size} selected order${selected.size === 1 ? '' : 's'}? This action cannot be undone.`}
         isPending={isPending}
         onClose={() => {
           if (!isPending) setConfirmOpen(false);

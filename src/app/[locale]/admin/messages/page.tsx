@@ -1,15 +1,15 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 import {
   ADMIN_LABEL,
   ADMIN_PAGE_SUBTITLE,
   ADMIN_PAGE_TITLE,
   ADMIN_SELECT,
-} from "@/features/admin/ui/admin-form-classes";
-import { AdminSearchInput } from "@/features/admin/ui/AdminSearchInput";
+} from '@/features/admin/ui/admin-form-classes';
+import { AdminSearchInput } from '@/features/admin/ui/AdminSearchInput';
 import {
   ADMIN_TABLE,
   ADMIN_TABLE_CARD,
@@ -22,21 +22,20 @@ import {
   ADMIN_TABLE_TH,
   ADMIN_TABLE_TH_CENTER,
   ADMIN_TABLE_THEAD,
-} from "@/features/admin/ui/admin-table-classes";
-import { ADMIN_BADGE } from "@/features/admin/ui/status-badge";
-import { listAdminContactMessages } from "@/features/contact/application/queries";
-import { CONTACT_STATUSES } from "@/features/contact/domain/contact-rules";
-import { adminContactFilterSchema } from "@/features/contact/schemas/contact";
-import { isLocale } from "@/lib/i18n/config";
+} from '@/features/admin/ui/admin-table-classes';
+import { ADMIN_BADGE } from '@/features/admin/ui/status-badge';
+import { listAdminContactMessages } from '@/features/contact/application/queries';
+import { CONTACT_STATUSES } from '@/features/contact/domain/contact-rules';
+import { adminContactFilterSchema } from '@/features/contact/schemas/contact';
+import { isLocale } from '@/lib/i18n/config';
+import { getDictionary } from '@/lib/i18n/get-dictionary';
 
 type AdminMessagesPageProps = {
   params: Promise<{ locale: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-function firstParam(
-  value: string | string[] | undefined,
-): string | undefined {
+function firstParam(value: string | string[] | undefined): string | undefined {
   if (Array.isArray(value)) {
     return value[0];
   }
@@ -45,27 +44,25 @@ function firstParam(
 
 function contactStatusBadgeClass(status: string): string {
   const normalized = status.toUpperCase();
-  if (normalized === "UNREAD") return "bg-blue-100 text-blue-800";
-  if (normalized === "READ") return "bg-yellow-100 text-yellow-800";
-  if (normalized === "REPLIED") return "bg-green-100 text-green-800";
-  if (normalized === "ARCHIVED") return "bg-gray-100 text-gray-800";
-  return "bg-gray-100 text-gray-800";
+  if (normalized === 'UNREAD') return 'bg-blue-100 text-blue-800';
+  if (normalized === 'READ') return 'bg-yellow-100 text-yellow-800';
+  if (normalized === 'REPLIED') return 'bg-green-100 text-green-800';
+  if (normalized === 'ARCHIVED') return 'bg-gray-100 text-gray-800';
+  return 'bg-gray-100 text-gray-800';
 }
 
-export default async function AdminMessagesPage({
-  params,
-  searchParams,
-}: AdminMessagesPageProps) {
+export default async function AdminMessagesPage({ params, searchParams }: AdminMessagesPageProps) {
   const { locale } = await params;
   if (!isLocale(locale)) {
     notFound();
   }
+  const admin = getDictionary(locale).admin;
 
   const raw = await searchParams;
   const parsed = adminContactFilterSchema.safeParse({
     status: firstParam(raw.status) || undefined,
     q: firstParam(raw.q) || undefined,
-    page: firstParam(raw.page) ?? "1",
+    page: firstParam(raw.page) ?? '1',
   });
 
   const filters = parsed.success
@@ -78,31 +75,27 @@ export default async function AdminMessagesPage({
   return (
     <section>
       <div className="mb-6">
-        <h1 className={ADMIN_PAGE_TITLE}>Messages</h1>
+        <h1 className={ADMIN_PAGE_TITLE}>{admin.navigation.messages}</h1>
         <p className={`mt-1 ${ADMIN_PAGE_SUBTITLE}`}>
-          {total} message{total === 1 ? "" : "s"}
-          {filters.status ? ` · ${filters.status}` : ""}
+          {total} message{total === 1 ? '' : 's'}
+          {filters.status ? ` · ${filters.status}` : ''}
         </p>
       </div>
 
       <Card className="mb-6 p-4">
         <form method="get" className="flex flex-wrap items-end gap-3">
           <label className="min-w-[180px] flex-1">
-            <span className={ADMIN_LABEL}>Search</span>
+            <span className={ADMIN_LABEL}>{admin.common.search}</span>
             <AdminSearchInput
               name="q"
-              defaultValue={filters.q ?? ""}
+              defaultValue={filters.q ?? ''}
               placeholder="Name, email, subject…"
               wrapperClassName="mt-1"
             />
           </label>
           <label className="min-w-[140px]">
             <span className={ADMIN_LABEL}>Status</span>
-            <select
-              name="status"
-              defaultValue={filters.status ?? ""}
-              className={ADMIN_SELECT}
-            >
+            <select name="status" defaultValue={filters.status ?? ''} className={ADMIN_SELECT}>
               <option value="">All</option>
               {CONTACT_STATUSES.map((status) => (
                 <option key={status} value={status}>
@@ -149,24 +142,16 @@ export default async function AdminMessagesPage({
                       <p className="text-xs text-gray-500">{message.email}</p>
                     </td>
                     <td className={ADMIN_TABLE_TD_CENTER}>
-                      <span
-                        className={`${ADMIN_BADGE} ${contactStatusBadgeClass(message.status)}`}
-                      >
+                      <span className={`${ADMIN_BADGE} ${contactStatusBadgeClass(message.status)}`}>
                         {message.status}
                       </span>
                       {message.spamScore !== null ? (
-                        <p className="mt-1 text-xs text-gray-500">
-                          spam {message.spamScore}
-                        </p>
+                        <p className="mt-1 text-xs text-gray-500">spam {message.spamScore}</p>
                       ) : null}
                     </td>
                     <td className={ADMIN_TABLE_TD}>
                       <span className="text-xs text-gray-500">
-                        {message.createdAt
-                          .toISOString()
-                          .slice(0, 16)
-                          .replace("T", " ")}{" "}
-                        UTC
+                        {message.createdAt.toISOString().slice(0, 16).replace('T', ' ')} UTC
                       </span>
                     </td>
                   </tr>
