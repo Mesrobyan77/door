@@ -1,0 +1,462 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "checks": [
+    {
+      "route": "/hy",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390,
+      "hero": true,
+      "collections": 3,
+      "cards": 5,
+      "brokenImages": [],
+      "footer": "block"
+    },
+    {
+      "route": "/hy",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 761,
+      "hero": true,
+      "collections": 3,
+      "cards": 5,
+      "brokenImages": [],
+      "footer": "block"
+    },
+    {
+      "route": "/hy",
+      "viewport": 1366,
+      "width": 1366,
+      "scroll": 1359,
+      "hero": true,
+      "collections": 3,
+      "cards": 5,
+      "brokenImages": [],
+      "footer": "block"
+    },
+    {
+      "route": "/hy",
+      "viewport": 1920,
+      "width": 1920,
+      "scroll": 1913,
+      "hero": true,
+      "collections": 3,
+      "cards": 5,
+      "brokenImages": [],
+      "footer": "block"
+    },
+    {
+      "route": "/hy/products?pageSize=48",
+      "viewport": 1440,
+      "title": "Ապրանքներ",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 29
+    },
+    {
+      "route": "/hy/products/vdk-eco-deluxe-312-spitak-bianko",
+      "viewport": 1440,
+      "title": "ВДК ECO Deluxe 312՝ սպիտակ բիանկո",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 4
+    },
+    {
+      "route": "/hy/login",
+      "viewport": 1440,
+      "title": "Բարի վերադարձ",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/hy/register",
+      "viewport": 1440,
+      "title": "Ստեղծել հաշիվ",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 0
+    },
+    {
+      "route": "/hy/forgot-password",
+      "viewport": 1440,
+      "title": "Գաղտնաբառի վերականգնում",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/hy/reset-password",
+      "viewport": 1440,
+      "title": "Նոր գաղտնաբառ",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/hy/verify-email",
+      "viewport": 1440,
+      "title": "Ստուգեք էլ. փոստը",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/hy/cart",
+      "viewport": 1440,
+      "title": "Զամբյուղ",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/hy/checkout",
+      "viewport": 1440,
+      "title": "Վճարում",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/hy/about",
+      "viewport": 1440,
+      "title": "Դռներ՝ ստուգելի աղբյուրներով",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 0
+    },
+    {
+      "route": "/hy/contact",
+      "viewport": 1440,
+      "title": "Կապ",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 0
+    },
+    {
+      "route": "/hy/blog",
+      "viewport": 1440,
+      "title": "Բլոգ",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/hy/legal/privacy",
+      "viewport": 1440,
+      "title": "Գաղտնիության քաղաքականություն",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/hy/legal/terms",
+      "viewport": 1440,
+      "title": "Պայմաններ",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/en/products?pageSize=48",
+      "viewport": 1440,
+      "title": "Products",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 29
+    },
+    {
+      "route": "/en/products/vdk-eco-deluxe-312-bianco-white",
+      "viewport": 1440,
+      "title": "VDK ECO Deluxe 312, Bianco white",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 4
+    },
+    {
+      "route": "/en/login",
+      "viewport": 1440,
+      "title": "Welcome Back",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/en/register",
+      "viewport": 1440,
+      "title": "Create account",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 0
+    },
+    {
+      "route": "/en/forgot-password",
+      "viewport": 1440,
+      "title": "Forgot password",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/en/reset-password",
+      "viewport": 1440,
+      "title": "Reset password",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/en/verify-email",
+      "viewport": 1440,
+      "title": "Check your email",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/en/cart",
+      "viewport": 1440,
+      "title": "Shopping Cart",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/en/checkout",
+      "viewport": 1440,
+      "title": "Checkout",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/en/about",
+      "viewport": 1440,
+      "title": "Doors with traceable sources",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 0
+    },
+    {
+      "route": "/en/contact",
+      "viewport": 1440,
+      "title": "Contact",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 0
+    },
+    {
+      "route": "/en/blog",
+      "viewport": 1440,
+      "title": "Blog",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/en/legal/privacy",
+      "viewport": 1440,
+      "title": "Privacy Policy",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/en/legal/terms",
+      "viewport": 1440,
+      "title": "Terms",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/ru/products?pageSize=48",
+      "viewport": 1440,
+      "title": "Товары",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 29
+    },
+    {
+      "route": "/ru/products/vdk-eco-deluxe-312-belyy-byanko",
+      "viewport": 1440,
+      "title": "ВДК ECO Deluxe 312, белый бьянко",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 4
+    },
+    {
+      "route": "/ru/login",
+      "viewport": 1440,
+      "title": "С возвращением",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/ru/register",
+      "viewport": 1440,
+      "title": "Создать аккаунт",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 0
+    },
+    {
+      "route": "/ru/forgot-password",
+      "viewport": 1440,
+      "title": "Восстановление пароля",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/ru/reset-password",
+      "viewport": 1440,
+      "title": "Новый пароль",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/ru/verify-email",
+      "viewport": 1440,
+      "title": "Проверьте email",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/ru/cart",
+      "viewport": 1440,
+      "title": "Корзина",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/ru/checkout",
+      "viewport": 1440,
+      "title": "Оформление",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/ru/about",
+      "viewport": 1440,
+      "title": "Двери с проверяемыми источниками",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 0
+    },
+    {
+      "route": "/ru/contact",
+      "viewport": 1440,
+      "title": "Контакты",
+      "width": 1440,
+      "scroll": 1425,
+      "cards": 0
+    },
+    {
+      "route": "/ru/blog",
+      "viewport": 1440,
+      "title": "Блог",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/ru/legal/privacy",
+      "viewport": 1440,
+      "title": "Политика конфиденциальности",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/ru/legal/terms",
+      "viewport": 1440,
+      "title": "Условия",
+      "width": 1440,
+      "scroll": 1440,
+      "cards": 0
+    },
+    {
+      "route": "/hy/products?pageSize=48",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/products/vdk-eco-deluxe-312-spitak-bianko",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/login",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/checkout",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/contact",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/products?pageSize=48",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 753
+    },
+    {
+      "route": "/hy/products/vdk-eco-deluxe-312-spitak-bianko",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 753
+    },
+    {
+      "route": "/hy/login",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 768
+    },
+    {
+      "route": "/hy/checkout",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 768
+    },
+    {
+      "route": "/hy/contact",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 753
+    }
+  ],
+  "consoleErrors": [],
+  "searchVerified": true,
+  "glazedFilterCards": 6,
+  "gallerySelection": true,
+  "addToCart": true,
+  "cartDialog": {
+    "focusedInside": true
+  },
+  "checkoutForm": {
+    "contact": true,
+    "cod": true,
+    "noSubmit": true
+  },
+  "testCartLineRemoved": true,
+  "wishlistGuestRedirect": true,
+  "authNativeValidation": true,
+  "draftHidden": true
+}

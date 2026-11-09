@@ -1,40 +1,32 @@
-import { ProfileSidebarNav } from "@/features/profile/ui/ProfileSidebarNav";
-import { logoutAction } from "@/features/auth/logout-action";
-import type { Dictionary } from "@/lib/i18n/get-dictionary";
-import type { Locale } from "@/lib/i18n/config";
-import type { SessionUser } from "@/lib/auth/session";
+import { ProfileSidebarNav } from '@/features/profile/ui/ProfileSidebarNav';
+import { logoutAction } from '@/features/auth/logout-action';
+import type { Dictionary } from '@/lib/i18n/get-dictionary';
+import type { Locale } from '@/lib/i18n/config';
+import type { SessionUser } from '@/lib/auth/session';
 
 type ProfileSidebarProps = {
   locale: Locale;
   user: SessionUser;
-  dictionary: Dictionary["profile"];
+  dictionary: Dictionary['profile'];
 };
 
-export function ProfileSidebar({
-  locale,
-  user,
-  dictionary,
-}: ProfileSidebarProps) {
+export function ProfileSidebar({ locale, user, dictionary }: ProfileSidebarProps) {
   const logoutWithLocale = logoutAction.bind(null, locale);
 
   return (
     <aside
-      className="flex w-full flex-col rounded-[var(--radius)] border border-gray-300/60 bg-gradient-to-b from-gray-100/95 to-gray-50/90 shadow-inner"
+      className="flex w-full flex-col overflow-hidden rounded-md border border-border bg-white shadow-[var(--shadow-card)]"
       aria-label={dictionary.title}
     >
       <div className="shrink-0 border-b border-gray-300/50 bg-gray-50/50 p-4 sm:p-5">
         <div className="flex flex-col items-center gap-4 text-center">
-          <div className="flex h-[4.5rem] w-[4.5rem] items-center justify-center rounded-full bg-gray-900 text-xl font-semibold text-white shadow-md">
+          <div className="flex h-16 w-16 items-center justify-center rounded-md border border-[#d6b079] bg-gray-900 text-xl font-semibold text-[#e6c99f]">
             {user.firstName.slice(0, 1).toUpperCase()}
             {user.lastName.slice(0, 1).toUpperCase()}
           </div>
           <div className="space-y-0.5">
-            <p className="text-lg font-semibold tracking-tight text-gray-900">
-              {user.firstName}
-            </p>
-            <p className="text-xs font-semibold tracking-wide text-gray-600">
-              {user.lastName}
-            </p>
+            <p className="text-lg font-semibold tracking-tight text-gray-900">{user.firstName}</p>
+            <p className="text-xs font-semibold tracking-wide text-gray-600">{user.lastName}</p>
           </div>
         </div>
 

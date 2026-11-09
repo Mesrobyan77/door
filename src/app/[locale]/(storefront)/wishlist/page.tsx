@@ -1,15 +1,12 @@
-import Link from "next/link";
-import { notFound } from "next/navigation";
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 
-import { ProductCard } from "@/features/products/ui/ProductCard";
-import { listWishlistProducts } from "@/features/wishlist/queries";
-import { getCurrentUser } from "@/lib/auth/session";
-import { isLocale } from "@/lib/i18n/config";
-import { getDictionary } from "@/lib/i18n/get-dictionary";
-import {
-  createDisplayPriceFormatter,
-  getSelectedCurrency,
-} from "@/lib/money/display-price";
+import { ProductCard } from '@/features/products/ui/ProductCard';
+import { listWishlistProducts } from '@/features/wishlist/queries';
+import { getCurrentUser } from '@/lib/auth/session';
+import { isLocale } from '@/lib/i18n/config';
+import { getDictionary } from '@/lib/i18n/get-dictionary';
+import { createDisplayPriceFormatter, getSelectedCurrency } from '@/lib/money/display-price';
 
 type WishlistPageProps = {
   params: Promise<{ locale: string }>;
@@ -41,7 +38,7 @@ export default async function WishlistPage({ params }: WishlistPageProps) {
             className="font-medium text-gray-900 underline underline-offset-2"
           >
             {dictionary.header.login}
-          </Link>{" "}
+          </Link>{' '}
           — {dictionary.wishlist.signInPrompt}
         </p>
       </section>
@@ -54,10 +51,7 @@ export default async function WishlistPage({ params }: WishlistPageProps) {
       product.priceAmount == null
         ? dictionary.product.variant.inquiry
         : formatPrice(product.priceAmount).formatted;
-    const compareAt =
-      product.compareAtAmount != null
-        ? formatPrice(product.compareAtAmount)
-        : null;
+    const compareAt = product.compareAtAmount != null ? formatPrice(product.compareAtAmount) : null;
 
     return {
       product,
@@ -76,33 +70,31 @@ export default async function WishlistPage({ params }: WishlistPageProps) {
         <p className="text-gray-600">{dictionary.wishlist.empty}</p>
       ) : (
         <div className="grid grid-cols-2 gap-6 lg:grid-cols-3 xl:grid-cols-4">
-          {priced.map(
-            ({ product, priceFormatted, compareAtFormatted }, index) => (
-              <ProductCard
-                key={product.id}
-                href={`/${rawLocale}/products/${product.translation.slug}`}
-                title={product.translation.title}
-                priceFormatted={priceFormatted}
-                compareAtFormatted={compareAtFormatted}
-                discountPercent={product.discountPercent}
-                imageUrl={product.imageUrl}
-                inStock={product.stockOnHand > 0}
-                priority={index < 4}
-                locale={rawLocale}
-                productId={product.id}
-                variantId={
-                  product.variants.filter((variant) => variant.purchasable)
-                    .length === 1
-                    ? product.variants.find((variant) => variant.purchasable)?.id
-                    : undefined
-                }
-                inWishlist
-                isSignedIn
-                wishlistLabel={dictionary.nav.wishlist}
-                addToCartLabel={dictionary.product.addToCart}
-              />
-            ),
-          )}
+          {priced.map(({ product, priceFormatted, compareAtFormatted }, index) => (
+            <ProductCard
+              key={product.id}
+              href={`/${rawLocale}/products/${product.translation.slug}`}
+              title={product.translation.title}
+              priceFormatted={priceFormatted}
+              compareAtFormatted={compareAtFormatted}
+              discountPercent={product.discountPercent}
+              imageUrl={product.imageUrl}
+              illustrative={product.imageIsIllustrative}
+              inStock={product.stockOnHand > 0}
+              priority={index < 4}
+              locale={rawLocale}
+              productId={product.id}
+              variantId={
+                product.variants.length === 1 && product.variants[0]?.purchasable
+                  ? product.variants.find((variant) => variant.purchasable)?.id
+                  : undefined
+              }
+              inWishlist
+              isSignedIn
+              wishlistLabel={dictionary.nav.wishlist}
+              addToCartLabel={dictionary.product.addToCart}
+            />
+          ))}
         </div>
       )}
     </section>

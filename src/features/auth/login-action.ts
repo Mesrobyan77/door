@@ -1,19 +1,25 @@
-"use server";
+'use server';
 
-import { eq } from "drizzle-orm";
-import { redirect } from "next/navigation";
+import { eq } from 'drizzle-orm';
+import { redirect } from 'next/navigation';
 
-import { getDb } from "@/db/client";
-import { users } from "@/db/schema";
-import { loginSchema } from "@/features/auth/schemas";
-import { createSession } from "@/lib/auth/session";
-import { verifyPassword } from "@/lib/auth/password";
-import { defaultLocale, isLocale, type Locale } from "@/lib/i18n/config";
+import { getDb } from '@/db/client';
+import { users } from '@/db/schema';
+import { loginSchema } from '@/features/auth/schemas';
+import { createSession } from '@/lib/auth/session';
+import { verifyPassword } from '@/lib/auth/password';
+import { defaultLocale, isLocale, type Locale } from '@/lib/i18n/config';
+import { getProviders } from '@/config/providers';
+import {
+  AUTH_RATE_LIMIT_POLICIES,
+  enforceAuthRateLimit,
+  getTrustedRequestOrigin,
+} from '@/lib/auth/auth-rate-limit';
 
-export type AuthActionState = { error?: string };
+export type AuthActionState = { error?: 'INVALID' | 'RATE_LIMITED' | 'UNAVAILABLE' };
 
 function resolveSafeNextPath(locale: Locale, raw: FormDataEntryValue | null): string {
-  if (typeof raw !== "string" || !raw.startsWith("/") || raw.startsWith("//")) {
+  if (typeof raw !== 'string' || !raw.startsWith('/') || raw.startsWith('//')) {
     return `/${locale}/profile`;
   }
 
@@ -33,8 +39,20 @@ export async function loginAction(
   const locale: Locale = isLocale(localeInput) ? localeInput : defaultLocale;
 
   if (!parsed.success) {
-    return { error: "Invalid email or password." };
+    return { error: 'INVALID' };
   }
+  const redis = getProviders().redis.getClient();
+  const origin = await getTrustedRequestOrigin();
+  const limits = await Promise.all([
+    enforceAuthRateLimit(
+      redis,
+      'login-account',
+      parsed.data.email,
+      AUTH_RATE_LIMIT_POLICIES.loginAccount,
+    ),
+    enforceAuthRateLimit(redis, 'login-origin', origin, AUTH_RATE_LIMIT_POLICIES.loginOrigin),
+  ]);
+  if (limits.includes('limited')) return { error: 'RATE_LIMITED' };
 
   const [user] = await getDb()
     .select()
@@ -45,8 +63,8 @@ export async function loginAction(
     ? await verifyPassword(parsed.data.password, user.passwordHash)
     : false;
 
-  if (!user || !passwordMatches || user.status !== "ACTIVE") {
-    return { error: "Invalid email or password." };
+  if (!user || !passwordMatches || user.status !== 'ACTIVE') {
+    return { error: 'INVALID' };
   }
 
   await getDb()
@@ -54,5 +72,5 @@ export async function loginAction(
     .set({ lastLoginAt: new Date(), updatedAt: new Date() })
     .where(eq(users.id, user.id));
   await createSession(user.id);
-  redirect(resolveSafeNextPath(locale, formData.get("next")));
+  redirect(resolveSafeNextPath(locale, formData.get('next')));
 }

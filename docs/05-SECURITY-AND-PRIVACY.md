@@ -14,17 +14,17 @@
 
 ## 2. Trust boundaries և հիմնական threats
 
-| Boundary | Threats | Պարտադիր controls |
-|---|---|---|
-| Browser → Next.js | Tampering, CSRF, XSS, bot abuse | Zod, same-origin/CSRF policy, secure cookies, output encoding, rate limits |
-| Guest token/cart | Guessing, fixation, cross-user access | Random opaque tokens, hash at rest, rotation/expiry, ownership scoping |
-| Customer → own resources | IDOR/BOLA | Query-level ownership checks, non-enumerable IDs, safe errors |
-| Admin surface | Privilege escalation, destructive mistakes | Server RBAC, re-auth for high risk, confirmation, audit, last-admin invariant |
-| App → PostgreSQL | SQL injection, excessive privilege, data loss | Parameterized Drizzle queries, non-owner app role, timeouts, migrations |
-| App → Redis | Secret leakage, cache poisoning | Server-only credential, namespaced keys, TTL, no durable commerce authority, minimal token metadata |
-| Browser → upload route → Cloudinary | Malicious files, unauthorized upload, secret exposure | Admin RBAC, same-origin POST/DELETE, MIME/signature/size validation, server-only credentials |
-| Provider webhooks | Forgery, replay, duplicate processing | Signature, timestamp policy, event unique key, state/amount verification |
-| Logs/analytics | PII/token leakage | Structured allowlist, redaction, retention/access policy |
+| Boundary                            | Threats                                               | Պարտադիր controls                                                                                   |
+| ----------------------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Browser → Next.js                   | Tampering, CSRF, XSS, bot abuse                       | Zod, same-origin/CSRF policy, secure cookies, output encoding, rate limits                          |
+| Guest token/cart                    | Guessing, fixation, cross-user access                 | Random opaque tokens, hash at rest, rotation/expiry, ownership scoping                              |
+| Customer → own resources            | IDOR/BOLA                                             | Query-level ownership checks, non-enumerable IDs, safe errors                                       |
+| Admin surface                       | Privilege escalation, destructive mistakes            | Server RBAC, re-auth for high risk, confirmation, audit, last-admin invariant                       |
+| App → PostgreSQL                    | SQL injection, excessive privilege, data loss         | Parameterized Drizzle queries, non-owner app role, timeouts, migrations                             |
+| App → Redis                         | Secret leakage, cache poisoning                       | Server-only credential, namespaced keys, TTL, no durable commerce authority, minimal token metadata |
+| Browser → upload route → Cloudinary | Malicious files, unauthorized upload, secret exposure | Admin RBAC, same-origin POST/DELETE, MIME/signature/size validation, server-only credentials        |
+| Provider webhooks                   | Forgery, replay, duplicate processing                 | Signature, timestamp policy, event unique key, state/amount verification                            |
+| Logs/analytics                      | PII/token leakage                                     | Structured allowlist, redaction, retention/access policy                                            |
 
 ## 3. Authentication controls
 
@@ -77,18 +77,31 @@
 
 ## 8. Rate limiting և abuse prevention
 
+### Authentication policy (implemented 2026-11-09)
+
+Authentication limits use atomic Redis fixed-window counters. Redis keys contain SHA-256 digests, not raw email addresses, reset tokens, or IP addresses. Request-origin scoping trusts `x-vercel-forwarded-for` only on Vercel and `cf-connecting-ip` only when a Cloudflare request marker is present; other runtimes share a conservative untrusted-origin bucket until their trusted-proxy contract is approved.
+
+- Login: 5 attempts/account and 20/origin per 15 minutes; Redis failure is fail-open to avoid a Redis outage locking out all customers.
+- Registration: 3 attempts/identity and 10/origin per hour; Redis failure is fail-closed.
+- Forgot/reset: 5 attempts/identity or token and 20/origin per 15 minutes; Redis failure is fail-closed.
+- Verification resend: existing 1 successful resend/account/minute plus 10/origin per 15 minutes; Redis failure is fail-closed.
+
+These initial thresholds are centralized in `AUTH_RATE_LIMIT_POLICIES` and require production traffic/abuse review before launch.
+
+Password reset uses a short Redis claim lease, followed by a PostgreSQL transaction that row-locks the user, verifies the token's password-version snapshot, updates the password, and deletes all sessions. Redis finalization is separate and best-effort: PostgreSQL and Redis do not share an atomic transaction. A DB failure releases the matching claim; a DB commit followed by Redis failure leaves a stale record that cannot pass the password-version check.
+
 Rate limit policy-ն config-driven է և ունի environment + endpoint + identity key։ Exact thresholds-ը load/abuse test-ից հետո lock են արվում։
 
-| Risk group | Key strategy | Additional control |
-|---|---|---|
-| Login/register/reset/verify | hashed IP + normalized identity bucket | Generic errors, progressive cooldown |
-| Contact/review | user or hashed IP | Honeypot, content length/spam signals |
-| Cart/wishlist | user/guest token | Higher burst, DB constraints |
-| Coupon preview | user/cart + code hash | Prevent code enumeration |
-| Checkout/order | user/cart + idempotency | Strict burst, DB uniqueness |
-| Upload intent/finalize | admin user + IP | Purpose/MIME/size quota |
-| Admin exports/analytics | admin user | Bounded range/page size |
-| Webhooks | provider/source policy | Signature/idempotency is primary |
+| Risk group                  | Key strategy                           | Additional control                    |
+| --------------------------- | -------------------------------------- | ------------------------------------- |
+| Login/register/reset/verify | hashed IP + normalized identity bucket | Generic errors, progressive cooldown  |
+| Contact/review              | user or hashed IP                      | Honeypot, content length/spam signals |
+| Cart/wishlist               | user/guest token                       | Higher burst, DB constraints          |
+| Coupon preview              | user/cart + code hash                  | Prevent code enumeration              |
+| Checkout/order              | user/cart + idempotency                | Strict burst, DB uniqueness           |
+| Upload intent/finalize      | admin user + IP                        | Purpose/MIME/size quota               |
+| Admin exports/analytics     | admin user                             | Bounded range/page size               |
+| Webhooks                    | provider/source policy                 | Signature/idempotency is primary      |
 
 Redis unavailable լինելու դեպքում high-risk endpoints-ը fail-closed կամ degraded policy են պահանջում; exact behavior-ը endpoint risk review-ով է։
 
@@ -188,22 +201,22 @@ Audit row-ը ներառում է actor, action, target, safe before/after diff, 
 
 ## 18. Security verification matrix
 
-| Control | Verification |
-|---|---|
-| Auth enumeration | Integration tests compare public response semantics |
-| IDOR/BOLA | Cross-user profile/order/address tests |
-| RBAC | Customer-to-admin route/action denial tests |
-| CSRF/origin | Negative Route Handler/Action tests where applicable |
-| XSS | Sanitizer unit tests + payload E2E for blog/review/contact |
-| SQL injection | Schema/allowlist tests; no interpolated identifiers from input |
-| Rate limiting | Boundary/retry-after tests and Redis failure policy |
-| Upload | MIME/size/purpose/ownership/finalize negative tests |
-| Checkout replay | Duplicate key same/different payload tests |
-| Stock race | Concurrent integration test, no negative/oversell |
-| Coupon race | Concurrent usage-limit test |
-| Payment webhook | Invalid signature, duplicate event, wrong amount/status tests |
-| Last admin | Concurrent demotion/suspension tests |
-| Secret leakage | Client bundle/env/log review |
+| Control          | Verification                                                   |
+| ---------------- | -------------------------------------------------------------- |
+| Auth enumeration | Integration tests compare public response semantics            |
+| IDOR/BOLA        | Cross-user profile/order/address tests                         |
+| RBAC             | Customer-to-admin route/action denial tests                    |
+| CSRF/origin      | Negative Route Handler/Action tests where applicable           |
+| XSS              | Sanitizer unit tests + payload E2E for blog/review/contact     |
+| SQL injection    | Schema/allowlist tests; no interpolated identifiers from input |
+| Rate limiting    | Boundary/retry-after tests and Redis failure policy            |
+| Upload           | MIME/size/purpose/ownership/finalize negative tests            |
+| Checkout replay  | Duplicate key same/different payload tests                     |
+| Stock race       | Concurrent integration test, no negative/oversell              |
+| Coupon race      | Concurrent usage-limit test                                    |
+| Payment webhook  | Invalid signature, duplicate event, wrong amount/status tests  |
+| Last admin       | Concurrent demotion/suspension tests                           |
+| Secret leakage   | Client bundle/env/log review                                   |
 
 ## 19. Launch security gate
 

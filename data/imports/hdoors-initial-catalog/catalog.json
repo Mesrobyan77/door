@@ -1,0 +1,2863 @@
+{
+  "schemaVersion": 1,
+  "publicBrand": "Hdoors",
+  "retrievedAt": "2026-11-09",
+  "categories": [
+    {
+      "key": "interior",
+      "sortOrder": 1,
+      "translations": {
+        "hy": {
+          "title": "Միջսենյակային դռներ",
+          "slug": "mijsenyakayin-drner",
+          "description": "Միջսենյակային դռների կատալոգ։"
+        },
+        "en": {
+          "title": "Interior doors",
+          "slug": "interior-doors",
+          "description": "Catalog of interior doors."
+        },
+        "ru": {
+          "title": "Межкомнатные двери",
+          "slug": "mezhkomnatnye-dveri",
+          "description": "Каталог межкомнатных дверей."
+        }
+      }
+    },
+    {
+      "key": "entrance",
+      "sortOrder": 2,
+      "translations": {
+        "hy": {
+          "title": "Մուտքի դռներ",
+          "slug": "mutqi-drner",
+          "description": "Մուտքի դռների կատալոգ։"
+        },
+        "en": {
+          "title": "Entrance doors",
+          "slug": "entrance-doors",
+          "description": "Catalog of entrance doors."
+        },
+        "ru": {
+          "title": "Входные двери",
+          "slug": "vhodnye-dveri",
+          "description": "Каталог входных дверей."
+        }
+      }
+    },
+    {
+      "key": "glazed",
+      "sortOrder": 3,
+      "translations": {
+        "hy": {
+          "title": "Ապակեպատ դռներ",
+          "slug": "glazed-doors-hy",
+          "description": "Ապակեպատ դռներ՝ աղբյուրով հաստատված Hdoors ցուցադրական կատալոգի բաժին։"
+        },
+        "en": {
+          "title": "Glazed doors",
+          "slug": "glazed-doors",
+          "description": "Source-backed glazed doors in the Hdoors demonstration catalog."
+        },
+        "ru": {
+          "title": "Остеклённые двери",
+          "slug": "glazed-doors-ru",
+          "description": "Остеклённые двери: раздел демонстрационного каталога Hdoors с указанием источников."
+        }
+      }
+    },
+    {
+      "key": "solid",
+      "sortOrder": 4,
+      "translations": {
+        "hy": {
+          "title": "Խուլ դռներ",
+          "slug": "solid-doors-hy",
+          "description": "Խուլ դռներ՝ աղբյուրով հաստատված Hdoors ցուցադրական կատալոգի բաժին։"
+        },
+        "en": {
+          "title": "Solid doors",
+          "slug": "solid-doors",
+          "description": "Source-backed solid doors in the Hdoors demonstration catalog."
+        },
+        "ru": {
+          "title": "Глухие двери",
+          "slug": "solid-doors-ru",
+          "description": "Глухие двери: раздел демонстрационного каталога Hdoors с указанием источников."
+        }
+      }
+    },
+    {
+      "key": "leaf-only",
+      "sortOrder": 5,
+      "translations": {
+        "hy": {
+          "title": "Միայն դռան փեղկ",
+          "slug": "door-leaves-hy",
+          "description": "Միայն դռան փեղկ՝ աղբյուրով հաստատված Hdoors ցուցադրական կատալոգի բաժին։"
+        },
+        "en": {
+          "title": "Door leaves",
+          "slug": "door-leaves",
+          "description": "Source-backed door leaves in the Hdoors demonstration catalog."
+        },
+        "ru": {
+          "title": "Дверные полотна",
+          "slug": "door-leaves-ru",
+          "description": "Дверные полотна: раздел демонстрационного каталога Hdoors с указанием источников."
+        }
+      }
+    },
+    {
+      "key": "apartment",
+      "sortOrder": 6,
+      "translations": {
+        "hy": {
+          "title": "Բնակարանի մուտքի դռներ",
+          "slug": "apartment-entrance-doors-hy",
+          "description": "Բնակարանի մուտքի դռներ՝ աղբյուրով հաստատված Hdoors ցուցադրական կատալոգի բաժին։"
+        },
+        "en": {
+          "title": "Apartment entrance doors",
+          "slug": "apartment-entrance-doors",
+          "description": "Source-backed apartment entrance doors in the Hdoors demonstration catalog."
+        },
+        "ru": {
+          "title": "Входные двери для квартиры",
+          "slug": "apartment-entrance-doors-ru",
+          "description": "Входные двери для квартиры: раздел демонстрационного каталога Hdoors с указанием источников."
+        }
+      }
+    },
+    {
+      "key": "pvc",
+      "sortOrder": 7,
+      "translations": {
+        "hy": {
+          "title": "ՊՎՔ ծածկույթ",
+          "slug": "pvc-finish-hy",
+          "description": "ՊՎՔ ծածկույթ՝ աղբյուրով հաստատված Hdoors ցուցադրական կատալոգի բաժին։"
+        },
+        "en": {
+          "title": "PVC finish",
+          "slug": "pvc-finish",
+          "description": "Source-backed pvc finish in the Hdoors demonstration catalog."
+        },
+        "ru": {
+          "title": "Покрытие ПВХ",
+          "slug": "pvc-finish-ru",
+          "description": "Покрытие ПВХ: раздел демонстрационного каталога Hdoors с указанием источников."
+        }
+      }
+    },
+    {
+      "key": "veneer",
+      "sortOrder": 8,
+      "translations": {
+        "hy": {
+          "title": "Շպոնապատ դռներ",
+          "slug": "veneered-doors-hy",
+          "description": "Շպոնապատ դռներ՝ աղբյուրով հաստատված Hdoors ցուցադրական կատալոգի բաժին։"
+        },
+        "en": {
+          "title": "Veneered doors",
+          "slug": "veneered-doors",
+          "description": "Source-backed veneered doors in the Hdoors demonstration catalog."
+        },
+        "ru": {
+          "title": "Шпонированные двери",
+          "slug": "veneered-doors-ru",
+          "description": "Шпонированные двери: раздел демонстрационного каталога Hdoors с указанием источников."
+        }
+      }
+    },
+    {
+      "key": "enamel",
+      "sortOrder": 9,
+      "translations": {
+        "hy": {
+          "title": "Էմալապատ դռներ",
+          "slug": "enamel-doors-hy",
+          "description": "Էմալապատ դռներ՝ աղբյուրով հաստատված Hdoors ցուցադրական կատալոգի բաժին։"
+        },
+        "en": {
+          "title": "Enamel doors",
+          "slug": "enamel-doors",
+          "description": "Source-backed enamel doors in the Hdoors demonstration catalog."
+        },
+        "ru": {
+          "title": "Эмалированные двери",
+          "slug": "enamel-doors-ru",
+          "description": "Эмалированные двери: раздел демонстрационного каталога Hdoors с указанием источников."
+        }
+      }
+    },
+    {
+      "key": "modern",
+      "sortOrder": 10,
+      "translations": {
+        "hy": {
+          "title": "Ժամանակակից դռներ",
+          "slug": "modern-doors-hy",
+          "description": "Ժամանակակից դռներ՝ աղբյուրով հաստատված Hdoors ցուցադրական կատալոգի բաժին։"
+        },
+        "en": {
+          "title": "Modern doors",
+          "slug": "modern-doors",
+          "description": "Source-backed modern doors in the Hdoors demonstration catalog."
+        },
+        "ru": {
+          "title": "Современные двери",
+          "slug": "modern-doors-ru",
+          "description": "Современные двери: раздел демонстрационного каталога Hdoors с указанием источников."
+        }
+      }
+    }
+  ],
+  "products": [
+    {
+      "recordKey": "vdk-eco-deluxe-312-bianco-800",
+      "sku": "HD-INT-VDK-ED312-800-BIA",
+      "categoryKey": "interior",
+      "classification": "INTERIOR",
+      "brand": "ВДК",
+      "model": "ECO Deluxe 312",
+      "collection": "ECO Deluxe",
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "PVC",
+      "hasGlazing": null,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "ВДК ECO Deluxe 312՝ սպիտակ բիանկո",
+          "slug": "vdk-eco-deluxe-312-spitak-bianko",
+          "description": "800×2000×38 մմ միջսենյակային դռան փեղկ՝ սպիտակ բիանկո ՊՎՔ ծածկույթով։ Շրջանակը և շրջակալը ներառված չեն։"
+        },
+        "en": {
+          "title": "VDK ECO Deluxe 312, Bianco white",
+          "slug": "vdk-eco-deluxe-312-bianco-white",
+          "description": "800×2000×38 mm interior door leaf in Bianco white PVC. Frame and architrave are excluded."
+        },
+        "ru": {
+          "title": "ВДК ECO Deluxe 312, белый бьянко",
+          "slug": "vdk-eco-deluxe-312-belyy-byanko",
+          "description": "Межкомнатное полотно 800×2000×38 мм в белом ПВХ бьянко. Короб и наличник не входят."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/product/eko-deluxe-312-door-leaf-do-black-800x2000x38mm-wh",
+        "retrievedAt": "2026-11-09",
+        "originalId": "ER-00038684",
+        "observedPrice": {
+          "amount": 31880,
+          "currency": "AMD",
+          "basis": "LEAF_ONLY",
+          "promotional": true,
+          "regularAmount": 37500
+        },
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "finish", "price", "excludedComponents"],
+            "sourceUrl": "https://domus.am/product/eko-deluxe-312-door-leaf-do-black-800x2000x38mm-wh",
+            "sourceNote": "Product title, code, promotional price, and note excluding frame/architrave."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/product/eko-deluxe-312-door-leaf-do-black-800x2000x38mm-wh",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["core", "manufacturer", "glazing", "opening mechanism", "handing"],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-VDK-ED312-800-BIA-V1",
+        "configurationKey": "800x2000x38-bianco-pvc",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "800×2000×38 mm leaf, Bianco white PVC",
+        "leafWidthMm": 800,
+        "leafHeightMm": 2000,
+        "leafThicknessMm": 38,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Bianco white",
+        "finishName": "PVC",
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "FRAME",
+            "status": "EXCLUDED"
+          },
+          {
+            "code": "ARCHITRAVE",
+            "status": "EXCLUDED"
+          }
+        ]
+      },
+      "categoryKeys": ["interior", "leaf-only", "pvc", "modern"]
+    },
+    {
+      "recordKey": "vdk-pautinka-dg-dark-concrete-800",
+      "sku": "HD-INT-VDK-PAUT-DG-800",
+      "categoryKey": "interior",
+      "classification": "INTERIOR",
+      "brand": "ВДК",
+      "model": "Паутинка ДГ",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "Emalit",
+      "hasGlazing": false,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "ВДК Паутинка ДГ՝ մուգ բետոն",
+          "slug": "vdk-pautinka-dg-mug-beton",
+          "description": "800×2000×38 մմ փակ միջսենյակային փեղկ՝ մուգ բետոն Էմալիտ ծածկույթով։ Շրջանակը և շրջակալը ներառված չեն։"
+        },
+        "en": {
+          "title": "VDK Pautinka DG, dark concrete",
+          "slug": "vdk-pautinka-dg-dark-concrete",
+          "description": "Closed 800×2000×38 mm interior leaf with dark-concrete Emalit finish. Frame and architrave are excluded."
+        },
+        "ru": {
+          "title": "ВДК Паутинка ДГ, тёмный бетон",
+          "slug": "vdk-pautinka-dg-temnyy-beton",
+          "description": "Глухое межкомнатное полотно 800×2000×38 мм в отделке Эмалит «тёмный бетон». Короб и наличник не входят."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/product/spider-web-door-leaf-dg-800x2000x38mm-dark-concret",
+        "retrievedAt": "2026-11-09",
+        "originalId": "ER-00040606",
+        "observedPrice": {
+          "amount": 35620,
+          "currency": "AMD",
+          "basis": "LEAF_ONLY",
+          "promotional": true,
+          "regularAmount": 41900
+        },
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "finish", "price", "excludedComponents"],
+            "sourceUrl": "https://domus.am/product/spider-web-door-leaf-dg-800x2000x38mm-dark-concret",
+            "sourceNote": "Product title, code, price, and component note."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/product/spider-web-door-leaf-dg-800x2000x38mm-dark-concret",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["core", "manufacturer", "opening mechanism", "handing"],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-VDK-PAUT-DG-800-V1",
+        "configurationKey": "800x2000x38-dark-concrete-emalit",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "800×2000×38 mm closed leaf, dark concrete Emalit",
+        "leafWidthMm": 800,
+        "leafHeightMm": 2000,
+        "leafThicknessMm": 38,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Dark concrete",
+        "finishName": "Emalit",
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "FRAME",
+            "status": "EXCLUDED"
+          },
+          {
+            "code": "ARCHITRAVE",
+            "status": "EXCLUDED"
+          }
+        ]
+      },
+      "categoryKeys": ["interior", "solid", "leaf-only", "modern"]
+    },
+    {
+      "recordKey": "pokrova-barbara-dark-walnut-800",
+      "sku": "HD-INT-POK-BARB-800-DW",
+      "categoryKey": "interior",
+      "classification": "INTERIOR",
+      "brand": "Покрова",
+      "model": "Barbara",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "Natural veneer",
+      "hasGlazing": null,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Покрова Barbara՝ մուգ ընկուզենի",
+          "slug": "pokrova-barbara-mug-ynkuzheni",
+          "description": "800×2000 մմ միջսենյակային դռան փեղկ՝ մուգ ընկուզենու բնական շպոնով։ Շրջանակը և շրջակալը ներառված չեն։"
+        },
+        "en": {
+          "title": "Pokrova Barbara, dark walnut",
+          "slug": "pokrova-barbara-dark-walnut",
+          "description": "800×2000 mm interior door leaf in dark-walnut natural veneer. Frame and architrave are excluded."
+        },
+        "ru": {
+          "title": "Покрова Barbara, тёмный орех",
+          "slug": "pokrova-barbara-temnyy-orekh",
+          "description": "Межкомнатное полотно 800×2000 мм в натуральном шпоне «тёмный орех». Короб и наличник не входят."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/product/barbara-door-panel-do-800x2000mm-dark-walnut-mat",
+        "retrievedAt": "2026-11-09",
+        "originalId": "00-00013655",
+        "observedPrice": {
+          "amount": 88500,
+          "currency": "AMD",
+          "basis": "LEAF_ONLY",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "finish", "price", "excludedComponents"],
+            "sourceUrl": "https://domus.am/product/barbara-door-panel-do-800x2000mm-dark-walnut-mat",
+            "sourceNote": "Product title, code, price, and component note."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/product/barbara-door-panel-do-800x2000mm-dark-walnut-mat",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["thickness", "core", "glazing", "opening mechanism", "handing"],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-POK-BARB-800-DW-V1",
+        "configurationKey": "800x2000-dark-walnut-veneer",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "800×2000 mm leaf, dark walnut natural veneer",
+        "leafWidthMm": 800,
+        "leafHeightMm": 2000,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Dark walnut",
+        "finishName": "Natural veneer",
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "FRAME",
+            "status": "EXCLUDED"
+          },
+          {
+            "code": "ARCHITRAVE",
+            "status": "EXCLUDED"
+          }
+        ]
+      },
+      "categoryKeys": ["interior", "leaf-only", "veneer", "modern"]
+    },
+    {
+      "recordKey": "vdk-charm-1-white-ash-600",
+      "sku": "HD-INT-VDK-CHARM1-600-WA",
+      "categoryKey": "interior",
+      "classification": "INTERIOR",
+      "brand": "ВДК",
+      "model": "Charm 1",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "PVC",
+      "hasGlazing": null,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "ВДК Charm 1՝ սպիտակ հացենի",
+          "slug": "vdk-charm-1-spitak-hatseni",
+          "description": "600×2000 մմ միջսենյակային դռան փեղկ՝ սպիտակ հացենի ՊՎՔ ծածկույթով։ Շրջանակը և շրջակալը ներառված չեն։"
+        },
+        "en": {
+          "title": "VDK Charm 1, white ash",
+          "slug": "vdk-charm-1-white-ash",
+          "description": "600×2000 mm interior door leaf in white-ash PVC. Frame and architrave are excluded."
+        },
+        "ru": {
+          "title": "ВДК Charm 1, белый ясень",
+          "slug": "vdk-charm-1-belyy-yasen",
+          "description": "Межкомнатное полотно 600×2000 мм в ПВХ «белый ясень». Короб и наличник не входят."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/product/charm-1-door-leaf-do-600x2000mm-white-ash-pvc-vd",
+        "retrievedAt": "2026-11-09",
+        "originalId": "ER-00044296",
+        "observedPrice": {
+          "amount": 11000,
+          "currency": "AMD",
+          "basis": "LEAF_ONLY",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "finish", "price", "excludedComponents"],
+            "sourceUrl": "https://domus.am/product/charm-1-door-leaf-do-600x2000mm-white-ash-pvc-vd",
+            "sourceNote": "Product title, code, price, and component note."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/product/charm-1-door-leaf-do-600x2000mm-white-ash-pvc-vd",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["thickness", "core", "glazing", "opening mechanism", "handing"],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-VDK-CHARM1-600-WA-V1",
+        "configurationKey": "600x2000-white-ash-pvc",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "600×2000 mm leaf, white ash PVC",
+        "leafWidthMm": 600,
+        "leafHeightMm": 2000,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "White ash",
+        "finishName": "PVC",
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "FRAME",
+            "status": "EXCLUDED"
+          },
+          {
+            "code": "ARCHITRAVE",
+            "status": "EXCLUDED"
+          }
+        ]
+      },
+      "categoryKeys": ["interior", "leaf-only", "pvc", "modern"]
+    },
+    {
+      "recordKey": "pokrova-galaxy-milan-walnut-700",
+      "sku": "HD-INT-POK-GALAXY-700-MW",
+      "categoryKey": "interior",
+      "classification": "INTERIOR",
+      "brand": "Покрова",
+      "model": "Galaxy",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "Natural veneer",
+      "hasGlazing": true,
+      "glazingType": "АП47",
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Покрова Galaxy՝ միլանյան ընկուզենի",
+          "slug": "pokrova-galaxy-milanyan-ynkuzheni",
+          "description": "700×2000 մմ միջսենյակային դռան փեղկ՝ միլանյան ընկուզենու բնական շպոնով և АП47 ապակիով։ Շրջանակը և շրջակալը ներառված չեն։"
+        },
+        "en": {
+          "title": "Pokrova Galaxy, Milan walnut",
+          "slug": "pokrova-galaxy-milan-walnut",
+          "description": "700×2000 mm interior leaf in Milan-walnut natural veneer with AP47 glazing. Frame and architrave are excluded."
+        },
+        "ru": {
+          "title": "Покрова Galaxy, миланский орех",
+          "slug": "pokrova-galaxy-milanskiy-orekh",
+          "description": "Межкомнатное полотно 700×2000 мм в натуральном шпоне «миланский орех» со стеклом АП47. Короб и наличник не входят."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/product/galactica-door-panel-dododg-700x2000mm-milan-wa",
+        "retrievedAt": "2026-11-09",
+        "originalId": "00-00029103",
+        "observedPrice": {
+          "amount": 98500,
+          "currency": "AMD",
+          "basis": "LEAF_ONLY",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "finish", "glazing", "price", "excludedComponents"],
+            "sourceUrl": "https://domus.am/product/galactica-door-panel-dododg-700x2000mm-milan-wa",
+            "sourceNote": "Product title, code, price, and component note."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/product/galactica-door-panel-dododg-700x2000mm-milan-wa",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["thickness", "core", "opening mechanism", "handing"],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-POK-GALAXY-700-MW-V1",
+        "configurationKey": "700x2000-milan-walnut-ap47",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "700×2000 mm leaf, Milan walnut natural veneer, AP47 glass",
+        "leafWidthMm": 700,
+        "leafHeightMm": 2000,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Milan walnut",
+        "finishName": "Natural veneer",
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "FRAME",
+            "status": "EXCLUDED"
+          },
+          {
+            "code": "ARCHITRAVE",
+            "status": "EXCLUDED"
+          }
+        ]
+      },
+      "categoryKeys": ["interior", "glazed", "leaf-only", "veneer", "modern"]
+    },
+    {
+      "recordKey": "oppa-turin-03-sherwood",
+      "sku": "HD-INT-OPPA-TURIN03-SH",
+      "categoryKey": "interior",
+      "classification": "INTERIOR",
+      "brand": "OPPA DOORS",
+      "model": "Турин 03",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "Eco-veneer",
+      "hasGlazing": true,
+      "glazingType": "Lacobel black, mocha, or white",
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "OPPA Турин 03՝ Շերվուդ կաղնի",
+          "slug": "oppa-turin-03-sherwood-kaghni",
+          "description": "Ապակեպատ միջսենյակային փեղկ՝ Շերվուդ Վերալինգա կաղնի գույնով, էկոշպոն ծածկույթով և 44 մմ հաստությամբ։"
+        },
+        "en": {
+          "title": "OPPA Turin 03, Sherwood oak",
+          "slug": "oppa-turin-03-sherwood-oak",
+          "description": "Glazed interior leaf in Sherwood Veralinga oak, eco-veneer finish, and 44 mm leaf thickness."
+        },
+        "ru": {
+          "title": "OPPA Турин 03, дуб Шервуд",
+          "slug": "oppa-turin-03-dub-sherwood",
+          "description": "Остеклённое межкомнатное полотно в цвете дуб Шервуд Вералинга, отделка экошпон, толщина 44 мм."
+        }
+      },
+      "source": {
+        "sourceKey": "oppa",
+        "retailerOrManufacturer": "OPPA DOORS",
+        "url": "https://doors.oppa.am/ru/catalog/doors-in/773/",
+        "retrievedAt": "2026-11-09",
+        "originalId": "773",
+        "observedPrice": null,
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "thickness", "finish", "color", "glazing"],
+            "sourceUrl": "https://doors.oppa.am/ru/catalog/doors-in/773/",
+            "sourceNote": "Individual product specification list."
+          }
+        ],
+        "imagePageUrl": "https://doors.oppa.am/ru/catalog/doors-in/773/",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["core", "price", "included components", "opening mechanism", "handing"],
+      "conflicts": [],
+      "generatedFields": [
+        "internal SKU",
+        "localized slugs",
+        "hy/en/ru descriptions",
+        "selected one documented size from source list"
+      ],
+      "variant": {
+        "sku": "HD-INT-OPPA-TURIN03-SH-V1",
+        "configurationKey": "600x1900x44-sherwood-eco-veneer",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "1900×600 mm leaf, 44 mm thick, Sherwood Veralinga oak, eco-veneer",
+        "leafWidthMm": 600,
+        "leafHeightMm": 1900,
+        "leafThicknessMm": 44,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Sherwood Veralinga oak",
+        "finishName": "Eco-veneer",
+        "handing": null,
+        "swing": null,
+        "includedComponents": []
+      },
+      "categoryKeys": ["interior", "glazed", "leaf-only", "veneer", "modern"]
+    },
+    {
+      "recordKey": "oppa-lidia-italian-walnut",
+      "sku": "HD-INT-OPPA-LIDIA-IW",
+      "categoryKey": "interior",
+      "classification": "INTERIOR",
+      "brand": "OPPA DOORS",
+      "model": "Лидия",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "PVC",
+      "hasGlazing": true,
+      "glazingType": "Gloria patterned tinted glass",
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "OPPA Лидия՝ իտալական ընկուզենի",
+          "slug": "oppa-lidia-italakan-ynkuzheni",
+          "description": "Ապակեպատ միջսենյակային փեղկ՝ իտալական ընկուզենի գույնով, ՊՎՔ ծածկույթով, «Глория» նախշավոր մգեցված ապակիով և 38 մմ հաստությամբ։"
+        },
+        "en": {
+          "title": "OPPA Lidia, Italian walnut",
+          "slug": "oppa-lidia-italian-walnut",
+          "description": "Glazed interior leaf in Italian walnut with PVC finish, Gloria patterned tinted glass, and 38 mm thickness."
+        },
+        "ru": {
+          "title": "OPPA Лидия, итальянский орех",
+          "slug": "oppa-lidiya-italyanskiy-orekh",
+          "description": "Остеклённое межкомнатное полотно в цвете итальянский орех, ПВХ, стекло «Глория», толщина 38 мм."
+        }
+      },
+      "source": {
+        "sourceKey": "oppa",
+        "retailerOrManufacturer": "OPPA DOORS",
+        "url": "https://doors.oppa.am/ru/catalog/doors-in/771/",
+        "retrievedAt": "2026-11-09",
+        "originalId": "771",
+        "observedPrice": null,
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "thickness", "finish", "color", "glazing"],
+            "sourceUrl": "https://doors.oppa.am/ru/catalog/doors-in/771/",
+            "sourceNote": "Individual product specification list."
+          }
+        ],
+        "imagePageUrl": "https://doors.oppa.am/ru/catalog/doors-in/771/",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["core", "price", "included components", "opening mechanism", "handing"],
+      "conflicts": [],
+      "generatedFields": [
+        "internal SKU",
+        "localized slugs",
+        "hy/en/ru descriptions",
+        "selected one documented size from source list"
+      ],
+      "variant": {
+        "sku": "HD-INT-OPPA-LIDIA-IW-V1",
+        "configurationKey": "600x1900x38-italian-walnut-pvc",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "1900×600 mm leaf, 38 mm thick, Italian walnut PVC, Gloria glass",
+        "leafWidthMm": 600,
+        "leafHeightMm": 1900,
+        "leafThicknessMm": 38,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Italian walnut",
+        "finishName": "PVC",
+        "handing": null,
+        "swing": null,
+        "includedComponents": []
+      },
+      "categoryKeys": ["interior", "glazed", "leaf-only", "pvc", "modern"]
+    },
+    {
+      "recordKey": "oppa-berlin-02-smoky-oak",
+      "sku": "HD-INT-OPPA-BERLIN02-SO",
+      "categoryKey": "interior",
+      "classification": "INTERIOR",
+      "brand": "OPPA DOORS",
+      "model": "Берлин 02",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "3D coating",
+      "hasGlazing": true,
+      "glazingType": "Satinato",
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "OPPA Берлин 02՝ ծխագույն կաղնի",
+          "slug": "oppa-berlin-02-tskhaguyn-kaghni",
+          "description": "Ապակեպատ միջսենյակային փեղկ՝ ծխագույն կաղնի գույնով, 3D ծածկույթով, Satinato ապակիով և 35 մմ հաստությամբ։"
+        },
+        "en": {
+          "title": "OPPA Berlin 02, smoky oak",
+          "slug": "oppa-berlin-02-smoky-oak",
+          "description": "Glazed interior leaf in smoky oak with 3D coating, Satinato glass, and 35 mm thickness."
+        },
+        "ru": {
+          "title": "OPPA Берлин 02, дуб дымчатый",
+          "slug": "oppa-berlin-02-dub-dymchatyy",
+          "description": "Остеклённое межкомнатное полотно в цвете дуб дымчатый, 3D-покрытие, стекло Satinato, толщина 35 мм."
+        }
+      },
+      "source": {
+        "sourceKey": "oppa",
+        "retailerOrManufacturer": "OPPA DOORS",
+        "url": "https://doors.oppa.am/ru/catalog/doors-in/767/",
+        "retrievedAt": "2026-11-09",
+        "originalId": "767",
+        "observedPrice": null,
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "thickness", "finish", "color", "glazing"],
+            "sourceUrl": "https://doors.oppa.am/ru/catalog/doors-in/767/",
+            "sourceNote": "Individual product specification list."
+          }
+        ],
+        "imagePageUrl": "https://doors.oppa.am/ru/catalog/doors-in/767/",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["core", "price", "included components", "opening mechanism", "handing"],
+      "conflicts": [],
+      "generatedFields": [
+        "internal SKU",
+        "localized slugs",
+        "hy/en/ru descriptions",
+        "selected one documented size from source list"
+      ],
+      "variant": {
+        "sku": "HD-INT-OPPA-BERLIN02-SO-V1",
+        "configurationKey": "600x1900x35-smoky-oak-3d",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "1900×600 mm leaf, 35 mm thick, smoky oak 3D finish, Satinato glass",
+        "leafWidthMm": 600,
+        "leafHeightMm": 1900,
+        "leafThicknessMm": 35,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Smoky oak",
+        "finishName": "3D coating",
+        "handing": null,
+        "swing": null,
+        "includedComponents": []
+      },
+      "categoryKeys": ["interior", "glazed", "leaf-only", "modern"]
+    },
+    {
+      "recordKey": "vdk-emalit-eco-style-grey-dust-800",
+      "sku": "HD-INT-VDK-EES-800-GD",
+      "categoryKey": "interior",
+      "classification": "INTERIOR",
+      "brand": "ВДК",
+      "model": "EMALIT ECO STYLE",
+      "collection": "EMALIT ECO",
+      "manufacturer": null,
+      "countryOfManufacture": "Russia",
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": null,
+      "hasGlazing": null,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "ВДК EMALIT ECO STYLE՝ Grey Dust",
+          "slug": "vdk-emalit-eco-style-grey-dust",
+          "description": "Ռուսաստանում արտադրված միջսենյակային դուռ՝ Grey Dust գույնով և աղբյուրում 80×200 սմ նշված չափով։ Չափի հիմքը հստակեցման կարիք ունի։"
+        },
+        "en": {
+          "title": "VDK EMALIT ECO STYLE, Grey Dust",
+          "slug": "vdk-emalit-eco-style-grey-dust",
+          "description": "Russian-made interior door in Grey Dust; the source lists 80×200 cm without establishing the measurement basis."
+        },
+        "ru": {
+          "title": "ВДК EMALIT ECO STYLE, Grey Dust",
+          "slug": "vdk-emalit-eco-style-grey-dust-ru",
+          "description": "Межкомнатная дверь российского производства в цвете Grey Dust; источник указывает 80×200 см без уточнения базы размера."
+        }
+      },
+      "source": {
+        "sourceKey": "prix",
+        "retailerOrManufacturer": "PRIX.AM",
+        "url": "https://prix.am/catalog/sankeramika/drner/mijsenyakayin-drner/vdk-emalit-eco-style-80-200-grey-dust",
+        "retrievedAt": "2026-11-09",
+        "originalId": "P52850",
+        "observedPrice": {
+          "amount": 46900,
+          "currency": "AMD",
+          "basis": "UNKNOWN",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "source dimensions", "color", "country", "price"],
+            "sourceUrl": "https://prix.am/catalog/sankeramika/drner/mijsenyakayin-drner/vdk-emalit-eco-style-80-200-grey-dust",
+            "sourceNote": "Individual listing article, characteristics, and current price."
+          }
+        ],
+        "imagePageUrl": "https://prix.am/catalog/sankeramika/drner/mijsenyakayin-drner/vdk-emalit-eco-style-80-200-grey-dust",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": [
+        "dimension basis",
+        "thickness",
+        "core",
+        "coating",
+        "glazing",
+        "included components",
+        "handing"
+      ],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-VDK-EES-800-GD-V1",
+        "configurationKey": "source-80x200-grey-dust",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "Source states 80×200 cm, Grey Dust; measurement basis unknown",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Grey Dust",
+        "finishName": null,
+        "handing": null,
+        "swing": null,
+        "includedComponents": []
+      },
+      "categoryKeys": ["interior", "modern"]
+    },
+    {
+      "recordKey": "zadoor-baguette-venice-b3-matte-white-800",
+      "sku": "HD-INT-ZAD-VENB3-800-MW",
+      "categoryKey": "interior",
+      "classification": "INTERIOR",
+      "brand": "Zadoor",
+      "model": "Baguette PG Venice B3",
+      "collection": "Baguette",
+      "manufacturer": null,
+      "countryOfManufacture": "Russia",
+      "structuralMaterial": "Wood",
+      "coreMaterial": "MDF",
+      "surfaceCoating": "Polypropylene eco-veneer",
+      "hasGlazing": null,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Zadoor Baguette Venice B3՝ սպիտակ",
+          "slug": "zadoor-baguette-venice-b3-spitak",
+          "description": "Ռուսաստանում արտադրված միջսենյակային դուռ՝ փայտե կառուցվածքով, ՄԴՖ հումքով և պոլիպրոպիլենային էկոերեսպատմամբ։ Աղբյուրը նշում է 35×80×200 սմ չափ։"
+        },
+        "en": {
+          "title": "Zadoor Baguette Venice B3, matte white",
+          "slug": "zadoor-baguette-venice-b3-matte-white",
+          "description": "Russian-made interior door with wood structure, MDF material, and polypropylene eco-veneer. Source size is 35×80×200 cm."
+        },
+        "ru": {
+          "title": "Zadoor Baguette Venice B3, матовый белый",
+          "slug": "zadoor-baguette-venice-b3-matovyy-belyy",
+          "description": "Межкомнатная дверь российского производства: деревянная конструкция, МДФ, полипропиленовый экошпон. Размер источника 35×80×200 см."
+        }
+      },
+      "source": {
+        "sourceKey": "prix",
+        "retailerOrManufacturer": "PRIX.AM",
+        "url": "https://prix.am/catalog/sankeramika/drner/mijsenyakayin-drner/zadoor-baguette-pg-venice-b3-35h800h2000-matte-white",
+        "retrievedAt": "2026-11-09",
+        "originalId": "P47386",
+        "observedPrice": {
+          "amount": 79900,
+          "currency": "AMD",
+          "basis": "UNKNOWN",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": [
+              "model",
+              "source dimensions",
+              "color",
+              "country",
+              "structure",
+              "material",
+              "coating",
+              "price"
+            ],
+            "sourceUrl": "https://prix.am/catalog/sankeramika/drner/mijsenyakayin-drner/zadoor-baguette-pg-venice-b3-35h800h2000-matte-white",
+            "sourceNote": "Individual listing article, characteristics, and current price."
+          }
+        ],
+        "imagePageUrl": "https://prix.am/catalog/sankeramika/drner/mijsenyakayin-drner/zadoor-baguette-pg-venice-b3-35h800h2000-matte-white",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": [
+        "dimension order/basis",
+        "glazing",
+        "included components",
+        "opening mechanism",
+        "handing"
+      ],
+      "conflicts": [
+        "Listing title uses 35×800×2000 while characteristics render 35×80×200 cm; values agree after unit conversion, but dimension semantics are not labelled."
+      ],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-ZAD-VENB3-800-MW-V1",
+        "configurationKey": "source-35x800x2000-matte-white",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "Source states 35×800×2000 mm / 35×80×200 cm, matte white; dimension semantics unknown",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Matte white",
+        "finishName": "Polypropylene eco-veneer",
+        "handing": null,
+        "swing": null,
+        "includedComponents": []
+      },
+      "categoryKeys": ["interior", "veneer", "modern"]
+    },
+    {
+      "recordKey": "jaway-jw-106-grey",
+      "sku": "HD-ENT-JAW-JW106-GR",
+      "categoryKey": "entrance",
+      "classification": "ENTRANCE",
+      "brand": "Jaway",
+      "model": "JW-106",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": "China",
+      "structuralMaterial": "Metal",
+      "coreMaterial": null,
+      "surfaceCoating": null,
+      "hasGlazing": false,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Jaway JW-106՝ մոխրագույն",
+          "slug": "jaway-jw-106-mokhraguyn",
+          "description": "Մոխրագույն մետաղական մուտքի դուռ։ Աղբյուրը վերնագրում նշում է 2050×960 չափ, սակայն չափի հիմքը պետք է հաստատել։"
+        },
+        "en": {
+          "title": "Jaway JW-106, grey",
+          "slug": "jaway-jw-106-grey",
+          "description": "Grey metal entrance door. The source title states 2050×960, but the measurement basis requires confirmation."
+        },
+        "ru": {
+          "title": "Jaway JW-106, серый",
+          "slug": "jaway-jw-106-seryy",
+          "description": "Серая металлическая входная дверь. В заголовке источника указано 2050×960, но базу размера нужно подтвердить."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/product/entrance-door-jw-106-mtlmtl-gray-2050x960-right",
+        "retrievedAt": "2026-11-09",
+        "originalId": "ER-00081985",
+        "observedPrice": {
+          "amount": 63900,
+          "currency": "AMD",
+          "basis": "UNKNOWN",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "material", "color", "source dimensions", "price"],
+            "sourceUrl": "https://domus.am/product/entrance-door-jw-106-mtlmtl-gray-2050x960-right",
+            "sourceNote": "Individual listing title, code, description, and price."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/product/entrance-door-jw-106-mtlmtl-gray-2050x960-right",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": [
+        "dimension basis",
+        "core",
+        "included components",
+        "weather exposure suitability",
+        "handing convention"
+      ],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-ENT-JAW-JW106-GR-V1",
+        "configurationKey": "source-2050x960-grey",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "Source states 2050×960, grey metal; dimension basis and handing convention unconfirmed",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Grey",
+        "finishName": null,
+        "handing": null,
+        "swing": null,
+        "includedComponents": []
+      },
+      "categoryKeys": ["entrance", "solid", "apartment", "modern"]
+    },
+    {
+      "recordKey": "jaway-jw-102-anthracite",
+      "sku": "HD-ENT-JAW-JW102-AN",
+      "categoryKey": "entrance",
+      "classification": "ENTRANCE",
+      "brand": "Jaway",
+      "model": "JW-102",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": "China",
+      "structuralMaterial": "Metal",
+      "coreMaterial": null,
+      "surfaceCoating": null,
+      "hasGlazing": false,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Jaway JW-102՝ անտրացիտ",
+          "slug": "jaway-jw-102-antratsit",
+          "description": "Անտրացիտ գույնի մետաղական մուտքի դուռ։ Աղբյուրի URL-ը նշում է 2050×960, սակայն էջի վերնագրում չափը բացակայում է։"
+        },
+        "en": {
+          "title": "Jaway JW-102, anthracite",
+          "slug": "jaway-jw-102-anthracite",
+          "description": "Anthracite metal entrance door. The URL states 2050×960, while the page title omits dimensions."
+        },
+        "ru": {
+          "title": "Jaway JW-102, антрацит",
+          "slug": "jaway-jw-102-antratsit",
+          "description": "Металлическая входная дверь цвета антрацит. URL указывает 2050×960, но в заголовке страницы размер отсутствует."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/product/entrance-door-jw-102-mtlmtl-anthracite-2050x960",
+        "retrievedAt": "2026-11-09",
+        "originalId": "ER-00081987",
+        "observedPrice": {
+          "amount": 61900,
+          "currency": "AMD",
+          "basis": "UNKNOWN",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "material", "color", "price"],
+            "sourceUrl": "https://domus.am/product/entrance-door-jw-102-mtlmtl-anthracite-2050x960",
+            "sourceNote": "Individual listing title, code, description, and price."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/product/entrance-door-jw-102-mtlmtl-anthracite-2050x960",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": [
+        "dimensions",
+        "core",
+        "included components",
+        "weather exposure suitability",
+        "handing"
+      ],
+      "conflicts": [
+        "Dimensions occur in the URL but not the displayed product title/specification, so they are not normalized."
+      ],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-ENT-JAW-JW102-AN-V1",
+        "configurationKey": "anthracite-source-listing",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "Anthracite metal entrance door; exact configuration dimensions unconfirmed",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Anthracite",
+        "finishName": null,
+        "handing": null,
+        "swing": null,
+        "includedComponents": []
+      },
+      "categoryKeys": ["entrance", "solid", "apartment", "modern"]
+    },
+    {
+      "recordKey": "jaway-jw-101-brown",
+      "sku": "HD-ENT-JAW-JW101-BR",
+      "categoryKey": "entrance",
+      "classification": "ENTRANCE",
+      "brand": "Jaway",
+      "model": "JW-101",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": "China",
+      "structuralMaterial": "Metal",
+      "coreMaterial": null,
+      "surfaceCoating": null,
+      "hasGlazing": false,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Jaway JW-101՝ շագանակագույն",
+          "slug": "jaway-jw-101-shaganakaguyn",
+          "description": "Շագանակագույն մետաղական մուտքի դուռ։ Աղբյուրում չափը կրճատ նշված է 2050×96, իսկ URL-ում՝ 2050×960, ուստի այն չի նորմալացվել։"
+        },
+        "en": {
+          "title": "Jaway JW-101, brown",
+          "slug": "jaway-jw-101-brown",
+          "description": "Brown metal entrance door. The page truncates the size to 2050×96 while its URL says 2050×960, so dimensions remain unnormalized."
+        },
+        "ru": {
+          "title": "Jaway JW-101, коричневый",
+          "slug": "jaway-jw-101-korichnevyy",
+          "description": "Коричневая металлическая входная дверь. На странице размер сокращён до 2050×96, а URL содержит 2050×960, поэтому размер не нормализован."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/product/entrance-door-jw-101-mtlmtl-brown-2050x960-left",
+        "retrievedAt": "2026-11-09",
+        "originalId": "ER-00081988",
+        "observedPrice": {
+          "amount": 49900,
+          "currency": "AMD",
+          "basis": "UNKNOWN",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "material", "color", "source dimensions", "price"],
+            "sourceUrl": "https://domus.am/product/entrance-door-jw-101-mtlmtl-brown-2050x960-left",
+            "sourceNote": "Individual listing title, code, description, and price."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/product/entrance-door-jw-101-mtlmtl-brown-2050x960-left",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": [
+        "dimension basis",
+        "core",
+        "included components",
+        "weather exposure suitability",
+        "handing convention"
+      ],
+      "conflicts": ["Displayed title says 2050×96 while URL says 2050×960."],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-ENT-JAW-JW101-BR-V1",
+        "configurationKey": "brown-source-listing",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "Brown metal entrance door; conflicting source dimension text",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Brown",
+        "finishName": null,
+        "handing": null,
+        "swing": null,
+        "includedComponents": []
+      },
+      "categoryKeys": ["entrance", "solid", "apartment", "modern"]
+    },
+    {
+      "recordKey": "jaway-jw-506-grey",
+      "sku": "HD-ENT-JAW-JW506-GR",
+      "categoryKey": "entrance",
+      "classification": "ENTRANCE",
+      "brand": "Jaway",
+      "model": "JW-506",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": "China",
+      "structuralMaterial": "Metal",
+      "coreMaterial": null,
+      "surfaceCoating": null,
+      "hasGlazing": false,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Jaway JW-506՝ մոխրագույն",
+          "slug": "jaway-jw-506-mokhraguyn",
+          "description": "Մոխրագույն մետաղական մուտքի դուռ՝ աղբյուրում 2050×960 չափով և դեպի ներս ձախ բացմամբ։ Բացման կողմի դիտման պայմանը հստակեցված չէ։"
+        },
+        "en": {
+          "title": "Jaway JW-506, grey",
+          "slug": "jaway-jw-506-grey",
+          "description": "Grey metal entrance door listed as 2050×960 with left inward opening. The source does not define the handing viewing convention."
+        },
+        "ru": {
+          "title": "Jaway JW-506, серый",
+          "slug": "jaway-jw-506-seryy",
+          "description": "Серая металлическая входная дверь 2050×960 с левым открыванием внутрь. Источник не определяет сторону наблюдения."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/product/RE-00093255",
+        "retrievedAt": "2026-11-09",
+        "originalId": "RE-00093255",
+        "observedPrice": {
+          "amount": 84900,
+          "currency": "AMD",
+          "basis": "UNKNOWN",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "material", "color", "source dimensions", "opening", "price"],
+            "sourceUrl": "https://domus.am/product/RE-00093255",
+            "sourceNote": "Individual listing title, code, description, and price."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/product/RE-00093255",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": [
+        "dimension basis",
+        "core",
+        "included components",
+        "weather exposure suitability",
+        "handing convention"
+      ],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-ENT-JAW-JW506-GR-V1",
+        "configurationKey": "source-2050x960-grey-left-inward",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "Source states 2050×960, grey metal, left inward; dimension basis/handing convention unconfirmed",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Grey",
+        "finishName": null,
+        "handing": null,
+        "swing": "INWARD",
+        "includedComponents": []
+      },
+      "categoryKeys": ["entrance", "solid", "apartment", "modern"]
+    },
+    {
+      "recordKey": "jaway-jw-502-grey",
+      "sku": "HD-ENT-JAW-JW502-GR",
+      "categoryKey": "entrance",
+      "classification": "ENTRANCE",
+      "brand": "Jaway",
+      "model": "JW-502",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": "China",
+      "structuralMaterial": "Metal",
+      "coreMaterial": null,
+      "surfaceCoating": null,
+      "hasGlazing": false,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Jaway JW-502՝ մոխրագույն",
+          "slug": "jaway-jw-502-mokhraguyn",
+          "description": "Մոխրագույն մետաղական մուտքի դուռ՝ աղբյուրում 2050×960 չափով և դեպի ներս ձախ բացմամբ։ Բացման կողմի դիտման պայմանը հստակեցված չէ։"
+        },
+        "en": {
+          "title": "Jaway JW-502, grey",
+          "slug": "jaway-jw-502-grey",
+          "description": "Grey metal entrance door listed as 2050×960 with left inward opening. The source does not define the handing viewing convention."
+        },
+        "ru": {
+          "title": "Jaway JW-502, серый",
+          "slug": "jaway-jw-502-seryy",
+          "description": "Серая металлическая входная дверь 2050×960 с левым открыванием внутрь. Источник не определяет сторону наблюдения."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/product/RE-00093253",
+        "retrievedAt": "2026-11-09",
+        "originalId": "RE-00093253",
+        "observedPrice": {
+          "amount": 75900,
+          "currency": "AMD",
+          "basis": "UNKNOWN",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "material", "color", "source dimensions", "opening", "price"],
+            "sourceUrl": "https://domus.am/product/RE-00093253",
+            "sourceNote": "Individual listing title, code, description, and price."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/product/RE-00093253",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": [
+        "dimension basis",
+        "core",
+        "included components",
+        "weather exposure suitability",
+        "handing convention"
+      ],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-ENT-JAW-JW502-GR-V1",
+        "configurationKey": "source-2050x960-grey-left-inward",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "Source states 2050×960, grey metal, left inward; dimension basis/handing convention unconfirmed",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Grey",
+        "finishName": null,
+        "handing": null,
+        "swing": "INWARD",
+        "includedComponents": []
+      },
+      "categoryKeys": ["entrance", "solid", "apartment", "modern"]
+    },
+    {
+      "recordKey": "profildoors-1fn-apartment",
+      "sku": "HD-ENT-PD-1FN-APT",
+      "categoryKey": "entrance",
+      "classification": "ENTRANCE",
+      "brand": "ProfilDoors",
+      "model": "1FN",
+      "collection": "FN",
+      "manufacturer": "ProfilDoors",
+      "countryOfManufacture": null,
+      "structuralMaterial": "AD31T1 aluminium alloy",
+      "coreMaterial": "70 mm expanded polystyrene",
+      "surfaceCoating": null,
+      "hasGlazing": null,
+      "glazingType": null,
+      "entranceEnvironments": ["APARTMENT"],
+      "translations": {
+        "hy": {
+          "title": "ProfilDoors 1FN՝ մեկ համակարգով փական",
+          "slug": "profildoors-1fn-mek-hamakargov-pakan",
+          "description": "Բնակարանի միափեղկ ալյումինե մուտքի դուռ՝ 100 մմ խորությամբ եռախցիկ շրջանակով, 100 մմ փեղկով և մեկ համակարգով Securemme փականով։"
+        },
+        "en": {
+          "title": "ProfilDoors 1FN, single-system lock",
+          "slug": "profildoors-1fn-single-system-lock",
+          "description": "Single-leaf aluminium apartment entrance door with 100 mm three-chamber frame, 100 mm leaf, and Securemme single-system lock."
+        },
+        "ru": {
+          "title": "ProfilDoors 1FN, односистемный замок",
+          "slug": "profildoors-1fn-odnosistemnyy-zamok",
+          "description": "Одностворчатая алюминиевая входная дверь для квартиры: трёхкамерный короб глубиной 100 мм, полотно 100 мм, односистемный замок Securemme."
+        }
+      },
+      "source": {
+        "sourceKey": "profildoors",
+        "retailerOrManufacturer": "ProfilDoors official manufacturer site",
+        "url": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-1fn/",
+        "retrievedAt": "2026-11-09",
+        "originalId": "1FN",
+        "observedPrice": null,
+        "evidence": [
+          {
+            "fields": [
+              "brand",
+              "series",
+              "model",
+              "environment",
+              "leaf configuration",
+              "materials",
+              "frame depth",
+              "dimension range",
+              "leaf thickness",
+              "core",
+              "lock"
+            ],
+            "sourceUrl": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-1fn/",
+            "sourceNote": "Official manufacturer characteristics."
+          }
+        ],
+        "imagePageUrl": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-1fn/",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": [
+        "exact sellable size",
+        "selected finish/color",
+        "price",
+        "included components",
+        "country of manufacture"
+      ],
+      "conflicts": [
+        "Manufacturer publishes a frame size range, not one exact configuration; dimensions remain source text only."
+      ],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-ENT-PD-1FN-APT-V1",
+        "configurationKey": "manufacturer-base-inquiry",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "Apartment, single leaf; frame width 920–1100 mm and height 2000–2400 mm; finish/size to confirm",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": 100,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": 100,
+        "colorName": null,
+        "finishName": null,
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "LOCK",
+            "status": "INCLUDED"
+          },
+          {
+            "code": "CYLINDER",
+            "status": "INCLUDED"
+          }
+        ]
+      },
+      "categoryKeys": ["entrance", "apartment", "modern"]
+    },
+    {
+      "recordKey": "profildoors-2fn-apartment",
+      "sku": "HD-ENT-PD-2FN-APT",
+      "categoryKey": "entrance",
+      "classification": "ENTRANCE",
+      "brand": "ProfilDoors",
+      "model": "2FN",
+      "collection": "FN",
+      "manufacturer": "ProfilDoors",
+      "countryOfManufacture": null,
+      "structuralMaterial": "AD31T1 aluminium alloy",
+      "coreMaterial": "70 mm expanded polystyrene",
+      "surfaceCoating": null,
+      "hasGlazing": null,
+      "glazingType": null,
+      "entranceEnvironments": ["APARTMENT"],
+      "translations": {
+        "hy": {
+          "title": "ProfilDoors 2FN՝ երկհամակարգ փական",
+          "slug": "profildoors-2fn-erkhamakarg-pakan",
+          "description": "Բնակարանի միափեղկ ալյումինե մուտքի դուռ՝ 100 մմ խորությամբ եռախցիկ շրջանակով, 100 մմ փեղկով և երկհամակարգ Securemme փականով։"
+        },
+        "en": {
+          "title": "ProfilDoors 2FN, dual-system lock",
+          "slug": "profildoors-2fn-dual-system-lock",
+          "description": "Single-leaf aluminium apartment entrance door with 100 mm three-chamber frame, 100 mm leaf, and Securemme dual-system lock."
+        },
+        "ru": {
+          "title": "ProfilDoors 2FN, двухсистемный замок",
+          "slug": "profildoors-2fn-dvukhsistemnyy-zamok",
+          "description": "Одностворчатая алюминиевая входная дверь для квартиры: трёхкамерный короб 100 мм, полотно 100 мм, двухсистемный замок Securemme."
+        }
+      },
+      "source": {
+        "sourceKey": "profildoors",
+        "retailerOrManufacturer": "ProfilDoors official manufacturer site",
+        "url": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-2fn/",
+        "retrievedAt": "2026-11-09",
+        "originalId": "2FN",
+        "observedPrice": null,
+        "evidence": [
+          {
+            "fields": [
+              "brand",
+              "series",
+              "model",
+              "environment",
+              "leaf configuration",
+              "materials",
+              "frame depth",
+              "dimension range",
+              "leaf thickness",
+              "core",
+              "lock"
+            ],
+            "sourceUrl": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-2fn/",
+            "sourceNote": "Official manufacturer characteristics."
+          }
+        ],
+        "imagePageUrl": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-2fn/",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": [
+        "exact sellable size",
+        "selected finish/color",
+        "price",
+        "included components",
+        "country of manufacture"
+      ],
+      "conflicts": [
+        "Manufacturer publishes a frame size range, not one exact configuration; dimensions remain source text only."
+      ],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-ENT-PD-2FN-APT-V1",
+        "configurationKey": "manufacturer-base-inquiry",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "Apartment, single leaf; frame width 920–1100 mm and height 2000–2400 mm; finish/size to confirm",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": 100,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": 100,
+        "colorName": null,
+        "finishName": null,
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "LOCK",
+            "status": "INCLUDED"
+          },
+          {
+            "code": "CYLINDER",
+            "status": "INCLUDED"
+          }
+        ]
+      },
+      "categoryKeys": ["entrance", "apartment", "modern"]
+    },
+    {
+      "recordKey": "profildoors-3fn-pocket-apartment",
+      "sku": "HD-ENT-PD-3FN-PKT-APT",
+      "categoryKey": "entrance",
+      "classification": "ENTRANCE",
+      "brand": "ProfilDoors",
+      "model": "3FN pocket handle",
+      "collection": "FN",
+      "manufacturer": "ProfilDoors",
+      "countryOfManufacture": null,
+      "structuralMaterial": "AD31T1 aluminium alloy",
+      "coreMaterial": "70 mm expanded polystyrene",
+      "surfaceCoating": null,
+      "hasGlazing": null,
+      "glazingType": null,
+      "entranceEnvironments": ["APARTMENT"],
+      "translations": {
+        "hy": {
+          "title": "ProfilDoors 3FN՝ կենսաչափական վահանակ",
+          "slug": "profildoors-3fn-kensachapakan-vahanak",
+          "description": "Բնակարանի միափեղկ ալյումինե մուտքի դուռ՝ Dircode DM-7 կենսաչափական վահանակով և Wala գրպան-բռնակով։"
+        },
+        "en": {
+          "title": "ProfilDoors 3FN, biometric pocket handle",
+          "slug": "profildoors-3fn-biometric-pocket-handle",
+          "description": "Single-leaf aluminium apartment entrance door with Dircode DM-7 biometric panel and Wala pocket handle."
+        },
+        "ru": {
+          "title": "ProfilDoors 3FN, биометрия и ручка-карман",
+          "slug": "profildoors-3fn-biometriya-ruchka-karman",
+          "description": "Одностворчатая алюминиевая входная дверь для квартиры с биометрической панелью Dircode DM-7 и ручкой-карманом Wala."
+        }
+      },
+      "source": {
+        "sourceKey": "profildoors",
+        "retailerOrManufacturer": "ProfilDoors official manufacturer site",
+        "url": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/3fn-biometricheskaya-panel-i-ruchka-karman/",
+        "retrievedAt": "2026-11-09",
+        "originalId": "3FN-pocket",
+        "observedPrice": null,
+        "evidence": [
+          {
+            "fields": [
+              "brand",
+              "series",
+              "model",
+              "environment",
+              "leaf configuration",
+              "materials",
+              "frame depth",
+              "dimension range",
+              "leaf thickness",
+              "core",
+              "biometric panel",
+              "handle"
+            ],
+            "sourceUrl": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/3fn-biometricheskaya-panel-i-ruchka-karman/",
+            "sourceNote": "Official manufacturer characteristics."
+          }
+        ],
+        "imagePageUrl": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/3fn-biometricheskaya-panel-i-ruchka-karman/",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": [
+        "exact sellable size",
+        "selected finish/color",
+        "price",
+        "complete included components",
+        "country of manufacture"
+      ],
+      "conflicts": [
+        "Manufacturer publishes a frame size range, not one exact configuration; dimensions remain source text only."
+      ],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-ENT-PD-3FN-PKT-APT-V1",
+        "configurationKey": "manufacturer-base-inquiry",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "Apartment, single leaf, DM-7 biometric panel, Wala pocket handle; finish/size to confirm",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": 100,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": 100,
+        "colorName": null,
+        "finishName": null,
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "HANDLE",
+            "status": "INCLUDED"
+          }
+        ]
+      },
+      "categoryKeys": ["entrance", "apartment", "modern"]
+    },
+    {
+      "recordKey": "profildoors-4fn-apartment",
+      "sku": "HD-ENT-PD-4FN-APT",
+      "categoryKey": "entrance",
+      "classification": "ENTRANCE",
+      "brand": "ProfilDoors",
+      "model": "4FN",
+      "collection": "FN",
+      "manufacturer": "ProfilDoors",
+      "countryOfManufacture": null,
+      "structuralMaterial": "AD31T1 aluminium alloy",
+      "coreMaterial": "70 mm expanded polystyrene",
+      "surfaceCoating": null,
+      "hasGlazing": null,
+      "glazingType": null,
+      "entranceEnvironments": ["APARTMENT"],
+      "translations": {
+        "hy": {
+          "title": "ProfilDoors 4FN՝ էլեկտրոնային բռնակ",
+          "slug": "profildoors-4fn-elektronayin-brnak",
+          "description": "Բնակարանի միափեղկ ալյումինե մուտքի դուռ՝ էլեկտրոնային աղեղնաձև բռնակով։ Կոնկրետ չափը և հարդարանքը ենթակա են հաստատման։"
+        },
+        "en": {
+          "title": "ProfilDoors 4FN, electronic pull handle",
+          "slug": "profildoors-4fn-electronic-pull-handle",
+          "description": "Single-leaf aluminium apartment entrance door with electronic pull handle. Exact size and finish require confirmation."
+        },
+        "ru": {
+          "title": "ProfilDoors 4FN, электронная ручка-скоба",
+          "slug": "profildoors-4fn-elektronnaya-ruchka-skoba",
+          "description": "Одностворчатая алюминиевая входная дверь для квартиры с электронной ручкой-скобой. Размер и отделку нужно подтвердить."
+        }
+      },
+      "source": {
+        "sourceKey": "profildoors",
+        "retailerOrManufacturer": "ProfilDoors official manufacturer site",
+        "url": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-4fn/",
+        "retrievedAt": "2026-11-09",
+        "originalId": "4FN",
+        "observedPrice": null,
+        "evidence": [
+          {
+            "fields": ["brand", "series", "model", "environment", "product type"],
+            "sourceUrl": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-4fn/",
+            "sourceNote": "Official manufacturer heading and characteristics identify model 4 for apartment use."
+          }
+        ],
+        "imagePageUrl": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-4fn/",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": [
+        "exact sellable size",
+        "selected finish/color",
+        "price",
+        "complete included components",
+        "country of manufacture"
+      ],
+      "conflicts": [
+        "Manufacturer publishes configurable ranges/options rather than one exact sellable configuration."
+      ],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-ENT-PD-4FN-APT-V1",
+        "configurationKey": "manufacturer-base-inquiry",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "Apartment model 4FN with electronic pull handle; finish/size to confirm",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": null,
+        "finishName": null,
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "HANDLE",
+            "status": "INCLUDED"
+          }
+        ]
+      },
+      "categoryKeys": ["entrance", "apartment", "modern"]
+    },
+    {
+      "recordKey": "profildoors-5fn-apartment",
+      "sku": "HD-ENT-PD-5FN-APT",
+      "categoryKey": "entrance",
+      "classification": "ENTRANCE",
+      "brand": "ProfilDoors",
+      "model": "5FN",
+      "collection": "FN",
+      "manufacturer": "ProfilDoors",
+      "countryOfManufacture": null,
+      "structuralMaterial": "AD31T1 aluminium alloy",
+      "coreMaterial": "70 mm expanded polystyrene",
+      "surfaceCoating": null,
+      "hasGlazing": null,
+      "glazingType": null,
+      "entranceEnvironments": ["APARTMENT"],
+      "translations": {
+        "hy": {
+          "title": "ProfilDoors 5FN՝ էլեկտրոնային փական",
+          "slug": "profildoors-5fn-elektronayin-pakan",
+          "description": "Բնակարանի ալյումինե մուտքի դռան 5FN էջ՝ էլեկտրոնային փականով։ Էջի ներքին «Մոդել» արժեքը հակասում է վերնագրին, ուստի հրապարակումից առաջ պետք է ճշտել։"
+        },
+        "en": {
+          "title": "ProfilDoors 5FN, electronic lock",
+          "slug": "profildoors-5fn-electronic-lock",
+          "description": "ProfilDoors 5FN apartment entrance-door page with electronic lock. Its internal model field conflicts with the heading and must be confirmed before publication."
+        },
+        "ru": {
+          "title": "ProfilDoors 5FN, электронный замок",
+          "slug": "profildoors-5fn-elektronnyy-zamok",
+          "description": "Страница квартирной входной двери 5FN с электронным замком. Поле «Модель» противоречит заголовку и требует проверки до публикации."
+        }
+      },
+      "source": {
+        "sourceKey": "profildoors",
+        "retailerOrManufacturer": "ProfilDoors official manufacturer site",
+        "url": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-5fn/",
+        "retrievedAt": "2026-11-09",
+        "originalId": "5FN-page",
+        "observedPrice": null,
+        "evidence": [
+          {
+            "fields": ["heading", "series", "displayed model", "environment", "product type"],
+            "sourceUrl": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-5fn/",
+            "sourceNote": "Official page heading says 5FN/electronic lock; characteristics displayed during retrieval say model 4."
+          }
+        ],
+        "imagePageUrl": "https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-5fn/",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": [
+        "confirmed manufacturer model number",
+        "exact sellable size",
+        "selected finish/color",
+        "price",
+        "complete included components",
+        "country of manufacture"
+      ],
+      "conflicts": [
+        "Official page heading/URL identify 5FN, but the characteristics block displayed model 4 on retrieval date."
+      ],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-ENT-PD-5FN-APT-V1",
+        "configurationKey": "manufacturer-base-inquiry",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "5FN page, electronic lock; manufacturer model conflict and exact configuration require confirmation",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": null,
+        "finishName": null,
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "LOCK",
+            "status": "INCLUDED"
+          }
+        ]
+      },
+      "categoryKeys": ["entrance", "apartment", "modern"]
+    },
+    {
+      "recordKey": "diford-linen-line-graphite-oak-600",
+      "sku": "HD-INT-DIF-LINEN-600",
+      "categoryKey": "interior",
+      "categoryKeys": ["interior", "solid", "leaf-only", "pvc", "modern"],
+      "classification": "INTERIOR",
+      "brand": "Дифорд",
+      "model": "Лайн (Line / Linen)",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "PVC",
+      "hasGlazing": false,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Diford Linen / Лайн, graphite and old oak",
+          "slug": "diford-linen-line-graphite-oak-600-hy",
+          "description": "Diford Linen / Лайн, graphite and old oak. 600×2000 mm։ Չհաստատված բնութագրերը չեն ցուցադրվում։"
+        },
+        "en": {
+          "title": "Diford Linen / Лайн, graphite and old oak",
+          "slug": "diford-linen-line-graphite-oak-600",
+          "description": "Diford Linen / Лайн, graphite and old oak. 600×2000 mm. Unverified specifications are omitted."
+        },
+        "ru": {
+          "title": "Diford Linen / Лайн, graphite and old oak",
+          "slug": "diford-linen-line-graphite-oak-600-ru",
+          "description": "Diford Linen / Лайн, graphite and old oak. 600×2000 mm. Неподтверждённые характеристики не указаны."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/en/product/lain-door-dg-600x2000mm-graphite-softoak-old-pvc",
+        "retrievedAt": "2026-11-09",
+        "originalId": "ER-00081330",
+        "observedPrice": {
+          "amount": 42000,
+          "currency": "AMD",
+          "basis": "LEAF_ONLY",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "finish", "price"],
+            "sourceUrl": "https://domus.am/en/product/lain-door-dg-600x2000mm-graphite-softoak-old-pvc",
+            "sourceNote": "Individual product or official model page."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/en/product/lain-door-dg-600x2000mm-graphite-softoak-old-pvc",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["opening mechanism", "handing", "warranty"],
+      "conflicts": [
+        "The source transliterates the model as Lain/Line; Linen is retained as the owner-approved catalog label."
+      ],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-DIF-LINEN-600-V1",
+        "configurationKey": "diford-linen-line-graphite-oak-600-configuration",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "600×2000 mm",
+        "leafWidthMm": 600,
+        "leafHeightMm": 2000,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Graphite soft / old oak",
+        "finishName": "PVC",
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "FRAME",
+            "status": "EXCLUDED"
+          },
+          {
+            "code": "ARCHITRAVE",
+            "status": "EXCLUDED"
+          }
+        ]
+      }
+    },
+    {
+      "recordKey": "vdk-eko-9m-white-ash-900",
+      "sku": "HD-INT-VDK-EKO9M-900",
+      "categoryKey": "interior",
+      "categoryKeys": ["interior", "glazed", "leaf-only", "pvc", "modern"],
+      "classification": "INTERIOR",
+      "brand": "ВДК",
+      "model": "EKO 9 M",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "PVC",
+      "hasGlazing": true,
+      "glazingType": "Black glass",
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "VDK EKO 9 M, white ash with black glass",
+          "slug": "vdk-eko-9m-white-ash-900-hy",
+          "description": "VDK EKO 9 M, white ash with black glass. 900×2000 mm։ Չհաստատված բնութագրերը չեն ցուցադրվում։"
+        },
+        "en": {
+          "title": "VDK EKO 9 M, white ash with black glass",
+          "slug": "vdk-eko-9m-white-ash-900",
+          "description": "VDK EKO 9 M, white ash with black glass. 900×2000 mm. Unverified specifications are omitted."
+        },
+        "ru": {
+          "title": "VDK EKO 9 M, white ash with black glass",
+          "slug": "vdk-eko-9m-white-ash-900-ru",
+          "description": "VDK EKO 9 M, white ash with black glass. 900×2000 mm. Неподтверждённые характеристики не указаны."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/product/eko-simple-9-m-door-leaf-do-900x2000mm-white-ash",
+        "retrievedAt": "2026-11-09",
+        "originalId": "ER-00071896",
+        "observedPrice": {
+          "amount": 27970,
+          "currency": "AMD",
+          "basis": "LEAF_ONLY",
+          "promotional": true,
+          "regularAmount": 32900
+        },
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "finish", "price"],
+            "sourceUrl": "https://domus.am/product/eko-simple-9-m-door-leaf-do-900x2000mm-white-ash",
+            "sourceNote": "Individual product or official model page."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/product/eko-simple-9-m-door-leaf-do-900x2000mm-white-ash",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["opening mechanism", "handing", "warranty"],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-VDK-EKO9M-900-V1",
+        "configurationKey": "vdk-eko-9m-white-ash-900-configuration",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "900×2000 mm",
+        "leafWidthMm": 900,
+        "leafHeightMm": 2000,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "White ash",
+        "finishName": "PVC",
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "FRAME",
+            "status": "EXCLUDED"
+          },
+          {
+            "code": "ARCHITRAVE",
+            "status": "EXCLUDED"
+          }
+        ]
+      }
+    },
+    {
+      "recordKey": "diford-skin-2-white-600",
+      "sku": "HD-INT-DIF-SKIN2-600",
+      "categoryKey": "interior",
+      "categoryKeys": ["interior", "solid", "leaf-only", "pvc", "modern"],
+      "classification": "INTERIOR",
+      "brand": "Дифорд",
+      "model": "Skin-2",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "PVC",
+      "hasGlazing": false,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Diford Skin-2, white shagreen",
+          "slug": "diford-skin-2-white-600-hy",
+          "description": "Diford Skin-2, white shagreen. 600×2000 mm։ Չհաստատված բնութագրերը չեն ցուցադրվում։"
+        },
+        "en": {
+          "title": "Diford Skin-2, white shagreen",
+          "slug": "diford-skin-2-white-600",
+          "description": "Diford Skin-2, white shagreen. 600×2000 mm. Unverified specifications are omitted."
+        },
+        "ru": {
+          "title": "Diford Skin-2, white shagreen",
+          "slug": "diford-skin-2-white-600-ru",
+          "description": "Diford Skin-2, white shagreen. 600×2000 mm. Неподтверждённые характеристики не указаны."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/product/skin-2-door-flap-dg-600x2000mm-white-shagren-pvc",
+        "retrievedAt": "2026-11-09",
+        "originalId": "ER-00074292",
+        "observedPrice": {
+          "amount": 26780,
+          "currency": "AMD",
+          "basis": "LEAF_ONLY",
+          "promotional": true,
+          "regularAmount": 31500
+        },
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "finish", "price"],
+            "sourceUrl": "https://domus.am/product/skin-2-door-flap-dg-600x2000mm-white-shagren-pvc",
+            "sourceNote": "Individual product or official model page."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/product/skin-2-door-flap-dg-600x2000mm-white-shagren-pvc",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["opening mechanism", "handing", "warranty"],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-DIF-SKIN2-600-V1",
+        "configurationKey": "diford-skin-2-white-600-configuration",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "600×2000 mm",
+        "leafWidthMm": 600,
+        "leafHeightMm": 2000,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "White shagreen",
+        "finishName": "PVC",
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "FRAME",
+            "status": "EXCLUDED"
+          },
+          {
+            "code": "ARCHITRAVE",
+            "status": "EXCLUDED"
+          }
+        ]
+      }
+    },
+    {
+      "recordKey": "belwooddoors-event-1-graphite-900",
+      "sku": "HD-INT-BWD-EVENT1-900",
+      "categoryKey": "interior",
+      "categoryKeys": ["interior", "solid", "leaf-only", "enamel", "modern"],
+      "classification": "INTERIOR",
+      "brand": "Belwooddoors",
+      "model": "Event 1",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "Enamel",
+      "hasGlazing": false,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Belwooddoors Event 1, graphite enamel",
+          "slug": "belwooddoors-event-1-graphite-900-hy",
+          "description": "Belwooddoors Event 1, graphite enamel. 900×2000×38 mm։ Չհաստատված բնութագրերը չեն ցուցադրվում։"
+        },
+        "en": {
+          "title": "Belwooddoors Event 1, graphite enamel",
+          "slug": "belwooddoors-event-1-graphite-900",
+          "description": "Belwooddoors Event 1, graphite enamel. 900×2000×38 mm. Unverified specifications are omitted."
+        },
+        "ru": {
+          "title": "Belwooddoors Event 1, graphite enamel",
+          "slug": "belwooddoors-event-1-graphite-900-ru",
+          "description": "Belwooddoors Event 1, graphite enamel. 900×2000×38 mm. Неподтверждённые характеристики не указаны."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/product/event-1-door-leaf-dg-900x2000x44mm-enamel-graphite",
+        "retrievedAt": "2026-11-09",
+        "originalId": "RE-00088914",
+        "observedPrice": {
+          "amount": 120800,
+          "currency": "AMD",
+          "basis": "LEAF_ONLY",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "finish", "price"],
+            "sourceUrl": "https://domus.am/product/event-1-door-leaf-dg-900x2000x44mm-enamel-graphite",
+            "sourceNote": "Individual product or official model page."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/product/event-1-door-leaf-dg-900x2000x44mm-enamel-graphite",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["opening mechanism", "handing", "warranty"],
+      "conflicts": [
+        "Source URL says 44 mm while the product heading reports 38 mm; retained as the sole draft."
+      ],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-BWD-EVENT1-900-V1",
+        "configurationKey": "belwooddoors-event-1-graphite-900-configuration",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "900×2000×38 mm",
+        "leafWidthMm": 900,
+        "leafHeightMm": 2000,
+        "leafThicknessMm": 38,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Graphite",
+        "finishName": "Enamel",
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "FRAME",
+            "status": "EXCLUDED"
+          },
+          {
+            "code": "ARCHITRAVE",
+            "status": "EXCLUDED"
+          }
+        ]
+      }
+    },
+    {
+      "recordKey": "belwooddoors-mirella-urban-light-900",
+      "sku": "HD-INT-BWD-MIRELLA-900",
+      "categoryKey": "interior",
+      "categoryKeys": ["interior", "solid", "leaf-only", "modern"],
+      "classification": "INTERIOR",
+      "brand": "Belwooddoors",
+      "model": "Mirella",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "Polypropylene",
+      "hasGlazing": false,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Belwooddoors Mirella, Urban Light",
+          "slug": "belwooddoors-mirella-urban-light-900-hy",
+          "description": "Belwooddoors Mirella, Urban Light. 900×2000×38 mm։ Չհաստատված բնութագրերը չեն ցուցադրվում։"
+        },
+        "en": {
+          "title": "Belwooddoors Mirella, Urban Light",
+          "slug": "belwooddoors-mirella-urban-light-900",
+          "description": "Belwooddoors Mirella, Urban Light. 900×2000×38 mm. Unverified specifications are omitted."
+        },
+        "ru": {
+          "title": "Belwooddoors Mirella, Urban Light",
+          "slug": "belwooddoors-mirella-urban-light-900-ru",
+          "description": "Belwooddoors Mirella, Urban Light. 900×2000×38 mm. Неподтверждённые характеристики не указаны."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/en/product/mirella-door-leaf-dg-900x2000x38mm-urban-light-po",
+        "retrievedAt": "2026-11-09",
+        "originalId": "ER-00069728",
+        "observedPrice": {
+          "amount": 33000,
+          "currency": "AMD",
+          "basis": "LEAF_ONLY",
+          "promotional": true,
+          "regularAmount": 56000
+        },
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "finish", "price"],
+            "sourceUrl": "https://domus.am/en/product/mirella-door-leaf-dg-900x2000x38mm-urban-light-po",
+            "sourceNote": "Individual product or official model page."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/en/product/mirella-door-leaf-dg-900x2000x38mm-urban-light-po",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["opening mechanism", "handing", "warranty"],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-BWD-MIRELLA-900-V1",
+        "configurationKey": "belwooddoors-mirella-urban-light-900-configuration",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "900×2000×38 mm",
+        "leafWidthMm": 900,
+        "leafHeightMm": 2000,
+        "leafThicknessMm": 38,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Urban Light",
+        "finishName": "Polypropylene",
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "FRAME",
+            "status": "EXCLUDED"
+          },
+          {
+            "code": "ARCHITRAVE",
+            "status": "EXCLUDED"
+          }
+        ]
+      }
+    },
+    {
+      "recordKey": "belwooddoors-cremona-1-graphite-600",
+      "sku": "HD-INT-BWD-CREM1-600",
+      "categoryKey": "interior",
+      "categoryKeys": ["interior", "solid", "leaf-only", "enamel", "modern"],
+      "classification": "INTERIOR",
+      "brand": "Belwooddoors",
+      "model": "Cremona 1",
+      "collection": null,
+      "manufacturer": null,
+      "countryOfManufacture": null,
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "Enamel",
+      "hasGlazing": false,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Belwooddoors Cremona 1, graphite enamel",
+          "slug": "belwooddoors-cremona-1-graphite-600-hy",
+          "description": "Belwooddoors Cremona 1, graphite enamel. 600×2000×38 mm։ Չհաստատված բնութագրերը չեն ցուցադրվում։"
+        },
+        "en": {
+          "title": "Belwooddoors Cremona 1, graphite enamel",
+          "slug": "belwooddoors-cremona-1-graphite-600",
+          "description": "Belwooddoors Cremona 1, graphite enamel. 600×2000×38 mm. Unverified specifications are omitted."
+        },
+        "ru": {
+          "title": "Belwooddoors Cremona 1, graphite enamel",
+          "slug": "belwooddoors-cremona-1-graphite-600-ru",
+          "description": "Belwooddoors Cremona 1, graphite enamel. 600×2000×38 mm. Неподтверждённые характеристики не указаны."
+        }
+      },
+      "source": {
+        "sourceKey": "domus",
+        "retailerOrManufacturer": "Domus Armenia",
+        "url": "https://domus.am/en/product/cremona-1-door-leaf-dg-600x2000x38mm-enamel-graphi",
+        "retrievedAt": "2026-11-09",
+        "originalId": "ER-00067137",
+        "observedPrice": {
+          "amount": 85000,
+          "currency": "AMD",
+          "basis": "LEAF_ONLY",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "finish", "price"],
+            "sourceUrl": "https://domus.am/en/product/cremona-1-door-leaf-dg-600x2000x38mm-enamel-graphi",
+            "sourceNote": "Individual product or official model page."
+          }
+        ],
+        "imagePageUrl": "https://domus.am/en/product/cremona-1-door-leaf-dg-600x2000x38mm-enamel-graphi",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["opening mechanism", "handing", "warranty"],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-BWD-CREM1-600-V1",
+        "configurationKey": "belwooddoors-cremona-1-graphite-600-configuration",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "600×2000×38 mm",
+        "leafWidthMm": 600,
+        "leafHeightMm": 2000,
+        "leafThicknessMm": 38,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Graphite",
+        "finishName": "Enamel",
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "FRAME",
+            "status": "EXCLUDED"
+          },
+          {
+            "code": "ARCHITRAVE",
+            "status": "EXCLUDED"
+          }
+        ]
+      }
+    },
+    {
+      "recordKey": "unidoors-fm07-eco-bianco-800",
+      "sku": "HD-INT-UNI-FM07-BIA-800",
+      "categoryKey": "interior",
+      "categoryKeys": ["interior", "solid", "leaf-only", "pvc", "modern"],
+      "classification": "INTERIOR",
+      "brand": "Unidoors",
+      "model": "FM07-ECO",
+      "collection": null,
+      "manufacturer": "Unidoors",
+      "countryOfManufacture": "Belarus",
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "PVC",
+      "hasGlazing": false,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Unidoors FM07-ECO, Bianco",
+          "slug": "unidoors-fm07-eco-bianco-800-hy",
+          "description": "Unidoors FM07-ECO, Bianco. 800×2000×40 mm։ Չհաստատված բնութագրերը չեն ցուցադրվում։"
+        },
+        "en": {
+          "title": "Unidoors FM07-ECO, Bianco",
+          "slug": "unidoors-fm07-eco-bianco-800",
+          "description": "Unidoors FM07-ECO, Bianco. 800×2000×40 mm. Unverified specifications are omitted."
+        },
+        "ru": {
+          "title": "Unidoors FM07-ECO, Bianco",
+          "slug": "unidoors-fm07-eco-bianco-800-ru",
+          "description": "Unidoors FM07-ECO, Bianco. 800×2000×40 mm. Неподтверждённые характеристики не указаны."
+        }
+      },
+      "source": {
+        "sourceKey": "nortun",
+        "retailerOrManufacturer": "Nor Tun Armenia",
+        "url": "https://nortun.am/catalog/doors/_unidoors_fm07_eco_byanko_07_2018/",
+        "retrievedAt": "2026-11-09",
+        "originalId": "32805",
+        "observedPrice": {
+          "amount": 24800,
+          "currency": "AMD",
+          "basis": "LEAF_ONLY",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "finish", "price"],
+            "sourceUrl": "https://nortun.am/catalog/doors/_unidoors_fm07_eco_byanko_07_2018/",
+            "sourceNote": "Individual product or official model page."
+          }
+        ],
+        "imagePageUrl": "https://nortun.am/catalog/doors/_unidoors_fm07_eco_byanko_07_2018/",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["opening mechanism", "handing", "warranty"],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-UNI-FM07-BIA-800-V1",
+        "configurationKey": "unidoors-fm07-eco-bianco-800-configuration",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "800×2000×40 mm",
+        "leafWidthMm": 800,
+        "leafHeightMm": 2000,
+        "leafThicknessMm": 40,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Bianco",
+        "finishName": "PVC",
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "FRAME",
+            "status": "EXCLUDED"
+          },
+          {
+            "code": "ARCHITRAVE",
+            "status": "EXCLUDED"
+          }
+        ]
+      }
+    },
+    {
+      "recordKey": "unidoors-fm07-eco-sonoma-800",
+      "sku": "HD-INT-UNI-FM07-SON-800",
+      "categoryKey": "interior",
+      "categoryKeys": ["interior", "solid", "leaf-only", "pvc", "modern"],
+      "classification": "INTERIOR",
+      "brand": "Unidoors",
+      "model": "FM07-ECO",
+      "collection": null,
+      "manufacturer": "Unidoors",
+      "countryOfManufacture": "Belarus",
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "PVC",
+      "hasGlazing": false,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "Unidoors FM07-ECO, Sonoma oak",
+          "slug": "unidoors-fm07-eco-sonoma-800-hy",
+          "description": "Unidoors FM07-ECO, Sonoma oak. 800×2000×40 mm։ Չհաստատված բնութագրերը չեն ցուցադրվում։"
+        },
+        "en": {
+          "title": "Unidoors FM07-ECO, Sonoma oak",
+          "slug": "unidoors-fm07-eco-sonoma-800",
+          "description": "Unidoors FM07-ECO, Sonoma oak. 800×2000×40 mm. Unverified specifications are omitted."
+        },
+        "ru": {
+          "title": "Unidoors FM07-ECO, Sonoma oak",
+          "slug": "unidoors-fm07-eco-sonoma-800-ru",
+          "description": "Unidoors FM07-ECO, Sonoma oak. 800×2000×40 mm. Неподтверждённые характеристики не указаны."
+        }
+      },
+      "source": {
+        "sourceKey": "nortun",
+        "retailerOrManufacturer": "Nor Tun Armenia",
+        "url": "https://www.nortun.am/catalog/doors/Interior_doors/_unidoors_fm07_eco_dub_sonoma_08_2018/",
+        "retrievedAt": "2026-11-09",
+        "originalId": "32827",
+        "observedPrice": {
+          "amount": 24800,
+          "currency": "AMD",
+          "basis": "LEAF_ONLY",
+          "promotional": false,
+          "regularAmount": null
+        },
+        "evidence": [
+          {
+            "fields": ["model", "dimensions", "finish", "price"],
+            "sourceUrl": "https://www.nortun.am/catalog/doors/Interior_doors/_unidoors_fm07_eco_dub_sonoma_08_2018/",
+            "sourceNote": "Individual product or official model page."
+          }
+        ],
+        "imagePageUrl": "https://www.nortun.am/catalog/doors/Interior_doors/_unidoors_fm07_eco_dub_sonoma_08_2018/",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["opening mechanism", "handing", "warranty"],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-UNI-FM07-SON-800-V1",
+        "configurationKey": "unidoors-fm07-eco-sonoma-800-configuration",
+        "itemType": "LEAF_ONLY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "800×2000×40 mm",
+        "leafWidthMm": 800,
+        "leafHeightMm": 2000,
+        "leafThicknessMm": 40,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Sonoma oak",
+        "finishName": "PVC",
+        "handing": null,
+        "swing": null,
+        "includedComponents": [
+          {
+            "code": "FRAME",
+            "status": "EXCLUDED"
+          },
+          {
+            "code": "ARCHITRAVE",
+            "status": "EXCLUDED"
+          }
+        ]
+      }
+    },
+    {
+      "recordKey": "profildoors-1vt-h-bianche-notti",
+      "sku": "HD-INT-PD-1VTH-BN",
+      "categoryKey": "interior",
+      "categoryKeys": ["interior", "solid", "modern", "veneer"],
+      "classification": "INTERIOR",
+      "brand": "ProfilDoors",
+      "model": "1VT-H",
+      "collection": "VT",
+      "manufacturer": "ProfilDoors",
+      "countryOfManufacture": "Russia",
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "Natural veneer",
+      "hasGlazing": null,
+      "glazingType": null,
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "ProfilDoors 1VT-H, Bianche Notti veneer",
+          "slug": "profildoors-1vt-h-bianche-notti-hy",
+          "description": "ProfilDoors 1VT-H, Bianche Notti veneer. configuration shown on the official model page։ Չհաստատված բնութագրերը չեն ցուցադրվում։"
+        },
+        "en": {
+          "title": "ProfilDoors 1VT-H, Bianche Notti veneer",
+          "slug": "profildoors-1vt-h-bianche-notti",
+          "description": "ProfilDoors 1VT-H, Bianche Notti veneer. configuration shown on the official model page. Unverified specifications are omitted."
+        },
+        "ru": {
+          "title": "ProfilDoors 1VT-H, Bianche Notti veneer",
+          "slug": "profildoors-1vt-h-bianche-notti-ru",
+          "description": "ProfilDoors 1VT-H, Bianche Notti veneer. configuration shown on the official model page. Неподтверждённые характеристики не указаны."
+        }
+      },
+      "source": {
+        "sourceKey": "profildoors",
+        "retailerOrManufacturer": "ProfilDoors official",
+        "url": "https://profildoors.ru/catalog/seriya_vt/1vt/",
+        "retrievedAt": "2026-11-09",
+        "originalId": "1VT-H",
+        "observedPrice": null,
+        "evidence": [
+          {
+            "fields": ["model", "finish"],
+            "sourceUrl": "https://profildoors.ru/catalog/seriya_vt/1vt/",
+            "sourceNote": "Individual product or official model page."
+          }
+        ],
+        "imagePageUrl": "https://profildoors.ru/catalog/seriya_vt/1vt/",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["opening mechanism", "handing", "warranty", "exact dimensions"],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-PD-1VTH-BN-V1",
+        "configurationKey": "profildoors-1vt-h-bianche-notti-configuration",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "configuration shown on the official model page",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": null,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Bianche Notti 08C",
+        "finishName": "Natural veneer",
+        "handing": null,
+        "swing": null,
+        "includedComponents": []
+      }
+    },
+    {
+      "recordKey": "profildoors-1ag-black-clear-glass",
+      "sku": "HD-INT-PD-1AG-BLK",
+      "categoryKey": "interior",
+      "categoryKeys": ["interior", "glazed", "modern"],
+      "classification": "INTERIOR",
+      "brand": "ProfilDoors",
+      "model": "1AG",
+      "collection": "AG",
+      "manufacturer": "ProfilDoors",
+      "countryOfManufacture": "Russia",
+      "structuralMaterial": null,
+      "coreMaterial": null,
+      "surfaceCoating": "Aluminium profile",
+      "hasGlazing": true,
+      "glazingType": "Clear glass",
+      "entranceEnvironments": null,
+      "translations": {
+        "hy": {
+          "title": "ProfilDoors 1AG, black profile and clear glass",
+          "slug": "profildoors-1ag-black-clear-glass-hy",
+          "description": "ProfilDoors 1AG, black profile and clear glass. configuration shown on the official model page։ Չհաստատված բնութագրերը չեն ցուցադրվում։"
+        },
+        "en": {
+          "title": "ProfilDoors 1AG, black profile and clear glass",
+          "slug": "profildoors-1ag-black-clear-glass",
+          "description": "ProfilDoors 1AG, black profile and clear glass. configuration shown on the official model page. Unverified specifications are omitted."
+        },
+        "ru": {
+          "title": "ProfilDoors 1AG, black profile and clear glass",
+          "slug": "profildoors-1ag-black-clear-glass-ru",
+          "description": "ProfilDoors 1AG, black profile and clear glass. configuration shown on the official model page. Неподтверждённые характеристики не указаны."
+        }
+      },
+      "source": {
+        "sourceKey": "profildoors",
+        "retailerOrManufacturer": "ProfilDoors official",
+        "url": "https://profildoors.ru/catalog/seriya_ag/1_ag/",
+        "retrievedAt": "2026-11-09",
+        "originalId": "1AG",
+        "observedPrice": null,
+        "evidence": [
+          {
+            "fields": ["model", "finish"],
+            "sourceUrl": "https://profildoors.ru/catalog/seriya_ag/1_ag/",
+            "sourceNote": "Individual product or official model page."
+          }
+        ],
+        "imagePageUrl": "https://profildoors.ru/catalog/seriya_ag/1_ag/",
+        "imageUrl": null,
+        "reusePermission": "UNKNOWN"
+      },
+      "unknownFields": ["opening mechanism", "handing", "warranty", "exact dimensions"],
+      "conflicts": [],
+      "generatedFields": ["internal SKU", "localized slugs", "hy/en/ru descriptions"],
+      "variant": {
+        "sku": "HD-INT-PD-1AG-BLK-V1",
+        "configurationKey": "profildoors-1ag-black-clear-glass-configuration",
+        "itemType": "LEGACY",
+        "status": "INQUIRY",
+        "sourceConfiguration": "configuration shown on the official model page",
+        "leafWidthMm": null,
+        "leafHeightMm": null,
+        "leafThicknessMm": 44,
+        "unitWidthMm": null,
+        "unitHeightMm": null,
+        "frameDepthMm": null,
+        "colorName": "Black",
+        "finishName": "Aluminium profile",
+        "handing": null,
+        "swing": null,
+        "includedComponents": []
+      }
+    }
+  ]
+}

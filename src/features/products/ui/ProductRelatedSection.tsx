@@ -1,10 +1,10 @@
-import { ProductCard } from "@/features/products/ui/ProductCard";
-import { getRelatedProducts } from "@/features/products/queries";
-import { getWishlistProductIds } from "@/features/wishlist/queries";
-import type { Dictionary } from "@/lib/i18n/get-dictionary";
-import type { Locale } from "@/lib/i18n/config";
-import { createDisplayPriceFormatter } from "@/lib/money/display-price";
-import type { Currency } from "@/lib/money/currency";
+import { ProductCard } from '@/features/products/ui/ProductCard';
+import { getRelatedProducts } from '@/features/products/queries';
+import { getWishlistProductIds } from '@/features/wishlist/queries';
+import type { Dictionary } from '@/lib/i18n/get-dictionary';
+import type { Locale } from '@/lib/i18n/config';
+import { createDisplayPriceFormatter } from '@/lib/money/display-price';
+import type { Currency } from '@/lib/money/currency';
 
 type ProductRelatedSectionProps = {
   locale: Locale;
@@ -43,10 +43,7 @@ export async function ProductRelatedSection({
             item.priceAmount == null
               ? labels.variant.inquiry
               : formatPrice(item.priceAmount).formatted;
-          const compareAt =
-            item.compareAtAmount != null
-              ? formatPrice(item.compareAtAmount)
-              : null;
+          const compareAt = item.compareAtAmount != null ? formatPrice(item.compareAtAmount) : null;
 
           return (
             <ProductCard
@@ -57,11 +54,12 @@ export async function ProductRelatedSection({
               compareAtFormatted={compareAt?.formatted ?? null}
               discountPercent={item.discountPercent}
               imageUrl={item.imageUrl}
+              illustrative={item.imageIsIllustrative}
               inStock={item.stockOnHand > 0}
               locale={locale}
               productId={item.id}
               variantId={
-                item.variants.filter((variant) => variant.purchasable).length === 1
+                item.variants.length === 1 && item.variants[0]?.purchasable
                   ? item.variants.find((variant) => variant.purchasable)?.id
                   : undefined
               }

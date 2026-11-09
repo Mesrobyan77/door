@@ -14,6 +14,11 @@ import { getProviders } from '@/config/providers';
 import { hashPassword } from '@/lib/auth/password';
 import { createId } from '@/lib/id';
 import { defaultLocale, isLocale, type Locale } from '@/lib/i18n/config';
+import {
+  AUTH_RATE_LIMIT_POLICIES,
+  enforceAuthRateLimit,
+  getTrustedRequestOrigin,
+} from '@/lib/auth/auth-rate-limit';
 
 export async function registerAction(
   localeInput: string,
@@ -24,8 +29,22 @@ export async function registerAction(
   const locale: Locale = isLocale(localeInput) ? localeInput : defaultLocale;
 
   if (!parsed.success) {
-    return { error: parsed.error.issues[0]?.message ?? 'Invalid registration details.' };
+    return { error: 'INVALID' };
   }
+  const providers = getProviders();
+  const redis = providers.redis.getClient();
+  const origin = await getTrustedRequestOrigin();
+  const limits = await Promise.all([
+    enforceAuthRateLimit(
+      redis,
+      'register-identity',
+      parsed.data.email,
+      AUTH_RATE_LIMIT_POLICIES.registerIdentity,
+    ),
+    enforceAuthRateLimit(redis, 'register-origin', origin, AUTH_RATE_LIMIT_POLICIES.registerOrigin),
+  ]);
+  if (limits.includes('limited')) return { error: 'RATE_LIMITED' };
+  if (limits.includes('unavailable')) return { error: 'UNAVAILABLE' };
 
   const [existingUser] = await getDb()
     .select({ id: users.id })
@@ -33,7 +52,7 @@ export async function registerAction(
     .where(eq(users.email, parsed.data.email))
     .limit(1);
   if (existingUser) {
-    return { error: 'Unable to create account with those details.' };
+    return { error: 'INVALID' };
   }
 
   const { firstName, lastName, email, phone, password } = parsed.data;
@@ -53,15 +72,14 @@ export async function registerAction(
     .returning({ id: users.id });
 
   if (!user) {
-    return { error: 'Unable to create account with those details.' };
+    return { error: 'UNAVAILABLE' };
   }
 
   await createSession(user.id);
   let delivered = false;
   try {
-    const providers = getProviders();
     await sendEmailVerification({
-      redis: providers.redis.getClient(),
+      redis,
       email: providers.email,
       userId: user.id,
       recipient: email,

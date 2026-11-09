@@ -1,0 +1,6 @@
+Generated using the built-in image_gen tool on 2026-11-09.
+This is a new alternative concept. It does not modify or replace the owner's official logo asset.
+The application resolves store.branding.logoObjectKey first and uses this file only when no configured logo resolves.
+
+Prompt:
+Create a polished, production-ready new logo concept for the Armenian premium door retailer Hdoors. Transparent background, wide horizontal lockup approximately 3:1. Exact text: "Hdoors" (capital H, lowercase doors), no other words or tagline. A small elegant architectural open-door monogram at left, combining two fine upright door frames and an H silhouette; strong simple geometric form, not a literal house. Wordmark in clean confident refined sans-serif with beautiful spacing, substantial enough to read at website header scale. Deep teal #176773 artwork and lettering, no gold recoloring of any supplied logo, no gradient, no shadow, no mockup, no photo, no decorative border. This is a NEW alternative concept, not a recreation or alteration of an existing official logo. High resolution crisp flat graphic with balanced negative space, tightly composed horizontal logo, all artwork fully inside transparent canvas.

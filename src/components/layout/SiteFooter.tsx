@@ -1,136 +1,81 @@
-import { Mail, MapPin, Phone } from "lucide-react";
+import { Mail, Phone, ArrowUpRight } from 'lucide-react';
+import { BrandLogo } from '@/components/layout/BrandLogo';
+import { AppLink } from '@/components/ui/AppLink';
+import { getStorefrontBranding } from '@/features/settings';
+import type { Dictionary } from '@/lib/i18n/get-dictionary';
+import type { Locale } from '@/lib/i18n/config';
+import type { StoreHomepage } from '@/features/settings/domain/store-settings';
 
-import { AppLink } from "@/components/ui/AppLink";
-import type { Dictionary } from "@/lib/i18n/get-dictionary";
-import type { Locale } from "@/lib/i18n/config";
-
-type SiteFooterProps = {
+export async function SiteFooter({
+  dictionary,
+  locale,
+  footerLinks = [],
+}: {
   dictionary: Dictionary;
   locale: Locale;
-};
-
-export function SiteFooter({ dictionary, locale }: SiteFooterProps) {
-  const year = new Date().getFullYear();
-
+  footerLinks?: StoreHomepage['footerLinks'];
+}) {
+  const branding = await getStorefrontBranding();
+  const links = footerLinks.length
+    ? footerLinks
+    : [
+        { href: '/products', label: { [locale]: dictionary.nav.products } },
+        { href: '/about', label: { [locale]: dictionary.nav.about } },
+        { href: '/blog', label: { [locale]: dictionary.nav.blog } },
+        { href: '/contact', label: { [locale]: dictionary.nav.contact } },
+        { href: '/legal/privacy', label: { [locale]: dictionary.footer.privacyPolicy } },
+        { href: '/legal/terms', label: { [locale]: dictionary.footer.terms } },
+      ];
   return (
-    <footer className="storefront-footer mt-auto hidden shrink-0 border-t border-gray-800 bg-black md:block">
-      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
-          <div>
-            <h3 className="mb-4 text-lg font-semibold text-white">
-              {dictionary.footer.shop}
-            </h3>
-            <p className="text-sm text-gray-300">{dictionary.footer.description}</p>
-          </div>
-
-          <div>
-            <h4 className="mb-4 text-sm font-semibold text-white">
-              {dictionary.footer.quickLinks}
-            </h4>
-            <ul className="space-y-2">
-              <li>
-                <AppLink
-                  href={`/${locale}/products`}
-                  prefetchPolicy="intent"
-                  className="text-sm text-gray-300 transition-colors hover:text-white"
-                >
-                  {dictionary.nav.products}
-                </AppLink>
-              </li>
-              <li>
-                <AppLink
-                  href={`/${locale}/blog`}
-                  prefetchPolicy="intent"
-                  className="text-sm text-gray-300 transition-colors hover:text-white"
-                >
-                  {dictionary.nav.blog}
-                </AppLink>
-              </li>
-              <li>
-                <AppLink
-                  href={`/${locale}/about`}
-                  prefetchPolicy="intent"
-                  className="text-sm text-gray-300 transition-colors hover:text-white"
-                >
-                  {dictionary.nav.about}
-                </AppLink>
-              </li>
-              <li>
-                <AppLink
-                  href={`/${locale}/contact`}
-                  prefetchPolicy="intent"
-                  className="text-sm text-gray-300 transition-colors hover:text-white"
-                >
-                  {dictionary.nav.contact}
-                </AppLink>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="mb-4 text-sm font-semibold text-white">
-              {dictionary.footer.legal}
-            </h4>
-            <ul className="space-y-2">
-              <li>
-                <AppLink
-                  href={`/${locale}/legal/privacy`}
-                  prefetchPolicy="intent"
-                  className="text-sm text-gray-300 transition-colors hover:text-white"
-                >
-                  {dictionary.footer.privacyPolicy}
-                </AppLink>
-              </li>
-              <li>
-                <AppLink
-                  href={`/${locale}/legal/terms`}
-                  prefetchPolicy="intent"
-                  className="text-sm text-gray-300 transition-colors hover:text-white"
-                >
-                  {dictionary.footer.terms}
-                </AppLink>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="mb-4 text-sm font-semibold text-white">
-              {dictionary.footer.contactInfo}
-            </h4>
-            <ul className="space-y-3">
-              <li className="flex items-start gap-2">
-                <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-gray-400" />
-                <span className="text-sm text-gray-300">
-                  {dictionary.contact.storeAddress}
-                </span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Phone className="h-5 w-5 shrink-0 text-gray-400" />
-                <a
-                  href={`tel:${dictionary.contact.storePhone}`}
-                  className="text-sm text-gray-300 transition-colors hover:text-white"
-                >
-                  {dictionary.contact.storePhone}
-                </a>
-              </li>
-              <li className="flex items-center gap-2">
-                <Mail className="h-5 w-5 shrink-0 text-gray-400" />
-                <a
-                  href={`mailto:${dictionary.contact.storeEmail}`}
-                  className="text-sm text-gray-300 transition-colors hover:text-white"
-                >
-                  {dictionary.contact.storeEmail}
-                </a>
-              </li>
-            </ul>
-          </div>
+    <footer className="storefront-footer mt-auto border-t border-gray-800 pb-24 text-white md:pb-0">
+      <div className="design-container flex flex-col gap-6 py-7 lg:flex-row lg:items-center lg:justify-between">
+        <AppLink href={`/${locale}`} prefetchPolicy="intent" className="self-start">
+          <BrandLogo src={branding.logoUrl} lightSurface />
+        </AppLink>
+        <nav
+          aria-label={dictionary.footer.quickLinks}
+          className="flex flex-wrap gap-x-6 gap-y-3 text-sm"
+        >
+          {links.map((link) => (
+            <AppLink
+              key={link.href}
+              href={`/${locale}${link.href}`}
+              prefetchPolicy="intent"
+              className="text-white/80 transition hover:text-[#e0ba86]"
+            >
+              {link.label[locale] ?? link.label.hy}
+            </AppLink>
+          ))}
+        </nav>
+        <div className="flex flex-wrap gap-4 text-sm text-white/75">
+          {branding.phone ? (
+            <a href={`tel:${branding.phone}`} className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-accent" />
+              {branding.phone}
+            </a>
+          ) : null}
+          {branding.email ? (
+            <a href={`mailto:${branding.email}`} className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-accent" />
+              {branding.email}
+            </a>
+          ) : null}
+          {branding.socialLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.url}
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1"
+            >
+              {link.label}
+              <ArrowUpRight className="h-3 w-3" />
+            </a>
+          ))}
         </div>
-
-        <div className="mt-8 border-t border-gray-800 pt-8">
-          <p className="text-center text-sm text-gray-300 md:text-left">
-            {dictionary.footer.copyright.replace("{year}", String(year))}
-          </p>
-        </div>
+      </div>
+      <div className="design-container border-t border-white/10 py-4 text-xs text-white/60">
+        © {new Date().getFullYear()} Hdoors
       </div>
     </footer>
   );

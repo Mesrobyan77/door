@@ -141,7 +141,7 @@ export function ProductDetailView({
   ];
 
   return (
-    <article className="flex flex-col gap-16 md:gap-20">
+    <article className="product-detail flex flex-col gap-8 md:gap-12">
       <p className="text-sm text-gray-600">
         <Link
           href={`/${locale}/products`}
@@ -189,27 +189,26 @@ export function ProductDetailView({
               {product.translation.description}
             </p>
           ) : null}
-
-          {specificationRows.some(([, value]) => value != null) ? (
-            <section className="space-y-3">
-              <h2 className="text-lg font-semibold text-gray-900">
-                {labels.variant.productSpecifications}
-              </h2>
-              <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
-                {specificationRows
-                  .filter(([, value]) => value)
-                  .map(([label, value]) => (
-                    <div key={label} className="flex gap-2">
-                      <dt className="text-gray-500">{label}:</dt>
-                      <dd className="font-medium text-gray-800">{value}</dd>
-                    </div>
-                  ))}
-              </dl>
-            </section>
-          ) : null}
         </ProductVariantExperience>
       </div>
 
+      {specificationRows.some(([, value]) => value != null) ? (
+        <section className="space-y-5 rounded-lg border border-border bg-white p-5 sm:p-8">
+          <h2 className="text-lg font-semibold text-gray-900">
+            {labels.variant.productSpecifications}
+          </h2>
+          <dl className="grid grid-cols-1 gap-x-10 gap-y-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+            {specificationRows
+              .filter(([, value]) => value)
+              .map(([label, value]) => (
+                <div key={label} className="flex justify-between gap-3 border-b border-border pb-3">
+                  <dt className="text-gray-500">{label}:</dt>
+                  <dd className="font-medium text-gray-800">{value}</dd>
+                </div>
+              ))}
+          </dl>
+        </section>
+      ) : null}
       {relatedSlot}
       {reviewsSlot}
 

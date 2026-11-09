@@ -18,6 +18,7 @@ export type CatalogProduct = {
   stockOnHand: number;
   translation: LocaleTranslation;
   imageUrl: string | null;
+  imageIsIllustrative?: boolean;
   variants: ProductVariantOption[];
   doorSpecifications: {
     brandName: string | null;
@@ -100,6 +101,7 @@ export type ProductGalleryImage = {
   url: string;
   alt: string;
   isPrimary: boolean;
+  source?: { illustrative: boolean; url: string; photographer: string | null };
 };
 
 export type ProductCategoryRef = {

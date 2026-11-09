@@ -1,9 +1,11 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useState } from "react";
+import Image from 'next/image';
+import { useState } from 'react';
 
-import type { ProductGalleryImage } from "@/features/products/types";
+import type { ProductGalleryImage } from '@/features/products/types';
+import { getDictionary } from '@/lib/i18n/get-dictionary';
+import type { Locale } from '@/lib/i18n/config';
 
 type ProductGalleryProps = {
   images: ProductGalleryImage[];
@@ -11,6 +13,7 @@ type ProductGalleryProps = {
   discountPercent?: number | null;
   inStock: boolean;
   outOfStockLabel: string;
+  locale: Locale;
 };
 
 export function ProductGallery({
@@ -19,15 +22,16 @@ export function ProductGallery({
   discountPercent = null,
   inStock,
   outOfStockLabel,
+  locale,
 }: ProductGalleryProps) {
+  const copy = getDictionary(locale);
   const [selectedId, setSelectedId] = useState(images[0]?.id ?? null);
-  const selected =
-    images.find((image) => image.id === selectedId) ?? images[0] ?? null;
+  const selected = images.find((image) => image.id === selectedId) ?? images[0] ?? null;
 
   return (
     <div className="flex flex-col gap-3">
       <div
-        className="relative flex h-80 w-full items-center justify-center overflow-hidden rounded-lg border border-gray-200 bg-gray-100 sm:h-[28rem] lg:h-[32rem]"
+        className="product-gallery relative flex h-80 w-full items-center justify-center overflow-hidden rounded-lg border border-border bg-white sm:h-[28rem] lg:h-[36rem]"
         data-product-detail-fly-source
         data-cart-fly-source
       >
@@ -42,7 +46,7 @@ export function ProductGallery({
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-sm text-gray-400">
-            No image
+            {copy.design.noImage}
           </div>
         )}
         {discountPercent != null ? (
@@ -70,17 +74,11 @@ export function ProductGallery({
                   aria-pressed={isActive}
                   className={`relative h-16 w-16 overflow-hidden rounded-md border bg-gray-100 transition ${
                     isActive
-                      ? "border-gray-900 ring-2 ring-gray-900/20"
-                      : "border-gray-200 hover:border-gray-400"
+                      ? 'border-gray-900 ring-2 ring-gray-900/20'
+                      : 'border-gray-200 hover:border-gray-400'
                   }`}
                 >
-                  <Image
-                    src={image.url}
-                    alt=""
-                    fill
-                    sizes="64px"
-                    className="object-cover"
-                  />
+                  <Image src={image.url} alt="" fill sizes="64px" className="object-contain" />
                 </button>
               </li>
             );

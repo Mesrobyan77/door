@@ -1,12 +1,18 @@
-"use client";
+'use client';
 
-import { getImageProps } from "next/image";
-import { useEffect, useState } from "react";
+import Image from 'next/image';
+import { ArrowDown, ArrowRight } from 'lucide-react';
+import { useEffect, useRef } from 'react';
+import { AppLink } from '@/components/ui/AppLink';
+import type { StorefrontHeroSlide } from '@/features/hero/application/queries';
 
-import { AppLink } from "@/components/ui/AppLink";
-import type { StorefrontHeroSlide } from "@/features/hero/application/queries";
+const VIDEO_SRC = '/assets/video/hdoors-entrance-scroll.mp4';
+const POSTER_SRC = '/assets/video/hdoors-entrance-poster.jpg';
+const FINAL_FRAME_SRC = '/assets/video/hdoors-entrance-final.jpg';
+const VIDEO_START_SECONDS = 0.04;
+const VIDEO_END_GUARD_SECONDS = 0.12;
 
-type HomeHeroProps = {
+type Props = {
   slides: StorefrontHeroSlide[];
   fallbackTitle: string;
   fallbackSubtitle: string;
@@ -14,8 +20,8 @@ type HomeHeroProps = {
   fallbackCtaHref: string;
 };
 
-function isInternalHref(href: string): boolean {
-  return href.startsWith("/");
+function clamp(value: number): number {
+  return Math.min(1, Math.max(0, value));
 }
 
 export function HomeHero({
@@ -24,120 +30,185 @@ export function HomeHero({
   fallbackSubtitle,
   fallbackCtaLabel,
   fallbackCtaHref,
-}: HomeHeroProps) {
-  const [index, setIndex] = useState(0);
-  const hasSlides = slides.length > 0;
-  const active = hasSlides ? slides[index] : null;
-
-  useEffect(() => {
-    if (slides.length <= 1) {
-      return;
-    }
-
-    const timer = window.setInterval(() => {
-      setIndex((current) => (current + 1) % slides.length);
-    }, 5000);
-
-    return () => window.clearInterval(timer);
-  }, [slides.length]);
-
+}: Props) {
+  const rootRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const copyRef = useRef<HTMLDivElement>(null);
+  const active = slides[0];
   const title = active?.copy.title ?? fallbackTitle;
   const subtitle = active?.copy.subtitle ?? fallbackSubtitle;
-  const ctaLabel = active?.copy.buttonLabel ?? fallbackCtaLabel;
   const ctaHref = active?.copy.buttonUrl ?? fallbackCtaHref;
-  const desktopImage = active?.desktopImageUrl ?? active?.mobileImageUrl;
-  const mobileImage = active?.mobileImageUrl ?? active?.desktopImageUrl;
 
-  const desktopProps = desktopImage
-    ? getImageProps({
-        src: desktopImage,
-        alt: title,
-        fill: true,
-        priority: true,
-        sizes: "100vw",
-        className: "absolute inset-0 h-full w-full object-cover",
-      }).props
-    : null;
+  useEffect(() => {
+    const root = rootRef.current;
+    const video = videoRef.current;
+    const copy = copyRef.current;
+    if (!root || !video || !copy) return;
 
-  const mobileProps =
-    mobileImage && mobileImage !== desktopImage
-      ? getImageProps({
-          src: mobileImage,
-          alt: title,
-          fill: true,
-          priority: true,
-          sizes: "100vw",
-        }).props
-      : null;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const header = document.querySelector<HTMLElement>('[data-site-header]');
+    let animationFrame = 0;
+    let seekFrame = 0;
+    let metadataReady = video.readyState >= HTMLMediaElement.HAVE_METADATA;
+    let pendingTime: number | null = null;
+    let copyHidden = false;
+
+    const setCopyHidden = (hidden: boolean) => {
+      if (copyHidden === hidden) return;
+      copyHidden = hidden;
+      copy.inert = hidden;
+      copy.setAttribute('aria-hidden', String(hidden));
+    };
+
+    const seekToPendingTime = () => {
+      if (!metadataReady || pendingTime === null || video.seeking || reducedMotion.matches) return;
+      const target = pendingTime;
+      pendingTime = null;
+      if (Math.abs(video.currentTime - target) < 1 / 48) return;
+      try {
+        video.currentTime = target;
+      } catch {
+        pendingTime = target;
+      }
+    };
+
+    const update = () => {
+      animationFrame = 0;
+      const headerOffset = header?.getBoundingClientRect().height ?? 0;
+      root.style.setProperty('--entrance-header-offset', `${Math.round(headerOffset)}px`);
+
+      if (reducedMotion.matches) {
+        root.style.setProperty('--entrance-progress', '0');
+        root.style.setProperty('--intro-fade', '0');
+        root.style.setProperty('--showroom-reveal', '0');
+        root.style.setProperty('--final-frame', '0');
+        setCopyHidden(false);
+        return;
+      }
+
+      const rect = root.getBoundingClientRect();
+      const visibleHeight = Math.max(1, window.innerHeight - headerOffset);
+      const travel = Math.max(1, root.offsetHeight - visibleHeight);
+      const progress = clamp((headerOffset - rect.top) / travel);
+      const introFade = clamp((progress - 0.08) / 0.28);
+      const showroomReveal = clamp((progress - 0.78) / 0.22);
+
+      root.style.setProperty('--entrance-progress', progress.toFixed(4));
+      root.style.setProperty('--intro-fade', introFade.toFixed(4));
+      root.style.setProperty('--showroom-reveal', showroomReveal.toFixed(4));
+      root.style.setProperty('--final-frame', clamp((progress - 0.965) / 0.035).toFixed(4));
+      setCopyHidden(introFade > 0.96);
+
+      if (metadataReady && Number.isFinite(video.duration)) {
+        const usableEnd = Math.max(VIDEO_START_SECONDS, video.duration - VIDEO_END_GUARD_SECONDS);
+        pendingTime = VIDEO_START_SECONDS + progress * (usableEnd - VIDEO_START_SECONDS);
+        seekToPendingTime();
+      }
+    };
+
+    const requestUpdate = () => {
+      if (!animationFrame) animationFrame = window.requestAnimationFrame(update);
+    };
+    const handleMetadata = () => {
+      metadataReady = true;
+      video.pause();
+      requestUpdate();
+    };
+    const handleFrameReady = () => {
+      video.removeAttribute('poster');
+      root.setAttribute('data-video-ready', 'true');
+    };
+    const handleVideoError = () => {
+      root.setAttribute('data-video-error', 'true');
+      root.style.setProperty('--intro-fade', '0');
+      setCopyHidden(false);
+    };
+    const handleSeeked = () => {
+      video.removeAttribute('poster');
+      root.setAttribute('data-video-ready', 'true');
+      if (pendingTime !== null && !seekFrame) {
+        seekFrame = window.requestAnimationFrame(() => {
+          seekFrame = 0;
+          seekToPendingTime();
+        });
+      }
+    };
+
+    update();
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate);
+    window.addEventListener('orientationchange', requestUpdate);
+    window.addEventListener('pageshow', requestUpdate);
+    reducedMotion.addEventListener('change', requestUpdate);
+    video.addEventListener('loadedmetadata', handleMetadata);
+    video.addEventListener('loadeddata', handleFrameReady);
+    video.addEventListener('seeked', handleSeeked);
+    video.addEventListener('error', handleVideoError);
+    const headerObserver = header ? new ResizeObserver(requestUpdate) : null;
+    if (header && headerObserver) headerObserver.observe(header);
+
+    if (metadataReady) handleMetadata();
+    if (video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) handleFrameReady();
+
+    return () => {
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+      if (seekFrame) window.cancelAnimationFrame(seekFrame);
+      headerObserver?.disconnect();
+      window.removeEventListener('scroll', requestUpdate);
+      window.removeEventListener('resize', requestUpdate);
+      window.removeEventListener('orientationchange', requestUpdate);
+      window.removeEventListener('pageshow', requestUpdate);
+      reducedMotion.removeEventListener('change', requestUpdate);
+      video.removeEventListener('loadedmetadata', handleMetadata);
+      video.removeEventListener('loadeddata', handleFrameReady);
+      video.removeEventListener('seeked', handleSeeked);
+      video.removeEventListener('error', handleVideoError);
+    };
+  }, []);
 
   return (
-    <section className="relative left-1/2 right-1/2 -ml-[50vw] -mr-[50vw] h-[560px] w-screen overflow-hidden sm:h-[500px] md:h-[600px] lg:h-[700px]">
-      <div className="absolute inset-0 z-10 bg-gradient-to-r from-black/60 via-black/40 to-transparent" />
-
-      {desktopProps ? (
-        <picture>
-          {mobileProps?.srcSet ? (
-            <source
-              media="(max-width: 767px)"
-              srcSet={mobileProps.srcSet}
-              sizes={mobileProps.sizes}
-            />
-          ) : null}
-          {/* Decorative LCP plane — title is in the overlay heading. */}
-          {/* eslint-disable-next-line jsx-a11y/alt-text -- alt comes from getImageProps */}
-          <img {...desktopProps} />
-        </picture>
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-200 to-gray-400" />
-      )}
-
-      <div className="absolute inset-0 z-20 flex flex-col items-start justify-start px-4 pt-28 pb-16 pointer-events-none sm:justify-center sm:px-6 sm:pt-0 sm:pb-0 md:px-12 lg:px-20 xl:px-32">
-        <div className="pointer-events-auto max-w-full rounded-2xl border border-white/5 bg-white/5 p-4 shadow-2xl backdrop-blur-md sm:max-w-2xl sm:p-6 md:p-10 lg:p-12">
-          <h1 className="mb-4 text-3xl leading-tight font-bold text-gray-900 sm:mb-6 sm:text-4xl md:text-5xl lg:text-6xl">
-            {title}
-          </h1>
-          {subtitle ? (
-            <p className="mb-5 text-base leading-relaxed text-gray-700 sm:mb-8 sm:text-lg md:text-xl">
-              {subtitle}
-            </p>
-          ) : null}
-          {isInternalHref(ctaHref) ? (
-            <AppLink
-              href={ctaHref}
-              prefetchPolicy="intent"
-              className="inline-flex rounded-lg bg-gray-900 px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-gray-800 sm:px-10 sm:py-4 sm:text-lg"
-            >
-              {ctaLabel}
+    <section ref={rootRef} className="home-hero entrance-sequence" aria-labelledby="entrance-title">
+      <div className="entrance-stage">
+        <div className="entrance-media" aria-hidden="true">
+          <Image src={POSTER_SRC} alt="" fill priority sizes="100vw" className="entrance-poster" />
+          <video
+            ref={videoRef}
+            className="entrance-video"
+            src={VIDEO_SRC}
+            poster={POSTER_SRC}
+            preload="auto"
+            muted
+            playsInline
+            tabIndex={-1}
+          />
+          <Image
+            src={FINAL_FRAME_SRC}
+            alt=""
+            fill
+            sizes="100vw"
+            className="entrance-final-fallback"
+          />
+        </div>
+        <div className="entrance-shade" aria-hidden="true" />
+        <div ref={copyRef} className="entrance-copy design-container">
+          <p className="entrance-eyebrow">Hdoors / 01</p>
+          <h1 id="entrance-title">{title}</h1>
+          <p>{subtitle}</p>
+          <div className="entrance-actions">
+            <AppLink href={ctaHref} prefetchPolicy="intent" className="gold-button">
+              {active?.copy.buttonLabel ?? fallbackCtaLabel}
+              <ArrowRight className="h-4 w-4" />
             </AppLink>
-          ) : (
-            <a
-              href={ctaHref}
-              className="inline-flex rounded-lg bg-gray-900 px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-gray-800 sm:px-10 sm:py-4 sm:text-lg"
-            >
-              {ctaLabel}
+            <a href="#showroom" className="entrance-skip">
+              {fallbackCtaLabel}
+              <ArrowDown className="h-4 w-4" />
             </a>
-          )}
+          </div>
+        </div>
+        <div className="entrance-progress" aria-hidden="true">
+          <span />
         </div>
       </div>
-
-      {slides.length > 1 ? (
-        <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 gap-2">
-          {slides.map((slide, slideIndex) => (
-            <button
-              key={slide.id}
-              type="button"
-              aria-label={`Go to slide ${slideIndex + 1}`}
-              aria-current={slideIndex === index}
-              className={
-                slideIndex === index
-                  ? "h-2.5 w-8 rounded-full bg-white"
-                  : "h-2.5 w-2.5 rounded-full bg-white/50"
-              }
-              onClick={() => setIndex(slideIndex)}
-            />
-          ))}
-        </div>
-      ) : null}
     </section>
   );
 }

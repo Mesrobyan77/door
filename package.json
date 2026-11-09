@@ -21,7 +21,10 @@
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:check": "drizzle-kit check",
-    "db:seed": "tsx src/db/seed/run.ts"
+    "db:seed": "tsx src/db/seed/run.ts",
+    "db:import:hdoors": "tsx src/db/import/run-hdoors-catalog.ts",
+    "db:publish:hdoors:dev": "node --import tsx src/db/import/publish-hdoors-development-catalog.ts",
+    "db:reset:hdoors:dev": "node --import tsx src/db/import/reset-hdoors-development.ts"
   },
   "dependencies": {
     "@neon/config": "^1.11.3",

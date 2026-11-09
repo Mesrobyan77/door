@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useState, useTransition } from "react";
-import { ArrowRight, Minus, Plus, ShoppingCart, X } from "lucide-react";
+import Image from 'next/image';
+import { useState, useTransition } from 'react';
+import { ArrowRight, Minus, Plus, ShoppingCart, X } from 'lucide-react';
 
-import { AppLink } from "@/components/ui/AppLink";
-import { SideSheet } from "@/components/ui/SideSheet";
-import { removeItem, updateQuantity } from "@/features/cart/cart";
-import type { CartDrawerView } from "@/features/cart/get-cart-drawer-view";
-import { loadCartDrawerViewAction } from "@/features/cart/load-cart-drawer-view-action";
-import type { Dictionary } from "@/lib/i18n/get-dictionary";
-import type { Locale } from "@/lib/i18n/config";
-import type { Currency } from "@/lib/money/currency";
+import { AppLink } from '@/components/ui/AppLink';
+import { SideSheet } from '@/components/ui/SideSheet';
+import { removeItem, updateQuantity } from '@/features/cart/cart';
+import type { CartDrawerView } from '@/features/cart/get-cart-drawer-view';
+import { loadCartDrawerViewAction } from '@/features/cart/load-cart-drawer-view-action';
+import type { Dictionary } from '@/lib/i18n/get-dictionary';
+import type { Locale } from '@/lib/i18n/config';
+import type { Currency } from '@/lib/money/currency';
 
 type CartDrawerTriggerArgs = {
   open: boolean;
@@ -30,14 +30,11 @@ type CartDrawerProps = {
   renderTrigger?: (args: CartDrawerTriggerArgs) => React.ReactNode;
 };
 
-function formatItemCount(
-  count: number,
-  labels: Dictionary["cartDrawer"],
-): string {
+function formatItemCount(count: number, labels: Dictionary['cartDrawer']): string {
   if (count === 1) {
     return labels.itemsOne;
   }
-  return labels.itemsMany.replace("{count}", String(count));
+  return labels.itemsMany.replace('{count}', String(count));
 }
 
 export function CartDrawer({
@@ -110,19 +107,15 @@ export function CartDrawer({
         backdropBlur
       >
         <div className="border-b border-gray-100 px-6 py-5">
-          <h2 className="text-xl font-bold tracking-tight text-gray-900">
-            {labels.title}
-          </h2>
+          <h2 className="text-xl font-bold tracking-tight text-gray-900">{labels.title}</h2>
           {hasItems ? (
-            <p className="mt-1 text-sm text-gray-500">
-              {formatItemCount(badgeCount, labels)}
-            </p>
+            <p className="mt-1 text-sm text-gray-500">{formatItemCount(badgeCount, labels)}</p>
           ) : null}
         </div>
 
         <div
           className={`min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4 ${
-            pending || loadingView ? "opacity-70" : ""
+            pending || loadingView ? 'opacity-70' : ''
           }`}
         >
           {loadingView && !view ? (
@@ -135,9 +128,7 @@ export function CartDrawer({
               <div className="flex h-28 w-28 items-center justify-center rounded-full bg-gray-100 text-gray-400">
                 <ShoppingCart className="h-12 w-12" aria-hidden />
               </div>
-              <p className="mt-5 text-xl font-bold text-gray-900">
-                {labels.empty}
-              </p>
+              <p className="mt-5 text-xl font-bold text-gray-900">{labels.empty}</p>
               <p className="mt-2 max-w-[20rem] text-sm leading-relaxed text-gray-500">
                 {labels.emptyDescription}
               </p>
@@ -145,7 +136,7 @@ export function CartDrawer({
                 href={`/${locale}/products`}
                 prefetchPolicy="intent"
                 onClick={closeDrawer}
-                className="relative mt-6 inline-flex min-h-[50px] w-full max-w-sm items-center rounded-full bg-gray-900 py-1.5 pr-1.5 pl-5 text-sm font-semibold text-white transition-colors hover:bg-black"
+                className="relative mt-6 inline-flex min-h-[50px] w-full max-w-sm items-center rounded-md bg-gray-900 py-1.5 pr-1.5 pl-5 text-sm font-semibold text-white transition-colors hover:bg-gray-700"
               >
                 <span className="pointer-events-none absolute inset-0 flex items-center justify-center px-12">
                   {labels.emptyCta}
@@ -158,10 +149,7 @@ export function CartDrawer({
           ) : (
             <ul className="space-y-3">
               {view.items.map((item) => (
-                <li
-                  key={item.id}
-                  className="rounded-[20px] border border-gray-200 bg-white p-3 shadow-sm"
-                >
+                <li key={item.id} className="rounded-md border border-border bg-white p-3">
                   <div className="flex gap-3">
                     <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-gray-100 bg-gray-50">
                       {item.imageUrl ? (
@@ -185,9 +173,7 @@ export function CartDrawer({
                           <p className="line-clamp-2 text-sm font-medium text-gray-900">
                             {item.title}
                           </p>
-                          <p className="mt-1 text-xs text-gray-500">
-                            {item.configuration}
-                          </p>
+                          <p className="mt-1 text-xs text-gray-500">{item.configuration}</p>
                           <p className="mt-1 text-sm font-semibold text-gray-900">
                             {item.lineTotalFormatted ?? variantLabels.inquiry}
                           </p>
@@ -212,9 +198,7 @@ export function CartDrawer({
                         <div className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-sky-50/70 px-1 py-0.5">
                           <button
                             type="button"
-                            onClick={() =>
-                              changeQuantity(item.id, item.quantity - 1)
-                            }
+                            onClick={() => changeQuantity(item.id, item.quantity - 1)}
                             className="flex h-7 w-7 items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-white"
                             aria-label={labels.decreaseQuantity}
                             disabled={pending}
@@ -226,9 +210,7 @@ export function CartDrawer({
                           </span>
                           <button
                             type="button"
-                            onClick={() =>
-                              changeQuantity(item.id, item.quantity + 1)
-                            }
+                            onClick={() => changeQuantity(item.id, item.quantity + 1)}
                             className="flex h-7 w-7 items-center justify-center rounded-full text-gray-700 transition-colors hover:bg-white"
                             aria-label={labels.increaseQuantity}
                             disabled={pending}
@@ -249,19 +231,15 @@ export function CartDrawer({
           <dl className="space-y-2 text-sm">
             <div className="flex items-center justify-between text-gray-600">
               <dt>{labels.subtotal}</dt>
-              <dd className="tabular-nums text-gray-900">
-                {view?.subtotalFormatted ?? "—"}
-              </dd>
+              <dd className="tabular-nums text-gray-900">{view?.subtotalFormatted ?? '—'}</dd>
             </div>
             <div className="flex items-center justify-between text-gray-600">
               <dt>{labels.shipping}</dt>
-              <dd className="tabular-nums text-gray-900">
-                {view?.shippingFormatted ?? "—"}
-              </dd>
+              <dd className="tabular-nums text-gray-900">{view?.shippingFormatted ?? '—'}</dd>
             </div>
             <div className="flex items-center justify-between pt-1 text-base font-bold text-gray-900">
               <dt>{labels.total}</dt>
-              <dd className="tabular-nums">{view?.totalFormatted ?? "—"}</dd>
+              <dd className="tabular-nums">{view?.totalFormatted ?? '—'}</dd>
             </div>
           </dl>
 
@@ -275,13 +253,11 @@ export function CartDrawer({
               {variantLabels.unavailable}
             </p>
           ) : null}
-          {hasItems &&
-          !view?.hasUnpricedItems &&
-          !view?.hasUnavailableItems ? (
+          {hasItems && !view?.hasUnpricedItems && !view?.hasUnavailableItems ? (
             <AppLink
               href={`/${locale}/checkout`}
               prefetchPolicy="intent"
-              className="mt-5 flex min-h-[50px] w-full items-center justify-center rounded-full bg-gray-900 px-4 text-sm font-semibold text-white transition-colors hover:bg-black"
+              className="mt-5 flex min-h-[50px] w-full items-center justify-center rounded-md bg-gray-900 px-4 text-sm font-semibold text-white transition-colors hover:bg-gray-700"
               onClick={closeDrawer}
             >
               {labels.checkout}
@@ -313,7 +289,7 @@ export function CartDrawer({
             <ShoppingCart className="h-5 w-5" aria-hidden="true" />
             {badgeCount > 0 ? (
               <span className="absolute top-1.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gray-900 px-1 text-[10px] font-semibold text-white">
-                {badgeCount > 99 ? "99+" : badgeCount}
+                {badgeCount > 99 ? '99+' : badgeCount}
               </span>
             ) : null}
           </span>

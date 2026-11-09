@@ -29,6 +29,7 @@ import type {
   ProductGalleryImage,
 } from '@/features/products/types';
 import { CACHE_TAGS, PUBLIC_CACHE_REVALIDATE_SECONDS } from '@/lib/cache/tags';
+import { getDatabaseCacheScope } from '@/lib/cache/database-scope';
 import type { Locale } from '@/lib/i18n/config';
 
 export type {
@@ -91,8 +92,10 @@ function toCatalogProduct(
   };
 }
 
-async function loadPrimaryProductImages(productIds: string[]): Promise<Map<string, string>> {
-  const map = new Map<string, string>();
+async function loadPrimaryProductImages(
+  productIds: string[],
+): Promise<Map<string, { url: string; illustrative: boolean }>> {
+  const map = new Map<string, { url: string; illustrative: boolean }>();
   if (productIds.length === 0) {
     return map;
   }
@@ -104,6 +107,7 @@ async function loadPrimaryProductImages(productIds: string[]): Promise<Map<strin
       isPrimary: mediaAssets.isPrimary,
       role: mediaAssets.role,
       sortOrder: mediaAssets.sortOrder,
+      sourceMetadata: mediaAssets.sourceMetadata,
     })
     .from(mediaAssets)
     .where(
@@ -119,7 +123,10 @@ async function loadPrimaryProductImages(productIds: string[]): Promise<Map<strin
     if (!row.productId || !row.secureUrl || map.has(row.productId)) {
       continue;
     }
-    map.set(row.productId, row.secureUrl);
+    map.set(row.productId, {
+      url: row.secureUrl,
+      illustrative: row.sourceMetadata?.kind === 'ILLUSTRATIVE_PEXELS',
+    });
   }
 
   return map;
@@ -229,12 +236,12 @@ async function withProductImages(
   }
 
   return rows
-    .map((product) => {
+    .map((product): CatalogProduct | null => {
       const variantOptions = variantsByProduct.get(product.id) ?? [];
       const base = toCatalogProduct(
         product,
         locale,
-        images.get(product.id) ?? null,
+        images.get(product.id)?.url ?? null,
         variantOptions,
       );
       if (!base) return null;
@@ -251,6 +258,7 @@ async function withProductImages(
       const resolved = sourceVariant ? prices.get(sourceVariant.id) : null;
       return {
         ...base,
+        imageIsIllustrative: images.get(product.id)?.illustrative ?? false,
         listPriceAmount: resolved?.listAmount ?? lowest?.priceAmount ?? null,
         priceAmount: lowest?.priceAmount ?? null,
         compareAtAmount: lowest?.compareAtAmount ?? null,
@@ -276,6 +284,7 @@ async function loadVariantImages(
       isPrimary: mediaAssets.isPrimary,
       sortOrder: mediaAssets.sortOrder,
       altTranslations: mediaAssets.altTranslations,
+      sourceMetadata: mediaAssets.sourceMetadata,
     })
     .from(mediaAssets)
     .where(and(inArray(mediaAssets.variantId, variantIds), eq(mediaAssets.uploadStatus, 'READY')))
@@ -289,6 +298,13 @@ async function loadVariantImages(
       url: row.secureUrl,
       alt: row.altTranslations?.[locale] ?? productTitles.get(row.variantId) ?? '',
       isPrimary: row.isPrimary,
+      source: row.sourceMetadata
+        ? {
+            illustrative: row.sourceMetadata.kind === 'ILLUSTRATIVE_PEXELS',
+            url: row.sourceMetadata.sourceUrl,
+            photographer: row.sourceMetadata.photographer ?? null,
+          }
+        : undefined,
     });
     map.set(row.variantId, list);
   }
@@ -480,7 +496,7 @@ export async function getActiveProductsPage(
 
   return unstable_cache(
     async () => loadActiveProductsPage(locale, safePage, safeFilters, rate),
-    ['active-products-page', locale, JSON.stringify(safeFilters), rate],
+    [getDatabaseCacheScope(), 'active-products-page', locale, JSON.stringify(safeFilters), rate],
     {
       tags: [CACHE_TAGS.products],
       revalidate: PUBLIC_CACHE_REVALIDATE_SECONDS,
@@ -512,10 +528,14 @@ async function loadFeaturedProducts(locale: Locale): Promise<CatalogProduct[]> {
 }
 
 export async function getFeaturedProducts(locale: Locale): Promise<CatalogProduct[]> {
-  return unstable_cache(async () => loadFeaturedProducts(locale), ['featured-products', locale], {
-    tags: [CACHE_TAGS.products],
-    revalidate: PUBLIC_CACHE_REVALIDATE_SECONDS,
-  })();
+  return unstable_cache(
+    async () => loadFeaturedProducts(locale),
+    [getDatabaseCacheScope(), 'featured-products', locale],
+    {
+      tags: [CACHE_TAGS.products],
+      revalidate: PUBLIC_CACHE_REVALIDATE_SECONDS,
+    },
+  )();
 }
 
 export async function getProductBySlug(
@@ -554,6 +574,7 @@ async function loadProductGallery(
       isPrimary: mediaAssets.isPrimary,
       sortOrder: mediaAssets.sortOrder,
       altTranslations: mediaAssets.altTranslations,
+      sourceMetadata: mediaAssets.sourceMetadata,
     })
     .from(mediaAssets)
     .where(and(eq(mediaAssets.productId, productId), eq(mediaAssets.uploadStatus, 'READY')))
@@ -568,6 +589,13 @@ async function loadProductGallery(
               url: row.secureUrl,
               alt: row.altTranslations?.[locale] ?? fallbackTitle,
               isPrimary: row.isPrimary,
+              source: row.sourceMetadata
+                ? {
+                    illustrative: row.sourceMetadata.kind === 'ILLUSTRATIVE_PEXELS',
+                    url: row.sourceMetadata.sourceUrl,
+                    photographer: row.sourceMetadata.photographer ?? null,
+                  }
+                : undefined,
             },
           ]
         : [],
@@ -650,7 +678,7 @@ export const getProductDetailBySlug = cache(
   async (locale: Locale, slug: string): Promise<ProductDetail | null> => {
     return unstable_cache(
       async () => loadProductDetailBySlug(locale, slug),
-      ['product-detail', locale, slug],
+      [getDatabaseCacheScope(), 'product-detail', locale, slug],
       {
         tags: [CACHE_TAGS.productDetail, CACHE_TAGS.productSlug(locale, slug)],
         revalidate: PUBLIC_CACHE_REVALIDATE_SECONDS,

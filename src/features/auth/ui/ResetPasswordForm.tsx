@@ -1,29 +1,25 @@
-"use client";
+'use client';
 
-import { useActionState } from "react";
+import { useActionState } from 'react';
 
-import { AppLink } from "@/components/ui/AppLink";
+import { AppLink } from '@/components/ui/AppLink';
 import {
   resetPasswordAction,
   type ResetPasswordActionState,
-} from "@/features/auth/reset-password-action";
-import { PasswordField } from "@/features/auth/ui/PasswordField";
-import type { Locale } from "@/lib/i18n/config";
-import type { Dictionary } from "@/lib/i18n/get-dictionary";
+} from '@/features/auth/reset-password-action';
+import { PasswordField } from '@/features/auth/ui/PasswordField';
+import type { Locale } from '@/lib/i18n/config';
+import type { Dictionary } from '@/lib/i18n/get-dictionary';
 
 const initialState: ResetPasswordActionState = {};
 
 type ResetPasswordFormProps = {
   locale: Locale;
   token: string;
-  dictionary: Dictionary["auth"];
+  dictionary: Dictionary['auth'];
 };
 
-export function ResetPasswordForm({
-  locale,
-  token,
-  dictionary,
-}: ResetPasswordFormProps) {
+export function ResetPasswordForm({ locale, token, dictionary }: ResetPasswordFormProps) {
   const action = resetPasswordAction.bind(null, locale);
   const [state, formAction, isPending] = useActionState(action, initialState);
 
@@ -74,7 +70,13 @@ export function ResetPasswordForm({
           role="alert"
           className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600"
         >
-          {state.error}
+          {state.error === 'POLICY'
+            ? dictionary.passwordPolicy
+            : state.error === 'RATE_LIMITED'
+              ? dictionary.authRateLimited
+              : state.error === 'UNAVAILABLE'
+                ? dictionary.authUnavailable
+                : dictionary.resetInvalidToken}
         </p>
       ) : null}
 
@@ -82,9 +84,7 @@ export function ResetPasswordForm({
         disabled={isPending}
         className="h-10 rounded-lg bg-gray-900 px-4 text-sm font-semibold text-white transition hover:bg-gray-800 disabled:opacity-60"
       >
-        {isPending
-          ? dictionary.submittingResetPassword
-          : dictionary.submitResetPassword}
+        {isPending ? dictionary.submittingResetPassword : dictionary.submitResetPassword}
       </button>
 
       <p className="text-center text-sm text-gray-600">

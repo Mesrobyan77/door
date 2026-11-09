@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo } from "react";
-import Image from "next/image";
+import { useEffect, useMemo } from 'react';
+import Image from 'next/image';
 
 import {
   CASH_CHANGE_NONE,
   CASH_NOTE_SRC,
   visibleCashDenominations,
   type CashChangeValue,
-} from "@/features/checkout/ui/checkout-payment-assets";
-import { currencySymbols } from "@/lib/money/currency";
+} from '@/features/checkout/ui/checkout-payment-assets';
+import { currencySymbols } from '@/lib/money/currency';
 
 type CheckoutCashChangeSectionProps = {
   value: CashChangeValue;
@@ -26,18 +26,16 @@ type CheckoutCashChangeSectionProps = {
 
 function noteButtonClass(selected: boolean): string {
   return `flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-[18px] border-2 outline-none transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-900 disabled:cursor-not-allowed disabled:opacity-50 ${
-    selected
-      ? "border-gray-900 bg-gray-50"
-      : "border-gray-200 bg-white hover:border-gray-300"
+    selected ? 'border-gray-900 bg-gray-50' : 'border-gray-200 bg-white hover:border-gray-300'
   }`;
 }
 
 function formatDram(amount: number): string {
-  return `${amount.toLocaleString("en-US")} ${currencySymbols.AMD}`;
+  return `${amount.toLocaleString('en-US')} ${currencySymbols.AMD}`;
 }
 
 function formatChangeAmount(amount: number): string {
-  return `${amount.toLocaleString("en-US")}${currencySymbols.AMD}`;
+  return `${amount.toLocaleString('en-US')}${currencySymbols.AMD}`;
 }
 
 /** Cash-change denomination picker shown under Cash on Delivery. */
@@ -68,22 +66,14 @@ export function CheckoutCashChangeSection({
   useEffect(() => {
     if (value === CASH_CHANGE_NONE) return;
     const selectedAmount = Number(value);
-    if (
-      !Number.isFinite(selectedAmount) ||
-      selectedAmount < orderTotalAmount
-    ) {
+    if (!Number.isFinite(selectedAmount) || selectedAmount < orderTotalAmount) {
       onChange(CASH_CHANGE_NONE);
     }
   }, [orderTotalAmount, value, onChange]);
 
   return (
-    <div
-      className="rounded-[18px] border border-gray-200 bg-white p-4 sm:p-5"
-      data-cash-change-section
-    >
-      <h3 className="text-base font-bold tracking-wide text-gray-900">
-        {title}
-      </h3>
+    <div className="rounded-md border border-border bg-white p-4 sm:p-5" data-cash-change-section>
+      <h3 className="text-base font-bold tracking-wide text-gray-900">{title}</h3>
       <p className="mt-2 text-sm leading-snug text-gray-600">{hint}</p>
       <div
         className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3"
@@ -128,10 +118,7 @@ export function CheckoutCashChangeSection({
       </div>
       {changeDue !== null ? (
         <p className="mt-4 text-sm font-medium text-gray-900">
-          {courierChangeLabel.replace(
-            "{amount}",
-            formatChangeAmount(changeDue),
-          )}
+          {courierChangeLabel.replace('{amount}', formatChangeAmount(changeDue))}
         </p>
       ) : null}
     </div>

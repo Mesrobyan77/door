@@ -83,7 +83,8 @@ export default async function VerifyEmailPage({
               : dictionary.verificationPending;
   return (
     <section className="mx-auto max-w-lg px-0 py-2 sm:py-4">
-      <div className="rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+      <div className="auth-panel">
+        <p className="mb-5 text-xs font-semibold tracking-[.2em] text-gray-500">Hdoors</p>
         <h1 className="mb-2 text-3xl font-bold tracking-tight text-gray-900">{title}</h1>
         <p className="text-gray-600">{description}</p>
         {state !== 'verified' && state !== 'already' ? (

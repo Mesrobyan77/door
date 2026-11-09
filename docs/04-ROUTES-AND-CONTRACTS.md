@@ -45,6 +45,8 @@
 
 Email verification records are purpose-bound (`email_verification`) SHA-256 token hashes in Redis. Their documented TTL is 24 hours; the user binding and purpose are read and validated before the atomic single-use consume. Resends are limited to one successful request per account per minute; a provider failure releases that cooldown so the user can retry.
 
+Password-reset records are purpose-bound (`password_reset`) and store only a SHA-256 token hash, user binding, expiry, and password-version snapshot. Links expire after one hour. A two-minute Redis claim lease serializes concurrent reset attempts; password update and session revocation are one PostgreSQL transaction. Public forgot-password responses remain identical for known and unknown addresses and do not claim successful provider delivery.
+
 An unconfigured or failing email adapter is treated as delivery failure. The UI does not report a sent message in that state, and the authenticated account retains access to the resend control.
 
 `callbackUrl`/return-to value-ը միայն same-origin allowlisted path է. open redirect չի թույլատրվում։

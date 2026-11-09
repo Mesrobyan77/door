@@ -7,7 +7,7 @@ import { useState, useTransition } from 'react';
 
 import { addToCart } from '@/features/cart/cart';
 import { playCartFlyAnimation } from '@/features/cart/play-cart-fly-animation';
-import { formatVariantConfiguration } from '@/features/products/domain/format-variant-configuration';
+import { VariantSpecificationGroups } from '@/features/products/ui/VariantSpecificationGroups';
 import type { ProductVariantOption } from '@/features/products/types';
 import { WishlistButton } from '@/features/wishlist/ui/WishlistButton';
 import type { Locale } from '@/lib/i18n/config';
@@ -154,9 +154,6 @@ export function ProductPurchaseControls({
                   : variantCopy.unavailable}
             </span>
           </div>
-          <p className="text-sm leading-relaxed text-gray-600">
-            {formatVariantConfiguration(selectedVariant, variantCopy)}
-          </p>
         </>
       ) : variants.length > 1 ? (
         <p className="text-sm text-gray-600">{labels.selectValue}</p>
@@ -218,6 +215,10 @@ export function ProductPurchaseControls({
           className="h-11 w-11 border border-gray-200 bg-white hover:bg-gray-50"
         />
       </div>
+
+      {selectedVariant ? (
+        <VariantSpecificationGroups variant={selectedVariant} labels={variantCopy} />
+      ) : null}
 
       {message ? (
         <p className="text-sm text-green-700" role="status">

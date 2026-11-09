@@ -1,10 +1,12 @@
-import type { ReactNode } from "react";
-import { Mail, MapPin, Phone } from "lucide-react";
+import type { ReactNode } from 'react';
+import { Mail, Phone } from 'lucide-react';
 
-import type { Dictionary } from "@/lib/i18n/get-dictionary";
+import type { Dictionary } from '@/lib/i18n/get-dictionary';
 
 type ContactInfoProps = {
-  copy: Dictionary["contact"];
+  copy: Dictionary['contact'];
+  phone: string | null;
+  email: string | null;
 };
 
 function InfoBlock({
@@ -29,36 +31,32 @@ function InfoBlock({
   );
 }
 
-export function ContactInfo({ copy }: ContactInfoProps) {
+export function ContactInfo({ copy, phone, email }: ContactInfoProps) {
   return (
     <div className="space-y-8">
-      <InfoBlock icon={<Phone className="h-6 w-6" />} title={copy.callTitle}>
-        <p className="mb-2 text-gray-600">{copy.callDescription}</p>
-        <a
-          href={`tel:${copy.storePhone}`}
-          className="font-medium text-orange-500 transition-colors hover:text-orange-600"
-        >
-          {copy.storePhone}
-        </a>
-      </InfoBlock>
+      <h2 className="text-2xl font-semibold">Hdoors</h2>
+      <p className="text-sm leading-7 text-gray-600">{copy.subtitle}</p>
+      {phone ? (
+        <InfoBlock icon={<Phone className="h-6 w-6" />} title={copy.callTitle}>
+          <a
+            href={`tel:${phone}`}
+            className="font-medium text-gray-800 underline decoration-accent underline-offset-4"
+          >
+            {phone}
+          </a>
+        </InfoBlock>
+      ) : null}
 
-      <InfoBlock icon={<Mail className="h-6 w-6" />} title={copy.writeTitle}>
-        <p className="mb-2 text-gray-600">{copy.writeDescription}</p>
-        <a
-          href={`mailto:${copy.storeEmail}`}
-          className="font-medium text-orange-500 transition-colors hover:text-orange-600"
-        >
-          {copy.emailLabel} {copy.storeEmail}
-        </a>
-      </InfoBlock>
-
-      <InfoBlock icon={<MapPin className="h-6 w-6" />} title={copy.hqTitle}>
-        <div className="mb-2 space-y-1 text-gray-600">
-          <p>{copy.hoursWeekdays}</p>
-          <p>{copy.hoursSaturday}</p>
-        </div>
-        <p className="font-medium text-orange-500">{copy.storeAddress}</p>
-      </InfoBlock>
+      {email ? (
+        <InfoBlock icon={<Mail className="h-6 w-6" />} title={copy.writeTitle}>
+          <a
+            href={`mailto:${email}`}
+            className="font-medium text-gray-800 underline decoration-accent underline-offset-4"
+          >
+            {copy.emailLabel} {email}
+          </a>
+        </InfoBlock>
+      ) : null}
     </div>
   );
 }

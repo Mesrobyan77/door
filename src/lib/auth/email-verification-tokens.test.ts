@@ -6,10 +6,7 @@ import {
   getEmailVerificationToken,
   issueEmailVerificationToken,
 } from '@/lib/auth/email-verification-tokens';
-import {
-  consumePasswordResetToken,
-  issuePasswordResetToken,
-} from '@/lib/auth/password-reset-tokens';
+import { claimPasswordResetToken, issuePasswordResetToken } from '@/lib/auth/password-reset-tokens';
 import { createMemoryRedisAdapter } from '@/lib/redis/memory-adapter';
 
 describe('email verification tokens', () => {
@@ -38,9 +35,11 @@ describe('email verification tokens', () => {
 
   it('does not consume a token under the wrong purpose', async () => {
     const redis = createMemoryRedisAdapter().getClient();
-    const resetToken = await issuePasswordResetToken(redis, 'user-1');
+    const resetToken = await issuePasswordResetToken(redis, 'user-1', new Date());
     await expect(getEmailVerificationToken(redis, resetToken)).resolves.toBeNull();
-    await expect(consumePasswordResetToken(redis, resetToken)).resolves.toBe('user-1');
+    await expect(claimPasswordResetToken(redis, resetToken)).resolves.toMatchObject({
+      userId: 'user-1',
+    });
   });
 
   it('does not consume a valid token before its user binding matches', async () => {

@@ -1,5 +1,21 @@
 {
-  "brand": "White-Shop",
+  "brand": "Hdoors",
+  "design": {
+    "hero": {
+      "previous": "Previous slide",
+      "next": "Next slide",
+      "pause": "Pause slideshow",
+      "play": "Play slideshow",
+      "illustrative": "Illustrative photo"
+    },
+    "configure": "View details",
+    "noImage": "Image unavailable",
+    "photoBy": "Photo by",
+    "legalDraft": "Approved legal and retention terms are still required before production launch (OPEN-014).",
+    "notFound": "This page could not be found.",
+    "error": "We could not load this page. Please try again.",
+    "retry": "Try again"
+  },
   "nav": {
     "home": "Home",
     "products": "Products",

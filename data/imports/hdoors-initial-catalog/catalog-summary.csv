@@ -1,0 +1,21 @@
+record_key,classification,brand,model,source_id,source_url,observed_price_amd,price_basis,import_status,variant_status,stock,image_reuse
+vdk-eco-deluxe-312-bianco-800,INTERIOR,ВДК,ECO Deluxe 312,ER-00038684,https://domus.am/product/eko-deluxe-312-door-leaf-do-black-800x2000x38mm-wh,31880,LEAF_ONLY,DRAFT,INQUIRY,0,UNKNOWN
+vdk-pautinka-dg-dark-concrete-800,INTERIOR,ВДК,Паутинка ДГ,ER-00040606,https://domus.am/product/spider-web-door-leaf-dg-800x2000x38mm-dark-concret,35620,LEAF_ONLY,DRAFT,INQUIRY,0,UNKNOWN
+pokrova-barbara-dark-walnut-800,INTERIOR,Покрова,Barbara,00-00013655,https://domus.am/product/barbara-door-panel-do-800x2000mm-dark-walnut-mat,88500,LEAF_ONLY,DRAFT,INQUIRY,0,UNKNOWN
+vdk-charm-1-white-ash-600,INTERIOR,ВДК,Charm 1,ER-00044296,https://domus.am/product/charm-1-door-leaf-do-600x2000mm-white-ash-pvc-vd,11000,LEAF_ONLY,DRAFT,INQUIRY,0,UNKNOWN
+pokrova-galaxy-milan-walnut-700,INTERIOR,Покрова,Galaxy,00-00029103,https://domus.am/product/galactica-door-panel-dododg-700x2000mm-milan-wa,98500,LEAF_ONLY,DRAFT,INQUIRY,0,UNKNOWN
+oppa-turin-03-sherwood,INTERIOR,OPPA DOORS,Турин 03,773,https://doors.oppa.am/ru/catalog/doors-in/773/,,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+oppa-lidia-italian-walnut,INTERIOR,OPPA DOORS,Лидия,771,https://doors.oppa.am/ru/catalog/doors-in/771/,,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+oppa-berlin-02-smoky-oak,INTERIOR,OPPA DOORS,Берлин 02,767,https://doors.oppa.am/ru/catalog/doors-in/767/,,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+vdk-emalit-eco-style-grey-dust-800,INTERIOR,ВДК,EMALIT ECO STYLE,P52850,https://prix.am/catalog/sankeramika/drner/mijsenyakayin-drner/vdk-emalit-eco-style-80-200-grey-dust,46900,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+zadoor-baguette-venice-b3-matte-white-800,INTERIOR,Zadoor,Baguette PG Venice B3,P47386,https://prix.am/catalog/sankeramika/drner/mijsenyakayin-drner/zadoor-baguette-pg-venice-b3-35h800h2000-matte-white,79900,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+jaway-jw-106-grey,ENTRANCE,Jaway,JW-106,ER-00081985,https://domus.am/product/entrance-door-jw-106-mtlmtl-gray-2050x960-right,63900,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+jaway-jw-102-anthracite,ENTRANCE,Jaway,JW-102,ER-00081987,https://domus.am/product/entrance-door-jw-102-mtlmtl-anthracite-2050x960,61900,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+jaway-jw-101-brown,ENTRANCE,Jaway,JW-101,ER-00081988,https://domus.am/product/entrance-door-jw-101-mtlmtl-brown-2050x960-left,49900,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+jaway-jw-506-grey,ENTRANCE,Jaway,JW-506,RE-00093255,https://domus.am/product/RE-00093255,84900,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+jaway-jw-502-grey,ENTRANCE,Jaway,JW-502,RE-00093253,https://domus.am/product/RE-00093253,75900,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+profildoors-1fn-apartment,ENTRANCE,ProfilDoors,1FN,1FN,https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-1fn/,,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+profildoors-2fn-apartment,ENTRANCE,ProfilDoors,2FN,2FN,https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-2fn/,,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+profildoors-3fn-pocket-apartment,ENTRANCE,ProfilDoors,3FN pocket handle,3FN-pocket,https://profildoors.ru/vhodnye_dveri_v_kvartiru/3fn-biometricheskaya-panel-i-ruchka-karman/,,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+profildoors-4fn-apartment,ENTRANCE,ProfilDoors,4FN,4FN,https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-4fn/,,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN
+profildoors-5fn-apartment,ENTRANCE,ProfilDoors,5FN,5FN-page,https://profildoors.ru/vhodnye_dveri_v_kvartiru/model-5fn/,,UNKNOWN,DRAFT,INQUIRY,0,UNKNOWN

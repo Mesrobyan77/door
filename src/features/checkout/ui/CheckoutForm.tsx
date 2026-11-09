@@ -312,8 +312,8 @@ export function CheckoutForm({
   }
 
   return (
-    <div className="mx-auto w-full max-w-[1024px] px-4 pt-[45px] pb-16 sm:px-6 lg:px-6 lg:pt-12 lg:pb-12">
-      <h1 className="mb-6 text-[26px] leading-tight font-black uppercase text-gray-900 sm:text-[30px] sm:leading-[1.2]">
+    <div className="checkout-page mx-auto w-full max-w-[1120px] pb-12">
+      <h1 className="mb-7 text-[26px] leading-tight font-semibold tracking-tight text-gray-900 sm:text-[32px]">
         <span className="block">{labels.titleLead}</span>
         {labels.titleAccent ? <span className="block">{labels.titleAccent}</span> : null}
       </h1>

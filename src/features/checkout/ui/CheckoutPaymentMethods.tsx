@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Image from "next/image";
+import { useState } from 'react';
+import Image from 'next/image';
 
-import type { CheckoutPaymentMethod } from "@/features/checkout/domain/payment-methods";
-import { CheckoutCashChangeSection } from "@/features/checkout/ui/CheckoutCashChangeSection";
+import type { CheckoutPaymentMethod } from '@/features/checkout/domain/payment-methods';
+import { CheckoutCashChangeSection } from '@/features/checkout/ui/CheckoutCashChangeSection';
 import {
   CARD_BRAND_LOGOS,
   CASH_CHANGE_NONE,
   IDRAM_LOGO_SRC,
   type CashChangeValue,
-} from "@/features/checkout/ui/checkout-payment-assets";
+} from '@/features/checkout/ui/checkout-payment-assets';
 
 type PaymentOption = {
   id: CheckoutPaymentMethod;
@@ -35,9 +35,9 @@ type CheckoutPaymentMethodsProps = {
 };
 
 const OPTION_BASE =
-  "flex cursor-pointer items-center border-2 p-4 outline-none transition-all rounded-[15px]";
-const OPTION_SELECTED = "border-gray-900 bg-gray-50";
-const OPTION_IDLE = "border-gray-200 hover:bg-gray-50/80";
+  'flex cursor-pointer items-center border-2 p-4 outline-none transition-all rounded-md';
+const OPTION_SELECTED = 'border-gray-900 bg-gray-50';
+const OPTION_IDLE = 'border-gray-200 hover:bg-gray-50/80';
 
 function CashWalletIcon({ sizePx }: { sizePx: number }) {
   return (
@@ -49,22 +49,8 @@ function CashWalletIcon({ sizePx }: { sizePx: number }) {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden
     >
-      <rect
-        x="3"
-        y="9"
-        width="26"
-        height="14"
-        rx="2"
-        stroke="currentColor"
-        strokeWidth="1.75"
-      />
-      <circle
-        cx="16"
-        cy="16"
-        r="3.25"
-        stroke="currentColor"
-        strokeWidth="1.75"
-      />
+      <rect x="3" y="9" width="26" height="14" rx="2" stroke="currentColor" strokeWidth="1.75" />
+      <circle cx="16" cy="16" r="3.25" stroke="currentColor" strokeWidth="1.75" />
       <path d="M3 13h26" stroke="currentColor" strokeWidth="1.75" />
     </svg>
   );
@@ -75,16 +61,14 @@ function framedBoxSize(
   paddingPx: number,
   boxHeightPx: number,
 ): { widthPx: number; heightPx: number } {
-  const visa = CARD_BRAND_LOGOS.find((badge) => badge.alt === "Visa");
+  const visa = CARD_BRAND_LOGOS.find((badge) => badge.alt === 'Visa');
   if (!visa) {
     return {
       widthPx: logoHeightPx + 2 * paddingPx,
       heightPx: boxHeightPx,
     };
   }
-  const logoWidthPx = Math.round(
-    visa.sourceWidthPx * (logoHeightPx / visa.sourceHeightPx),
-  );
+  const logoWidthPx = Math.round(visa.sourceWidthPx * (logoHeightPx / visa.sourceHeightPx));
   return {
     widthPx: logoWidthPx + 2 * paddingPx,
     heightPx: boxHeightPx,
@@ -116,7 +100,7 @@ function CardBrandBadge({
         className="relative h-full w-full"
         style={{
           transform: `scale(${badge.innerLogoScale})`,
-          transformOrigin: "center",
+          transformOrigin: 'center',
         }}
       >
         <Image
@@ -169,13 +153,7 @@ function CardBrandLogos() {
   );
 }
 
-function IdramLogo({
-  errored,
-  onError,
-}: {
-  errored: boolean;
-  onError: () => void;
-}) {
+function IdramLogo({ errored, onError }: { errored: boolean; onError: () => void }) {
   return (
     <>
       <div
@@ -261,7 +239,7 @@ function PaymentOptionBody({
   idramLogoError: boolean;
   onIdramLogoError: () => void;
 }) {
-  if (option.id === "cash_on_delivery") {
+  if (option.id === 'cash_on_delivery') {
     return (
       <div className="flex min-w-0 flex-1 items-center gap-3 lg:gap-4">
         <div className="flex shrink-0 items-center justify-center lg:hidden">
@@ -278,15 +256,13 @@ function PaymentOptionBody({
     );
   }
 
-  if (option.id === "idram") {
+  if (option.id === 'idram') {
     return (
       <div className="flex min-w-0 flex-1 flex-col items-start gap-2">
         <div className="font-medium text-gray-900">{option.name}</div>
         <div className="flex max-w-full flex-wrap items-center gap-3">
           <IdramLogo errored={idramLogoError} onError={onIdramLogoError} />
-          <div className="min-w-0 text-sm text-gray-600">
-            {option.description}
-          </div>
+          <div className="min-w-0 text-sm text-gray-600">{option.description}</div>
         </div>
       </div>
     );
@@ -319,9 +295,7 @@ export function CheckoutPaymentMethods({
 
   return (
     <section className="rounded-3xl bg-white px-5 py-6 shadow-sm ring-1 ring-gray-200/80 sm:px-6 sm:py-7">
-      <h2 className="mb-6 text-lg font-bold tracking-tight text-gray-900">
-        {title}
-      </h2>
+      <h2 className="mb-6 text-lg font-bold tracking-tight text-gray-900">{title}</h2>
       <div className="space-y-3">
         {options.map((option) => {
           const selected = value === option.id;
@@ -339,7 +313,7 @@ export function CheckoutPaymentMethods({
                   disabled={disabled}
                   onChange={() => {
                     onChange(option.id);
-                    if (option.id === "cash_on_delivery") {
+                    if (option.id === 'cash_on_delivery') {
                       onCashChangeValue(cashChangeValue || CASH_CHANGE_NONE);
                     }
                   }}
@@ -351,7 +325,7 @@ export function CheckoutPaymentMethods({
                 />
               </label>
 
-              {option.id === "cash_on_delivery" && selected ? (
+              {option.id === 'cash_on_delivery' && selected ? (
                 <CheckoutCashChangeSection
                   value={cashChangeValue}
                   disabled={disabled}

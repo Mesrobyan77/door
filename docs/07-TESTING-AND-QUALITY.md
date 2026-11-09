@@ -228,6 +228,12 @@ Failure-ը `continue-on-error`, ignored exit code կամ disabled rule-ով չի
 
 ## 14. Release Definition of Done
 
+### Password recovery and auth limiting — 2026-11-09
+
+- Unit coverage includes purpose isolation, superseded/reused tokens, concurrent single-claim behavior, claim release, three-language email content, fixed-window boundaries, concurrent limit enforcement, expiry-window reset, and Redis failure policy.
+- The repository's configured integration tests use the shared project database/Redis configuration and are not an isolated destructive target for password/session tests. A separate disposable PostgreSQL database and Redis namespace are still required for action-level DB failure, password persistence, and session-revocation integration coverage.
+- Mocked email adapter tests do not establish real Resend delivery.
+
 - Բոլոր P0/P1 approved requirements-ը traceable և accepted են։
 - TypeScript, ESLint, Prettier, build և required tests-ը կանաչ են։
 - Production-like environment-ում critical E2E, migrations, backup/restore և provider sandbox flows verified են։

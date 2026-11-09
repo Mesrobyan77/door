@@ -1,8 +1,8 @@
-import { notFound } from "next/navigation";
+import { notFound } from 'next/navigation';
 
-import { RegisterForm } from "@/features/auth/ui/RegisterForm";
-import { isLocale } from "@/lib/i18n/config";
-import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { RegisterForm } from '@/features/auth/ui/RegisterForm';
+import { isLocale } from '@/lib/i18n/config';
+import { getDictionary } from '@/lib/i18n/get-dictionary';
 
 type RegisterPageProps = {
   params: Promise<{ locale: string }>;
@@ -19,7 +19,8 @@ export default async function RegisterPage({ params }: RegisterPageProps) {
 
   return (
     <section className="mx-auto max-w-lg px-0 py-2 sm:py-4">
-      <div className="rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+      <div className="auth-panel">
+        <p className="mb-5 text-xs font-semibold tracking-[.2em] text-gray-500">Hdoors</p>
         <h1 className="mb-2 text-3xl font-bold tracking-tight text-gray-900">
           {dictionary.auth.registerTitle}
         </h1>

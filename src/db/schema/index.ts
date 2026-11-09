@@ -1,4 +1,4 @@
-export { appMeta } from "@/db/schema/app-meta";
+export { appMeta } from '@/db/schema/app-meta';
 export {
   categories,
   productCategories,
@@ -6,13 +6,9 @@ export {
   type LocaleTranslation,
   type PerformanceSpecifications,
   type TranslationsJson,
-} from "@/db/schema/catalog";
-export { stockMovements } from "@/db/schema/inventory";
-export {
-  addresses,
-  sessions,
-  users,
-} from "@/db/schema/identity";
+} from '@/db/schema/catalog';
+export { stockMovements } from '@/db/schema/inventory';
+export { addresses, sessions, users } from '@/db/schema/identity';
 export {
   blogPosts,
   heroSlides,
@@ -20,49 +16,20 @@ export {
   type BlogTranslationsJson,
   type HeroTranslation,
   type HeroTranslationsJson,
-} from "@/db/schema/content";
-export {
-  cartItems,
-  carts,
-  wishlistItems,
-} from "@/db/schema/commerce";
-export {
-  createdAtColumn,
-  deletedAtColumn,
-  idColumn,
-  updatedAtColumn,
-} from "@/db/schema/columns";
-export * from "@/db/schema/enums";
-export {
-  contactMessages,
-  reviews,
-} from "@/db/schema/engagement";
-export {
-  mediaAssets,
-  storeSettings,
-} from "@/db/schema/media";
+} from '@/db/schema/content';
+export { cartItems, carts, wishlistItems } from '@/db/schema/commerce';
+export { createdAtColumn, deletedAtColumn, idColumn, updatedAtColumn } from '@/db/schema/columns';
+export * from '@/db/schema/enums';
+export { contactMessages, reviews } from '@/db/schema/engagement';
+export { mediaAssets, storeSettings, type MediaSourceMetadata } from '@/db/schema/media';
 export {
   orderEvents,
   orderItems,
   orders,
   payments,
   type AddressSnapshot,
-} from "@/db/schema/orders";
-export {
-  deliveryRules,
-  promotionUsers,
-  promotions,
-} from "@/db/schema/pricing";
-export {
-  auditLogs,
-  outboxEvents,
-} from "@/db/schema/system";
-export {
-  productVariants,
-  type IncludedComponent,
-} from "@/db/schema/variants";
-export {
-  CANONICAL_TABLE_COUNT,
-  CANONICAL_TABLES,
-  type CanonicalTable,
-} from "@/db/schema/tables";
+} from '@/db/schema/orders';
+export { deliveryRules, promotionUsers, promotions } from '@/db/schema/pricing';
+export { auditLogs, outboxEvents } from '@/db/schema/system';
+export { productVariants, type IncludedComponent } from '@/db/schema/variants';
+export { CANONICAL_TABLE_COUNT, CANONICAL_TABLES, type CanonicalTable } from '@/db/schema/tables';

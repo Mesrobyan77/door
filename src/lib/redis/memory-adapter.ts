@@ -1,4 +1,4 @@
-import type { RedisAdapter, RedisClient } from "@/lib/redis/types";
+import type { RedisAdapter, RedisClient } from '@/lib/redis/types';
 
 type Entry = {
   value: string;
@@ -26,23 +26,17 @@ export function createMemoryRedisAdapter(): RedisAdapter {
     async set(key, value, options) {
       if (options?.nx && store.has(key)) {
         const existing = store.get(key);
-        if (
-          existing &&
-          (existing.expiresAt === null || Date.now() < existing.expiresAt)
-        ) {
+        if (existing && (existing.expiresAt === null || Date.now() < existing.expiresAt)) {
           return null;
         }
       }
 
       store.set(key, {
         value,
-        expiresAt:
-          typeof options?.ex === "number"
-            ? Date.now() + options.ex * 1000
-            : null,
+        expiresAt: typeof options?.ex === 'number' ? Date.now() + options.ex * 1000 : null,
       });
 
-      return "OK";
+      return 'OK';
     },
     async del(key) {
       return store.delete(key) ? 1 : 0;
@@ -61,10 +55,26 @@ export function createMemoryRedisAdapter(): RedisAdapter {
       store.delete(key);
       return entry.value;
     },
+    async incrementWithExpiry(key, ttlSeconds) {
+      const entry = store.get(key);
+      const current =
+        entry && (entry.expiresAt === null || Date.now() < entry.expiresAt) ? entry.value : null;
+      const next = current === null ? 1 : Number(current) + 1;
+      store.set(key, {
+        value: String(next),
+        expiresAt: current === null ? Date.now() + ttlSeconds * 1000 : entry!.expiresAt,
+      });
+      return next;
+    },
+    async compareAndDelete(key, expectedValue) {
+      if ((await client.get(key)) !== expectedValue) return false;
+      store.delete(key);
+      return true;
+    },
   };
 
   return {
-    name: "memory",
+    name: 'memory',
     getClient: () => client,
   };
 }

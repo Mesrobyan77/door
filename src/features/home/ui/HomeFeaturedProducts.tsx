@@ -1,6 +1,6 @@
-import { AppLink } from "@/components/ui/AppLink";
-import { ProductCard } from "@/features/products/ui/ProductCard";
-import type { Locale } from "@/lib/i18n/config";
+import { AppLink } from '@/components/ui/AppLink';
+import { ProductCard } from '@/features/products/ui/ProductCard';
+import type { Locale } from '@/lib/i18n/config';
 
 type FeaturedItem = {
   id: string;
@@ -11,6 +11,7 @@ type FeaturedItem = {
   compareAtFormatted?: string | null;
   discountPercent?: number | null;
   imageUrl: string | null;
+  illustrative?: boolean;
   inStock: boolean;
   inWishlist?: boolean;
 };
@@ -39,16 +40,17 @@ export function HomeFeaturedProducts({
   products,
 }: HomeFeaturedProductsProps) {
   return (
-    <section className="bg-gray-50 py-14">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 flex items-end justify-between gap-4">
-          <h2 className="text-3xl font-bold text-gray-900 md:text-4xl">
-            {title}
-          </h2>
+    <section id="showroom" className="home-showroom scroll-mt-24 py-16 sm:py-24">
+      <div className="design-container">
+        <div className="mb-8 flex items-end justify-between gap-4 sm:mb-12">
+          <div className="home-section-intro">
+            <p>Hdoors / Showroom</p>
+            <h2>{title}</h2>
+          </div>
           <AppLink
             href={viewAllHref}
             prefetchPolicy="intent"
-            className="text-sm font-semibold text-gray-700 underline-offset-2 hover:underline"
+            className="text-sm font-semibold text-gray-700 underline-offset-4 hover:underline"
           >
             {viewAllLabel}
           </AppLink>
@@ -57,8 +59,8 @@ export function HomeFeaturedProducts({
         {products.length === 0 ? (
           <p className="text-gray-600">{emptyLabel}</p>
         ) : (
-          <div className="grid grid-cols-2 gap-6 lg:grid-cols-3 xl:grid-cols-4">
-            {products.map((product, index) => (
+          <div className="home-featured-grid grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {products.slice(0, 4).map((product, index) => (
               <ProductCard
                 key={product.id}
                 href={product.href}
@@ -67,6 +69,7 @@ export function HomeFeaturedProducts({
                 compareAtFormatted={product.compareAtFormatted}
                 discountPercent={product.discountPercent}
                 imageUrl={product.imageUrl}
+                illustrative={product.illustrative}
                 inStock={product.inStock}
                 priority={index < 4}
                 locale={locale}

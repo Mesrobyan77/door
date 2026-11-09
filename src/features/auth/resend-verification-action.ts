@@ -10,6 +10,11 @@ import { resendEmailVerification } from '@/lib/auth/email-verification-delivery'
 import { getCurrentUser } from '@/lib/auth/session';
 import { defaultLocale, isLocale, type Locale } from '@/lib/i18n/config';
 import { logger } from '@/lib/observability/logger';
+import {
+  AUTH_RATE_LIMIT_POLICIES,
+  enforceAuthRateLimit,
+  getTrustedRequestOrigin,
+} from '@/lib/auth/auth-rate-limit';
 
 export type ResendVerificationActionState = {
   error?: string;
@@ -43,6 +48,14 @@ export async function resendVerificationAction(
   const redis = providers.redis.getClient();
 
   try {
+    const originLimit = await enforceAuthRateLimit(
+      redis,
+      'verification-origin',
+      await getTrustedRequestOrigin(),
+      AUTH_RATE_LIMIT_POLICIES.verificationOrigin,
+    );
+    if (originLimit === 'limited') return { error: 'RATE_LIMITED' };
+    if (originLimit === 'unavailable') return { error: 'UNAVAILABLE' };
     const result = await resendEmailVerification({
       redis,
       email: providers.email,

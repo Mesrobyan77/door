@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useTransition } from "react";
-import { X } from "lucide-react";
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useTransition } from 'react';
+import { X } from 'lucide-react';
 
-import type { CheckoutOrderProduct } from "@/features/checkout/ui/checkout-order-product";
-import { removeItem } from "@/features/cart/cart";
-import { useSyncedState } from "@/lib/react/sync-state-from-prop";
+import type { CheckoutOrderProduct } from '@/features/checkout/ui/checkout-order-product';
+import { removeItem } from '@/features/cart/cart';
+import { useSyncedState } from '@/lib/react/sync-state-from-prop';
 
 type CheckoutProductsInOrderProps = {
   products: CheckoutOrderProduct[];
@@ -18,15 +18,11 @@ type CheckoutProductsInOrderProps = {
   onCartChanged?: () => void;
 };
 
-function formatItemCount(
-  count: number,
-  itemsOneLabel: string,
-  itemsManyLabel: string,
-): string {
+function formatItemCount(count: number, itemsOneLabel: string, itemsManyLabel: string): string {
   if (count === 1) {
     return itemsOneLabel;
   }
-  return itemsManyLabel.replace("{count}", String(count));
+  return itemsManyLabel.replace('{count}', String(count));
 }
 
 export function CheckoutProductsInOrder({
@@ -49,10 +45,7 @@ export function CheckoutProductsInOrder({
     function onWheel(event: WheelEvent): void {
       if (!element) return;
       if (element.scrollWidth <= element.clientWidth) return;
-      const delta =
-        Math.abs(event.deltaX) > Math.abs(event.deltaY)
-          ? event.deltaX
-          : event.deltaY;
+      const delta = Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY;
       if (delta === 0) return;
       const next = Math.min(
         element.scrollWidth - element.clientWidth,
@@ -64,9 +57,9 @@ export function CheckoutProductsInOrder({
       }
     }
 
-    element.addEventListener("wheel", onWheel, { passive: false });
+    element.addEventListener('wheel', onWheel, { passive: false });
     return () => {
-      element.removeEventListener("wheel", onWheel);
+      element.removeEventListener('wheel', onWheel);
     };
   }, [products.length]);
 
@@ -88,7 +81,7 @@ export function CheckoutProductsInOrder({
 
   return (
     <section
-      className="mb-6 rounded-[15px] border border-gray-200 bg-white px-5 py-4 sm:px-6 sm:py-5"
+      className="mb-6 rounded-md border border-border bg-white px-5 py-4 sm:px-6 sm:py-5"
       aria-labelledby="checkout-order-items-preview-title"
     >
       <div className="flex items-start justify-between gap-4">
@@ -110,7 +103,7 @@ export function CheckoutProductsInOrder({
         {products.map((product) => (
           <li
             key={product.id}
-            className="w-max max-w-[320px] min-w-[200px] shrink-0 rounded-[20px] border border-gray-200 bg-white p-3 shadow-sm"
+            className="w-max max-w-[320px] min-w-[200px] shrink-0 rounded-md border border-border bg-white p-3"
           >
             <div className="flex items-stretch gap-3">
               <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-gray-50">
@@ -136,9 +129,7 @@ export function CheckoutProductsInOrder({
                   >
                     {product.title}
                   </p>
-                  <p className="line-clamp-3 text-xs text-gray-500">
-                    {product.configuration}
-                  </p>
+                  <p className="line-clamp-3 text-xs text-gray-500">{product.configuration}</p>
                   <button
                     type="button"
                     onClick={() => onRemove(product.id)}

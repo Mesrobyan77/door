@@ -33,3 +33,6 @@ public/uploads/
 # *.swo
 #docs/reference/payment integration/Example only
 .neon
+
+.vercel
+.env*

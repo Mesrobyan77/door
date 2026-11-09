@@ -1,7 +1,24 @@
 # White Shop — progress
 
 **Overall status.** The existing Phase 0–11 baseline remains; the approved door-variant slice is implemented and migrated on the confirmed test database. Whole-project/release readiness is not certified, and production deployment/migrations have not been performed.
-**Last update.** 2026-11-06
+**Last update.** 2026-11-09
+
+## Hdoors reference redesign — 2026-11-09
+
+- Implemented the approved warm architectural reference in the existing application: dark information bar, settings-aware logo/header/footer, working header search, DB-driven hero, three populated collections, five featured cards, split CMS story/benefits, and responsive brand strip. The owner's follow-up increases hero heights to 560px desktop / 620px wide, collections to 220px, story to 280px minimum, and homepage product imagery to square frames.
+- Applied warm shared tokens, Noto Latin/Cyrillic/Armenian fonts, compact cards/forms/dialogs, auth panels, catalog/PDP/wishlist/cart/checkout surfaces, profile sidebar, compact admin branding, localized legal drafts, and error/404 states. Product purchase actions now precede technical information; dimensions, handing, and package contents have separate groups. Illustrative images retain disclosure and attribution.
+- Generated the separately requested transparent Hdoors logo concept, saved it under `public/assets/branding/`, and preserved configured official-logo priority through `store.branding.logoObjectKey`. No catalog photography was generated.
+- Diagnosed the previously reported old catalog through the actual server runtime. It matched `.env.local` and the `ep-ancient-poetry-bdwveofc…` development branch; direct SQL returned 30 products / 29 ACTIVE / 1 DRAFT, but an English Next cache entry returned 39 cards. Product/hero cache keys now include a credential-free database scope; the new regression test covers branch isolation. No reset, import, branch switch, schema change, or deployment was performed.
+- Validation: typecheck, lint, 46 unit-test files / 143 tests, optimized production build, and 58 headless-Chrome route/viewport checks passed. Browser checks cover 320/375/390/768/1440/1920px, HY/EN/RU public routes, 29 visible catalog cards in each locale, hidden Event 1 draft, search, glazed filter, gallery selection, guest cart, dialog focus/Escape, COD/contact fields, guest wishlist redirect, and native form validation. No order, external payment, or notification was submitted. Temporary browser cart lines were removed through the normal UI.
+- Local C: exhaustion interrupted an initial build and left four zero-byte image-cache files. Only verified generated compiler/image caches were cleared; the subsequent build and browser pass succeeded. The temporary verification server on port 3100 was stopped; the development application remains on port 3000.
+- Authenticated admin/customer screenshots and real provider/recovery delivery were not exercised without credentials. Existing legal, demo-data, exact-photography, and payment launch limitations remain. See [HDOORS-REDESIGN.md](./HDOORS-REDESIGN.md) for the route checklist and [browser report](../artifacts/hdoors-redesign/report.json) for actual checks.
+
+## Hdoors architectural entrance and catalog layout - 2026-11-09
+
+- Replaced the homepage carousel and CSS door mockup with the supplied reversible native-scroll architectural video, seek-optimized web derivative, static poster/final frames, reduced-motion treatment, and load-failure fallback.
+- Reordered the homepage into showroom, collection stories, brand/about, factual benefits, brands, and footer.
+- Consolidated storefront controls into one header and moved the catalog filters into a desktop sidebar/mobile drawer while preserving query semantics.
+- No database reset/import, schema change, payment, authentication, deployment, commit, or push was performed.
 
 ## Milestones
 
@@ -108,3 +125,20 @@
 - Purpose and user binding are validated before atomic `GETDEL`. The verified database state is persisted before destructive token consumption so a transient database failure cannot strand the account.
 - Existing-account login restrictions remain unchanged pending the unresolved legacy-account policy; this slice does not lock existing accounts out.
 - Verification: `pnpm typecheck`, `pnpm lint`, `pnpm test` (134 tests), the isolated real-Upstash concurrency integration test (1 test), and `pnpm build` passed. No real email was sent, and no production deployment or migration was performed.
+
+### Password recovery and authentication rate limiting — 2026-11-09
+
+- Forgot/reset now uses localized Armenian, English, and Russian UI/email copy, generic account-enumeration-safe recovery responses, trusted application URLs, purpose-bound one-hour tokens, and server-side password policy validation.
+- Reset tokens use an atomic Redis claim lease. PostgreSQL row locking plus a password-version snapshot prevents concurrent/stale reuse; password update and deletion of all sessions are transactional. Redis cleanup remains a separate best-effort step, with the cross-system limitation documented in the security contract.
+- Atomic hashed Redis limits now cover login, registration, forgot/reset, and verification resend origin/account scopes. Initial thresholds and fail-open/fail-closed behavior are documented and require production tuning.
+- Verification on this change: unit suite, typecheck, lint, production build, changed-file formatting, and diff checks. Destructive action-level integration tests were not run against the shared configured services; real Resend delivery remains external.
+
+### Hdoors development catalog publication — 2026-11-09
+
+- Published 19 of the 20 source-tracked Hdoors import records in the confirmed development database. ProfilDoors 5FN remains DRAFT because its official page heading and characteristics disagree on the model.
+- Applied 12 observed AMD prices and 36 synthetic development stock units through 12 auditable `IMPORT` movements; seven published products remain inquiry-only. The 18 unrelated pre-existing products were preserved.
+- No exact-model image was reused because permission could not be confirmed on the reviewed product pages. Nineteen explicitly illustrative Pexels photos were API-validated, uploaded to Cloudinary, attached as primary product media, and given Armenian, English, and Russian alt text. Per-photo attribution is recorded in the import manifest.
+- Added the typed `store.catalogDemo` disclosure with a visible Pexels link. Product cards now preserve image proportions with `object-contain`.
+- Idempotency rerun imported zero images and created zero additional stock movements. Database verification found 19 ACTIVE / 1 DRAFT, 19 ready primary images, no duplicate SKU/slug groups, and all 18 unrelated products intact.
+- Verification: lint, typecheck, 45 unit-test files / 142 tests, 2 integration files / 7 tests, production build, DB invariant script, and local HY/EN/RU storefront smoke passed. The smoke covers all 19 product links, hidden draft content, category filters, Cloudinary delivery, localized illustrative alt text, disclosure, and responsive grid markup. Integration checks cover cart rejection, discounted COD totals/snapshots/stock, idempotency, oversell protection, Redis token concurrency, and media persistence. No browser automation runtime was available for an interactive click-through; payment settings were not changed.
+- The non-destructive integration harness created two timestamped `VERIFY-DOOR-*` product fixture sets across the initial failed harness run and the successful rerun; it did not alter the 18 records that predated this catalog task. The first run exposed an incomplete test cookie-store mock, which was fixed by adding the production-used `set()` method before the successful rerun.

@@ -26,6 +26,22 @@ export function createUpstashRedisAdapter(input: { url: string; token: string })
     },
     del: async (key) => redis.del(key),
     getdel: async (key) => redis.getdel<string>(key),
+    incrementWithExpiry: async (key, ttlSeconds) =>
+      Number(
+        await redis.eval(
+          "local n=redis.call('INCR',KEYS[1]); if n==1 then redis.call('EXPIRE',KEYS[1],ARGV[1]) end; return n",
+          [key],
+          [ttlSeconds],
+        ),
+      ),
+    compareAndDelete: async (key, expectedValue) =>
+      Number(
+        await redis.eval(
+          "if redis.call('GET',KEYS[1])==ARGV[1] then return redis.call('DEL',KEYS[1]) else return 0 end",
+          [key],
+          [expectedValue],
+        ),
+      ) === 1,
   };
   return { name: 'upstash', getClient: () => client };
 }

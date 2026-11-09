@@ -61,10 +61,13 @@ export function ProductVariantExperience({
           title={product.translation.title}
           discountPercent={selectedVariant?.discountPercent ?? null}
           inStock={selectedVariant?.purchasable ?? variants.some((variant) => variant.purchasable)}
-          outOfStockLabel={labels.outOfStock}
+          outOfStockLabel={
+            selectedVariant?.status === 'INQUIRY' ? variantCopy.inquiry : labels.outOfStock
+          }
+          locale={locale}
         />
       </div>
-      <div className="flex flex-col gap-6 lg:min-h-full">
+      <div className="flex flex-col gap-5 rounded-lg border border-border bg-white p-5 sm:p-7 lg:min-h-full">
         {children}
         <ProductPurchaseControls
           locale={locale}

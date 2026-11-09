@@ -8,7 +8,10 @@ const requestContext = vi.hoisted(() => ({ token: 'uninitialized' }));
 vi.mock('server-only', () => ({}));
 vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }));
 vi.mock('next/headers', () => ({
-  cookies: vi.fn(async () => ({ get: vi.fn(() => undefined) })),
+  cookies: vi.fn(async () => ({
+    get: vi.fn(() => undefined),
+    set: vi.fn(),
+  })),
 }));
 vi.mock('@/lib/auth/session', () => ({ getCurrentUser: vi.fn(async () => null) }));
 vi.mock('@/features/cart/guest-token', () => ({

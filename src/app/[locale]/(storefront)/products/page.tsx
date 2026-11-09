@@ -6,7 +6,8 @@ import {
   type CatalogSearchParams,
 } from '@/features/products/domain/catalog-filters';
 import { getActiveCatalogCategories, getActiveProductsPage } from '@/features/products/queries';
-import { CatalogFilterForm, getCatalogHref } from '@/features/products/ui/CatalogFilterForm';
+import { CatalogFilterForm, CatalogSortControl } from '@/features/products/ui/CatalogFilterForm';
+import { getCatalogHref } from '@/features/products/ui/catalog-href';
 import { ProductCard } from '@/features/products/ui/ProductCard';
 import { getWishlistProductIds } from '@/features/wishlist/queries';
 import { getCurrentUser } from '@/lib/auth/session';
@@ -76,88 +77,100 @@ export default async function ProductsPage({ params, searchParams }: ProductsPag
   });
 
   return (
-    <section className="flex flex-col gap-8">
-      <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
-        {dictionary.nav.products}
-      </h1>
-      <CatalogFilterForm
-        locale={rawLocale}
-        filters={filters}
-        categories={categories}
-        currency={currency}
-        copy={dictionary.catalog}
-      />
-      {priced.length > 0 ? (
-        <div className="grid grid-cols-2 gap-6 lg:grid-cols-3 xl:grid-cols-4">
-          {priced.map(({ product, priceFormatted, compareAtFormatted }, index) => (
-            <ProductCard
-              key={product.id}
-              href={`/${rawLocale}/products/${product.translation.slug}`}
-              title={product.translation.title}
-              priceFormatted={priceFormatted}
-              compareAtFormatted={compareAtFormatted}
-              discountPercent={product.discountPercent}
-              imageUrl={product.imageUrl}
-              inStock={product.stockOnHand > 0}
-              priority={index < 4}
-              locale={rawLocale}
-              productId={product.id}
-              variantId={
-                product.variants.filter((variant) => variant.purchasable).length === 1
-                  ? product.variants.find((variant) => variant.purchasable)?.id
-                  : undefined
-              }
-              inWishlist={wishlistIds.has(product.id)}
-              isSignedIn={Boolean(user)}
-              wishlistLabel={dictionary.nav.wishlist}
-              addToCartLabel={dictionary.product.addToCart}
-            />
-          ))}
-        </div>
-      ) : (
-        <p className="rounded-lg border border-gray-200 p-6 text-sm text-gray-600">
-          {dictionary.catalog.noResults}
-        </p>
-      )}
+    <section className="catalog-page">
+      <div className="catalog-page-heading">
+        <p>Hdoors / Catalog</p>
+        <h1>{dictionary.nav.products}</h1>
+      </div>
+      <div className="catalog-layout">
+        <CatalogFilterForm
+          locale={rawLocale}
+          filters={filters}
+          categories={categories}
+          currency={currency}
+          copy={dictionary.catalog}
+        />
+        <div className="min-w-0">
+          <div className="catalog-toolbar">
+            <p>
+              <strong>{catalog.total}</strong> {dictionary.nav.products}
+            </p>
+            <CatalogSortControl locale={rawLocale} filters={filters} copy={dictionary.catalog} />
+          </div>
+          {priced.length > 0 ? (
+            <div className="catalog-product-grid grid grid-cols-2 gap-4 xl:grid-cols-3">
+              {priced.map(({ product, priceFormatted, compareAtFormatted }, index) => (
+                <ProductCard
+                  key={product.id}
+                  href={`/${rawLocale}/products/${product.translation.slug}`}
+                  title={product.translation.title}
+                  priceFormatted={priceFormatted}
+                  compareAtFormatted={compareAtFormatted}
+                  discountPercent={product.discountPercent}
+                  imageUrl={product.imageUrl}
+                  illustrative={product.imageIsIllustrative}
+                  inStock={product.stockOnHand > 0}
+                  priority={index < 4}
+                  locale={rawLocale}
+                  productId={product.id}
+                  variantId={
+                    product.variants.length === 1 && product.variants[0]?.purchasable
+                      ? product.variants.find((variant) => variant.purchasable)?.id
+                      : undefined
+                  }
+                  inWishlist={wishlistIds.has(product.id)}
+                  isSignedIn={Boolean(user)}
+                  wishlistLabel={dictionary.nav.wishlist}
+                  addToCartLabel={dictionary.product.addToCart}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="rounded-lg border border-gray-200 p-6 text-sm text-gray-600">
+              {dictionary.catalog.noResults}
+            </p>
+          )}
 
-      {totalPages > 1 ? (
-        <nav
-          aria-label={dictionary.catalog.paginationLabel}
-          className="flex items-center justify-center gap-4"
-        >
-          {page > 1 ? (
-            <AppLink
-              href={getCatalogHref(rawLocale, filters, { page: page - 1 })}
-              prefetchPolicy="intent"
-              className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          {totalPages > 1 ? (
+            <nav
+              aria-label={dictionary.catalog.paginationLabel}
+              className="flex items-center justify-center gap-4"
             >
-              {dictionary.catalog.previousPage}
-            </AppLink>
-          ) : (
-            <span className="rounded-lg border border-transparent px-4 py-2 text-sm text-gray-300">
-              {dictionary.catalog.previousPage}
-            </span>
-          )}
-          <span className="text-sm text-gray-600">
-            {dictionary.catalog.pageStatus
-              .replace('{page}', String(page))
-              .replace('{total}', String(totalPages))}
-          </span>
-          {page < totalPages ? (
-            <AppLink
-              href={getCatalogHref(rawLocale, filters, { page: page + 1 })}
-              prefetchPolicy="intent"
-              className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              {dictionary.catalog.nextPage}
-            </AppLink>
-          ) : (
-            <span className="rounded-lg border border-transparent px-4 py-2 text-sm text-gray-300">
-              {dictionary.catalog.nextPage}
-            </span>
-          )}
-        </nav>
-      ) : null}
+              {page > 1 ? (
+                <AppLink
+                  href={getCatalogHref(rawLocale, filters, { page: page - 1 })}
+                  prefetchPolicy="intent"
+                  className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  {dictionary.catalog.previousPage}
+                </AppLink>
+              ) : (
+                <span className="rounded-lg border border-transparent px-4 py-2 text-sm text-gray-300">
+                  {dictionary.catalog.previousPage}
+                </span>
+              )}
+              <span className="text-sm text-gray-600">
+                {dictionary.catalog.pageStatus
+                  .replace('{page}', String(page))
+                  .replace('{total}', String(totalPages))}
+              </span>
+              {page < totalPages ? (
+                <AppLink
+                  href={getCatalogHref(rawLocale, filters, { page: page + 1 })}
+                  prefetchPolicy="intent"
+                  className="rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                >
+                  {dictionary.catalog.nextPage}
+                </AppLink>
+              ) : (
+                <span className="rounded-lg border border-transparent px-4 py-2 text-sm text-gray-300">
+                  {dictionary.catalog.nextPage}
+                </span>
+              )}
+            </nav>
+          ) : null}
+        </div>
+      </div>
     </section>
   );
 }

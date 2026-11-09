@@ -1,23 +1,21 @@
-"use client";
+'use client';
 
-import { SelectDropdown } from "@/components/ui/SelectDropdown";
-import type { CheckoutPaymentMethod } from "@/features/checkout/domain/payment-methods";
-import { CheckoutPaymentMethods } from "@/features/checkout/ui/CheckoutPaymentMethods";
-import type { CashChangeValue } from "@/features/checkout/ui/checkout-payment-assets";
-import type { CheckoutDeliveryOption } from "@/features/delivery/application/queries";
+import { SelectDropdown } from '@/components/ui/SelectDropdown';
+import type { CheckoutPaymentMethod } from '@/features/checkout/domain/payment-methods';
+import { CheckoutPaymentMethods } from '@/features/checkout/ui/CheckoutPaymentMethods';
+import type { CashChangeValue } from '@/features/checkout/ui/checkout-payment-assets';
+import type { CheckoutDeliveryOption } from '@/features/delivery/application/queries';
 
 const FIELD_CLASS =
-  "h-11 w-full rounded-2xl border border-gray-200 px-4 text-gray-900 shadow-sm outline-none transition-colors hover:border-gray-300 focus:border-gray-300 disabled:bg-gray-50";
+  'h-11 w-full rounded-2xl border border-gray-200 px-4 text-gray-900 shadow-sm outline-none transition-colors hover:border-gray-300 focus:border-gray-300 disabled:bg-gray-50';
 
 const SECTION_CLASS =
-  "rounded-3xl bg-white px-5 py-6 shadow-sm ring-1 ring-gray-200/80 sm:px-6 sm:py-7";
-const SECTION_TITLE_CLASS =
-  "mb-6 text-lg font-bold tracking-tight text-gray-900";
+  'rounded-3xl bg-white px-5 py-6 shadow-sm ring-1 ring-gray-200/80 sm:px-6 sm:py-7';
+const SECTION_TITLE_CLASS = 'mb-6 text-lg font-bold tracking-tight text-gray-900';
 
-const RADIO_BASE =
-  "flex cursor-pointer items-center rounded-[15px] border-2 p-4 transition-all";
-const RADIO_SELECTED = "border-gray-900 bg-gray-50";
-const RADIO_IDLE = "border-gray-200 hover:bg-gray-50/80";
+const RADIO_BASE = 'flex cursor-pointer items-center rounded-md border-2 p-4 transition-all';
+const RADIO_SELECTED = 'border-gray-900 bg-gray-50';
+const RADIO_IDLE = 'border-gray-200 hover:bg-gray-50/80';
 
 type CheckoutDetailsLabels = {
   contactInformation: string;
@@ -56,8 +54,8 @@ type CheckoutDetailsSectionsProps = {
     cashChangeCourier: string;
   };
   pending: boolean;
-  shippingMethod: "pickup" | "delivery";
-  onShippingMethodChange: (method: "pickup" | "delivery") => void;
+  shippingMethod: 'pickup' | 'delivery';
+  onShippingMethodChange: (method: 'pickup' | 'delivery') => void;
   deliveryOptions: CheckoutDeliveryOption[];
   deliveryRuleId: string;
   onDeliveryRuleChange: (ruleId: string) => void;
@@ -191,45 +189,39 @@ export function CheckoutDetailsSections({
         <h2 className={SECTION_TITLE_CLASS}>{labels.shippingMethod}</h2>
         <div className="space-y-3">
           <label
-            className={`${RADIO_BASE} ${
-              shippingMethod === "pickup" ? RADIO_SELECTED : RADIO_IDLE
-            }`}
+            className={`${RADIO_BASE} ${shippingMethod === 'pickup' ? RADIO_SELECTED : RADIO_IDLE}`}
           >
             <ShippingRadio
               value="pickup"
-              checked={shippingMethod === "pickup"}
+              checked={shippingMethod === 'pickup'}
               disabled={pending}
-              onChange={() => onShippingMethodChange("pickup")}
+              onChange={() => onShippingMethodChange('pickup')}
             />
             <div className="flex-1">
               <div className="font-medium text-gray-900">{labels.storePickup}</div>
-              <div className="text-sm text-gray-600">
-                {labels.storePickupDescription}
-              </div>
+              <div className="text-sm text-gray-600">{labels.storePickupDescription}</div>
             </div>
           </label>
           <label
             className={`${RADIO_BASE} ${
-              shippingMethod === "delivery" ? RADIO_SELECTED : RADIO_IDLE
+              shippingMethod === 'delivery' ? RADIO_SELECTED : RADIO_IDLE
             }`}
           >
             <ShippingRadio
               value="delivery"
-              checked={shippingMethod === "delivery"}
+              checked={shippingMethod === 'delivery'}
               disabled={pending || deliveryOptions.length === 0}
-              onChange={() => onShippingMethodChange("delivery")}
+              onChange={() => onShippingMethodChange('delivery')}
             />
             <div className="flex-1">
               <div className="font-medium text-gray-900">{labels.delivery}</div>
-              <div className="text-sm text-gray-600">
-                {labels.deliveryDescription}
-              </div>
+              <div className="text-sm text-gray-600">{labels.deliveryDescription}</div>
             </div>
           </label>
         </div>
       </section>
 
-      {shippingMethod === "delivery" ? (
+      {shippingMethod === 'delivery' ? (
         <section className={SECTION_CLASS}>
           <h2 className={SECTION_TITLE_CLASS}>{labels.shippingAddress}</h2>
           <div className="flex flex-col gap-4 md:flex-row md:items-end">

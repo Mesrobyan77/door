@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
+import { Button } from '@/components/ui/Button';
+import { Card } from '@/components/ui/Card';
 
 type CheckoutOrderSummaryProps = {
   title: string;
@@ -58,10 +58,8 @@ export function CheckoutOrderSummary({
 }: CheckoutOrderSummaryProps) {
   return (
     <div className="lg:col-span-2">
-      <Card className="sticky top-4 rounded-3xl border-0 p-6 shadow-sm ring-1 ring-gray-200/80 sm:p-7">
-        <h2 className="mb-6 text-lg font-bold tracking-tight text-gray-900">
-          {title}
-        </h2>
+      <Card className="sticky top-32 border-t-2 border-t-accent p-5 sm:p-6">
+        <h2 className="mb-6 text-lg font-bold tracking-tight text-gray-900">{title}</h2>
 
         <div className="mb-6 rounded-xl border border-gray-200 p-4">
           <p className="mb-3 text-sm text-gray-700">{couponTitle}</p>
@@ -72,7 +70,7 @@ export function CheckoutOrderSummary({
               value={couponDraft}
               onChange={(event) => onCouponDraftChange(event.target.value)}
               onKeyDown={(event) => {
-                if (event.key === "Enter") {
+                if (event.key === 'Enter') {
                   event.preventDefault();
                   onApplyCoupon();
                 }
