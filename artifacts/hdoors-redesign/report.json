@@ -1,5 +1,5 @@
 {
-  "baseUrl": "http://localhost:3000",
+  "baseUrl": "http://localhost:3001",
   "checks": [
     {
       "route": "/hy",
@@ -20,7 +20,7 @@
       "width": 768,
       "scroll": 761,
       "hero": true,
-      "videoReady": 1,
+      "videoReady": 4,
       "videoPaused": true,
       "collections": 3,
       "cards": 4,
@@ -74,7 +74,7 @@
       "viewport": 1440,
       "title": "Բարի վերադարձ",
       "width": 1440,
-      "scroll": 1440,
+      "scroll": 1425,
       "cards": 0
     },
     {
@@ -90,7 +90,7 @@
       "viewport": 1440,
       "title": "Գաղտնաբառի վերականգնում",
       "width": 1440,
-      "scroll": 1440,
+      "scroll": 1425,
       "cards": 0
     },
     {
@@ -154,7 +154,7 @@
       "viewport": 1440,
       "title": "Գաղտնիության քաղաքականություն",
       "width": 1440,
-      "scroll": 1440,
+      "scroll": 1425,
       "cards": 0
     },
     {
@@ -162,7 +162,7 @@
       "viewport": 1440,
       "title": "Պայմաններ",
       "width": 1440,
-      "scroll": 1440,
+      "scroll": 1425,
       "cards": 0
     },
     {
@@ -186,7 +186,7 @@
       "viewport": 1440,
       "title": "Welcome Back",
       "width": 1440,
-      "scroll": 1440,
+      "scroll": 1425,
       "cards": 0
     },
     {
@@ -202,7 +202,7 @@
       "viewport": 1440,
       "title": "Forgot password",
       "width": 1440,
-      "scroll": 1440,
+      "scroll": 1425,
       "cards": 0
     },
     {
@@ -266,7 +266,7 @@
       "viewport": 1440,
       "title": "Privacy Policy",
       "width": 1440,
-      "scroll": 1440,
+      "scroll": 1425,
       "cards": 0
     },
     {
@@ -274,7 +274,7 @@
       "viewport": 1440,
       "title": "Terms",
       "width": 1440,
-      "scroll": 1440,
+      "scroll": 1425,
       "cards": 0
     },
     {
@@ -298,7 +298,7 @@
       "viewport": 1440,
       "title": "С возвращением",
       "width": 1440,
-      "scroll": 1440,
+      "scroll": 1425,
       "cards": 0
     },
     {
@@ -314,7 +314,7 @@
       "viewport": 1440,
       "title": "Восстановление пароля",
       "width": 1440,
-      "scroll": 1440,
+      "scroll": 1425,
       "cards": 0
     },
     {
@@ -378,7 +378,7 @@
       "viewport": 1440,
       "title": "Политика конфиденциальности",
       "width": 1440,
-      "scroll": 1440,
+      "scroll": 1425,
       "cards": 0
     },
     {
@@ -386,7 +386,7 @@
       "viewport": 1440,
       "title": "Условия",
       "width": 1440,
-      "scroll": 1440,
+      "scroll": 1425,
       "cards": 0
     },
     {
@@ -420,6 +420,24 @@
       "scroll": 390
     },
     {
+      "route": "/hy/about",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/legal/privacy",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/legal/terms",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
       "route": "/hy/products?pageSize=48",
       "viewport": 768,
       "width": 768,
@@ -435,7 +453,7 @@
       "route": "/hy/login",
       "viewport": 768,
       "width": 768,
-      "scroll": 768
+      "scroll": 753
     },
     {
       "route": "/hy/checkout",
@@ -445,6 +463,24 @@
     },
     {
       "route": "/hy/contact",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 753
+    },
+    {
+      "route": "/hy/about",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 753
+    },
+    {
+      "route": "/hy/legal/privacy",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 753
+    },
+    {
+      "route": "/hy/legal/terms",
       "viewport": 768,
       "width": 768,
       "scroll": 753

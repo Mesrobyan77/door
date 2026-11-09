@@ -1,0 +1,126 @@
+{
+  "baseUrl": "http://localhost:3000",
+  "checks": [
+    {
+      "route": "/hy/products?pageSize=48",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/products/vdk-eco-deluxe-312-spitak-bianko",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/login",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/checkout",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/contact",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/about",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/legal/privacy",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/legal/terms",
+      "viewport": 390,
+      "width": 390,
+      "scroll": 390
+    },
+    {
+      "route": "/hy/products?pageSize=48",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 753
+    },
+    {
+      "route": "/hy/products/vdk-eco-deluxe-312-spitak-bianko",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 753
+    },
+    {
+      "route": "/hy/login",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 753
+    },
+    {
+      "route": "/hy/checkout",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 768
+    },
+    {
+      "route": "/hy/contact",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 753
+    },
+    {
+      "route": "/hy/about",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 753
+    },
+    {
+      "route": "/hy/legal/privacy",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 753
+    },
+    {
+      "route": "/hy/legal/terms",
+      "viewport": 768,
+      "width": 768,
+      "scroll": 753
+    }
+  ],
+  "consoleErrors": [],
+  "heroSlides": [],
+  "homeLocaleChecks": [],
+  "mobileFilterDrawer": {
+    "open": true,
+    "focused": true,
+    "width": 339
+  },
+  "sortAndBackNavigation": true,
+  "searchVerified": true,
+  "glazedFilterCards": 6,
+  "gallerySelection": true,
+  "addToCart": true,
+  "cartDialog": {
+    "focusedInside": true
+  },
+  "checkoutForm": {
+    "contact": true,
+    "cod": true,
+    "noSubmit": true
+  },
+  "testCartLineRemoved": true,
+  "wishlistGuestRedirect": true,
+  "authNativeValidation": true,
+  "draftHidden": true
+}
