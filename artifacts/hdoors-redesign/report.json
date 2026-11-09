@@ -1,5 +1,5 @@
 {
-  "baseUrl": "http://localhost:3100",
+  "baseUrl": "http://localhost:3000",
   "checks": [
     {
       "route": "/hy",
@@ -20,7 +20,7 @@
       "width": 768,
       "scroll": 761,
       "hero": true,
-      "videoReady": 4,
+      "videoReady": 1,
       "videoPaused": true,
       "collections": 3,
       "cards": 4,

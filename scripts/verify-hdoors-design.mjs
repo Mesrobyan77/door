@@ -174,8 +174,7 @@ try {
         await new Promise((resolve) => setTimeout(resolve, 300));
         await evaluate('location.reload();true');
         await until("document.querySelector('.entrance-video')?.readyState >= 2");
-        await until('scrollY > 100');
-        await new Promise((resolve) => setTimeout(resolve, 250));
+        await new Promise((resolve) => setTimeout(resolve, 800));
         report.reloadWhileScrolled = await evaluate(
           "(()=>{const video=document.querySelector('.entrance-video');return {scrollY,progress:Number(getComputedStyle(document.querySelector('.entrance-sequence')).getPropertyValue('--entrance-progress')),currentTime:Number(video.currentTime.toFixed(3))}})()",
         );
@@ -262,6 +261,31 @@ try {
         if (state.scroll > state.width + 1) throw new Error(`Overflow ${route}.`);
         if (route.includes('pageSize=48') && state.cards !== 29)
           throw new Error(`${locale}: expected 29 catalog cards, got ${state.cards}.`);
+        if (locale === 'hy' && route.includes('pageSize=48')) {
+          await evaluate(
+            "(()=>{const button=[...document.querySelectorAll('button[aria-label=\"AMD / HY\"]')].find((element)=>element.offsetParent);if(button.getAttribute('aria-expanded')!=='true')button.click();return true})()",
+          );
+          await until(
+            "[...document.querySelectorAll('button[aria-label=\"AMD / HY\"]')].find((element)=>element.offsetParent).getAttribute('aria-expanded')==='true'",
+          );
+          await new Promise((resolve) => setTimeout(resolve, 320));
+          await screenshot('dropdown-header-hy-1440');
+          await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape' });
+          await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape' });
+          await until(
+            "![...document.querySelectorAll('button[aria-label=\"AMD / HY\"]')].find((element)=>element.offsetParent).getAttribute('aria-expanded').includes('true')",
+          );
+          await evaluate(
+            "document.querySelector('.catalog-filter-sidebar .catalog-select-control button').click();true",
+          );
+          await until(
+            "document.querySelector('.catalog-filter-sidebar .catalog-select-control button').getAttribute('aria-expanded')==='true'",
+          );
+          await new Promise((resolve) => setTimeout(resolve, 320));
+          await screenshot('dropdown-catalog-hy-1440');
+          await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape' });
+          await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape' });
+        }
         if (locale === 'hy' && /products|login|checkout/.test(route))
           await screenshot(`route-${locale}-${route.split('/').at(-1).split('?')[0]}`);
       }
@@ -291,6 +315,16 @@ try {
           "({open:!!document.querySelector('[role=dialog] .catalog-filter-fields'),focused:document.querySelector('[role=dialog]').contains(document.activeElement),width:Math.round(document.querySelector('[role=dialog] .catalog-filter-sheet').getBoundingClientRect().width)})",
         );
         await screenshot('mobile-products-filter');
+        await evaluate(
+          "document.querySelector('.catalog-filter-sheet .catalog-select-control button').click();true",
+        );
+        await until(
+          "document.querySelector('.catalog-filter-sheet .catalog-select-control button').getAttribute('aria-expanded')==='true'",
+        );
+        await new Promise((resolve) => setTimeout(resolve, 320));
+        await screenshot('mobile-products-filter-dropdown');
+        await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape' });
+        await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape' });
         await send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape' });
         await send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape' });
         await until("!document.querySelector('[role=dialog]')");

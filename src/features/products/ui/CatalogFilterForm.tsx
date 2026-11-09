@@ -3,6 +3,7 @@
 import { Filter, SlidersHorizontal, X } from 'lucide-react';
 import { useState } from 'react';
 import { AppLink } from '@/components/ui/AppLink';
+import { SelectDropdown, type SelectDropdownOption } from '@/components/ui/SelectDropdown';
 import { SideSheet } from '@/components/ui/SideSheet';
 import {
   formatDisplayPriceInput,
@@ -20,6 +21,37 @@ type Props = {
   currency: Currency;
   copy: Dictionary['catalog'];
 };
+
+function CatalogSelectField({
+  name,
+  ariaLabel,
+  defaultValue,
+  options,
+  allLabel,
+  className = 'catalog-select-control',
+}: {
+  name: string;
+  ariaLabel: string;
+  defaultValue: string;
+  options: ReadonlyArray<SelectDropdownOption>;
+  allLabel?: string;
+  className?: string;
+}) {
+  const [value, setValue] = useState(defaultValue);
+
+  return (
+    <SelectDropdown
+      name={name}
+      ariaLabel={ariaLabel}
+      value={value}
+      options={options}
+      allLabel={allLabel}
+      deferChange={false}
+      className={className}
+      onValueChange={setValue}
+    />
+  );
+}
 
 function getFilterChips(
   filters: CatalogFilters,
@@ -59,14 +91,17 @@ function FilterFields({ locale, filters, categories, currency, copy }: Props) {
       </details>
       <details open>
         <summary>{copy.category}</summary>
-        <select name="category" defaultValue={filters.category ?? ''}>
-          <option value="">{copy.allCategories}</option>
-          {categories.map((category) => (
-            <option key={category.slug} value={category.slug}>
-              {category.title}
-            </option>
-          ))}
-        </select>
+        <CatalogSelectField
+          key={`category-${filters.category ?? ''}`}
+          name="category"
+          ariaLabel={copy.category}
+          defaultValue={filters.category ?? ''}
+          allLabel={copy.allCategories}
+          options={categories.map((category) => ({
+            value: category.slug,
+            label: category.title,
+          }))}
+        />
       </details>
       <details open>
         <summary>
@@ -92,32 +127,37 @@ function FilterFields({ locale, filters, categories, currency, copy }: Props) {
             defaultValue={formatDisplayPriceInput(filters.maxPrice, currency)}
           />
         </div>
-        <select aria-label={copy.priceCurrency} name="priceCurrency" defaultValue={currency}>
-          {currencies.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
+        <CatalogSelectField
+          key={`priceCurrency-${currency}`}
+          name="priceCurrency"
+          ariaLabel={copy.priceCurrency}
+          defaultValue={currency}
+          options={currencies.map((option) => ({ value: option, label: option }))}
+        />
       </details>
       <details open>
         <summary>{copy.availability}</summary>
-        <select
+        <CatalogSelectField
+          key={`inStock-${filters.inStock == null ? '' : String(filters.inStock)}`}
           name="inStock"
           defaultValue={filters.inStock == null ? '' : String(filters.inStock)}
-        >
-          <option value="">{copy.anyAvailability}</option>
-          <option value="true">{copy.inStock}</option>
-          <option value="false">{copy.outOfStock}</option>
-        </select>
+          ariaLabel={copy.availability}
+          allLabel={copy.anyAvailability}
+          options={[
+            { value: 'true', label: copy.inStock },
+            { value: 'false', label: copy.outOfStock },
+          ]}
+        />
       </details>
       <details>
         <summary>{copy.pageSize}</summary>
-        <select name="pageSize" defaultValue={String(filters.pageSize)}>
-          <option value="12">12</option>
-          <option value="24">24</option>
-          <option value="48">48</option>
-        </select>
+        <CatalogSelectField
+          key={`pageSize-${filters.pageSize}`}
+          name="pageSize"
+          ariaLabel={copy.pageSize}
+          defaultValue={String(filters.pageSize)}
+          options={['12', '24', '48'].map((value) => ({ value, label: value }))}
+        />
       </details>
       {filters.sort !== 'newest' ? <input type="hidden" name="sort" value={filters.sort} /> : null}
       <div className="catalog-filter-actions">
@@ -222,12 +262,19 @@ export function CatalogSortControl({
       <input type="hidden" name="pageSize" value={String(filters.pageSize)} />
       <label>
         <span>{copy.sort}</span>
-        <select name="sort" defaultValue={filters.sort}>
-          <option value="newest">{copy.sortNewest}</option>
-          <option value="price_asc">{copy.sortPriceAscending}</option>
-          <option value="price_desc">{copy.sortPriceDescending}</option>
-          <option value="popular">{copy.sortPopular}</option>
-        </select>
+        <CatalogSelectField
+          key={`sort-${filters.sort}`}
+          name="sort"
+          ariaLabel={copy.sort}
+          defaultValue={filters.sort}
+          className="catalog-sort-dropdown"
+          options={[
+            { value: 'newest', label: copy.sortNewest },
+            { value: 'price_asc', label: copy.sortPriceAscending },
+            { value: 'price_desc', label: copy.sortPriceDescending },
+            { value: 'popular', label: copy.sortPopular },
+          ]}
+        />
       </label>
       <button type="submit">{copy.applyFilters}</button>
     </form>
