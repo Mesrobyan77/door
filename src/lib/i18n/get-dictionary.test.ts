@@ -8,7 +8,7 @@ describe('getDictionary', () => {
 
     expect(dictionary.brand).toBe('Hdoors');
     expect(dictionary.nav.home).toBe('Home');
-    expect(dictionary.home.title).toBe('Hdoors');
+    expect(dictionary.home.title).toBe('Quality That Shapes Comfort');
     expect(dictionary.contact.title).toBe('Contact');
     expect(dictionary.cartDrawer.title).toBe('Shopping Cart');
     expect(dictionary.checkout.title).toBe('Checkout');
